@@ -211,13 +211,47 @@ class _SignupScreenState extends State<SignupScreen>
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: () {
-                        authProvider.signup(
-                          name: nameController.text.trim(),
-                          email: emailController.text.trim(),
-                          phone: phoneController.text.trim(),
-                          password: passwordController.text.trim(),
+                      onPressed: () async {
+                        final name = nameController.text.trim();
+                        final email = emailController.text.trim();
+                        final phone = phoneController.text.trim();
+                        final password = passwordController.text.trim();
+
+                        if (name.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Please fill all fields"),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        final bool success = await authProvider.signup(
+                          name: name,
+                          email: email,
+                          phone: phone,
+                          password: password,
                         );
+
+                        if (!success) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Signup failed. Please try again."),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Account created successfully. Please login."),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+
+                        Navigator.pushReplacementNamed(context, '/login');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: darkGreen,

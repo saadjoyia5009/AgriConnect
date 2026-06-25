@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'signup_screen.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -243,7 +244,14 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                       const Spacer(),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ForgotPasswordScreen(),
+                            ),
+                          );
+                        },
                         child: const Text(
                           "Forgot Password?",
                           style: TextStyle(
@@ -261,11 +269,53 @@ class _LoginScreenState extends State<LoginScreen>
                     width: double.infinity,
                     height: 45,
                     child: ElevatedButton(
-                      onPressed: () {
-                        authProvider.login(
-                          email: emailController.text.trim(),
-                          password: passwordController.text.trim(),
+                      onPressed: () async {
+                        final email = emailController.text.trim();
+                        final password = passwordController.text.trim();
+
+                        if (email.isEmpty || password.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Please enter email and password first",
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        final bool success = await authProvider.login(
+                          email: email,
+                          password: password,
                         );
+
+                        if (!success) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Invalid email or password"),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        if (authProvider.selectedRole == "Farmer") {
+                          Navigator.pushReplacementNamed(
+                            context,
+                            '/farmerDashboard',
+                          );
+                        } else if (authProvider.selectedRole == "Buyer") {
+                          Navigator.pushReplacementNamed(
+                            context,
+                            '/buyerDashboard',
+                          );
+                        } else if (authProvider.selectedRole == "Admin") {
+                          Navigator.pushReplacementNamed(
+                            context,
+                            '/adminDashboard',
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: darkGreen,
@@ -329,7 +379,10 @@ class _LoginScreenState extends State<LoginScreen>
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {},
-                          icon: const Icon(Icons.store, color: Colors.blue),
+                          icon: const Icon(
+                            Icons.store,
+                            color: Colors.blue,
+                          ),
                           label: const Text("Market"),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.black87,
@@ -358,7 +411,7 @@ class _LoginScreenState extends State<LoginScreen>
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => SignupScreen(),
+                                builder: (context) => const SignupScreen(),
                               ),
                             );
                           },
