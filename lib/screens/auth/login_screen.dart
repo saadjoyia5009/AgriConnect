@@ -57,6 +57,25 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
+  void _navigateByRole(BuildContext context, String role) {
+    final userRole = role.toLowerCase();
+
+    if (userRole == "farmer") {
+      Navigator.pushReplacementNamed(context, '/farmerDashboard');
+    } else if (userRole == "buyer") {
+      Navigator.pushReplacementNamed(context, '/buyerDashboard');
+    } else if (userRole == "admin") {
+      Navigator.pushReplacementNamed(context, '/adminDashboard');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Unknown user role"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -244,11 +263,14 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                       const Spacer(),
                       TextButton(
-                        onPressed: () {
+                        onPressed: authProvider.isLoading
+                            ? null
+                            : () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ForgotPasswordScreen(),
+                              builder: (context) =>
+                              const ForgotPasswordScreen(),
                             ),
                           );
                         },
@@ -269,7 +291,9 @@ class _LoginScreenState extends State<LoginScreen>
                     width: double.infinity,
                     height: 45,
                     child: ElevatedButton(
-                      onPressed: () async {
+                      onPressed: authProvider.isLoading
+                          ? null
+                          : () async {
                         final email = emailController.text.trim();
                         final password = passwordController.text.trim();
 
@@ -290,32 +314,22 @@ class _LoginScreenState extends State<LoginScreen>
                           password: password,
                         );
 
+                        if (!context.mounted) return;
+
                         if (!success) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Invalid email or password"),
+                            SnackBar(
+                              content: Text(
+                                authProvider.errorMessage ??
+                                    "Invalid email or password",
+                              ),
                               backgroundColor: Colors.red,
                             ),
                           );
                           return;
                         }
 
-                        if (authProvider.selectedRole == "Farmer") {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            '/farmerDashboard',
-                          );
-                        } else if (authProvider.selectedRole == "Buyer") {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            '/buyerDashboard',
-                          );
-                        } else if (authProvider.selectedRole == "Admin") {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            '/adminDashboard',
-                          );
-                        }
+                        _navigateByRole(context, authProvider.role);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: darkGreen,
@@ -324,7 +338,16 @@ class _LoginScreenState extends State<LoginScreen>
                           borderRadius: BorderRadius.circular(9),
                         ),
                       ),
-                      child: const Row(
+                      child: authProvider.isLoading
+                          ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          color: Colors.white,
+                        ),
+                      )
+                          : const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
@@ -407,11 +430,14 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {
+                          onTap: authProvider.isLoading
+                              ? null
+                              : () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const SignupScreen(),
+                                builder: (context) =>
+                                const SignupScreen(),
                               ),
                             );
                           },

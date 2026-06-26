@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../services/auth_service.dart';
+
 class AuthProvider extends ChangeNotifier {
+  final AuthService _authService = AuthService();
+
   bool isPasswordHidden = true;
   bool rememberMe = false;
+  bool isLoading = false;
+  String? errorMessage;
 
   String selectedRole = "Farmer";
 
@@ -10,11 +16,13 @@ class AuthProvider extends ChangeNotifier {
   String _email = "";
   String _phone = "";
   String _password = "";
+  String _role = "";
 
   String get userName => _userName;
   String get email => _email;
   String get phone => _phone;
   String get password => _password;
+  String get role => _role;
 
   void togglePasswordVisibility() {
     isPasswordHidden = !isPasswordHidden;
@@ -31,21 +39,38 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  String _backendRole(String role) {
+    return role.toLowerCase();
+  }
+
   Future<bool> login({
     required String email,
     required String password,
   }) async {
-    debugPrint("===== LOGIN API CALL =====");
-    debugPrint("Email: $email");
-    debugPrint("Password: $password");
-    debugPrint("Role: $selectedRole");
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
 
-    // Later yahan Django JWT API call hogi
-    // final response = await AuthService.login(email, password);
-    // save JWT token
-    // return response.success;
+    final response = await _authService.login(
+      email: email,
+      password: password,
+    );
 
-    return true;
+    isLoading = false;
+
+    if (response.success) {
+      _userName = response.username ?? "User";
+      _email = response.email ?? email;
+      _role = (response.role ?? selectedRole).toLowerCase();
+      _password = password;
+
+      notifyListeners();
+      return true;
+    }
+
+    errorMessage = response.message;
+    notifyListeners();
+    return false;
   }
 
   Future<bool> signup({
@@ -54,18 +79,36 @@ class AuthProvider extends ChangeNotifier {
     required String phone,
     required String password,
   }) async {
-    debugPrint("===== SIGNUP API CALL =====");
-    debugPrint("Name: $name");
-    debugPrint("Email: $email");
-    debugPrint("Phone: $phone");
-    debugPrint("Password: $password");
-    debugPrint("Role: $selectedRole");
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
 
-    // Later yahan Django JWT Register API call hogi
-    // final response = await AuthService.signup(...);
-    // return response.success;
+    final response = await _authService.register(
+      username: name,
+      email: email,
+      password: password,
+      password2: password,
+      role: _backendRole(selectedRole),
+      phone: phone,
+      address: "",
+    );
 
-    return true;
+    isLoading = false;
+
+    if (response.success) {
+      _userName = response.username ?? name;
+      _email = response.email ?? email;
+      _phone = phone;
+      _password = password;
+      _role = (response.role ?? _backendRole(selectedRole)).toLowerCase();
+
+      notifyListeners();
+      return true;
+    }
+
+    errorMessage = response.message;
+    notifyListeners();
+    return false;
   }
 
   Future<bool> forgotPassword({
@@ -74,25 +117,23 @@ class AuthProvider extends ChangeNotifier {
     debugPrint("===== FORGOT PASSWORD API CALL =====");
     debugPrint("Email: $email");
 
-    // Later yahan Django backend API call hogi:
-    // final response = await AuthService.forgotPassword(email: email);
-    // return response.success;
-
     return true;
   }
 
-  void logout() {
+  Future<void> logout() async {
+    await _authService.logout();
+
     _userName = "Farmer User";
     _email = "";
     _phone = "";
     _password = "";
+    _role = "";
     rememberMe = false;
     selectedRole = "Farmer";
 
-    debugPrint("===== LOGOUT =====");
-
     notifyListeners();
   }
+
   bool changePassword({
     required String currentPassword,
     required String newPassword,
@@ -102,8 +143,7 @@ class AuthProvider extends ChangeNotifier {
     }
 
     _password = newPassword;
-    debugPrint("Password updated successfully");
-
+    notifyListeners();
     return true;
   }
 }
