@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../widgets/farmer_bottom_navbar.dart';
+import 'edit_profile_screen.dart';
 
 class FarmerProfileScreen extends StatelessWidget {
   const FarmerProfileScreen({super.key});
@@ -11,7 +15,7 @@ class FarmerProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       backgroundColor: const Color(0xfff9fbfa),
@@ -26,10 +30,12 @@ class FarmerProfileScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _profileCard(authProvider),
+                    _profileCard(context, authProvider),
                     const SizedBox(height: 34),
+
                     _sectionTitle("ACCOUNT INFORMATION"),
                     const SizedBox(height: 14),
+
                     _settingsCard(
                       children: [
                         _infoTile(
@@ -48,6 +54,12 @@ class FarmerProfileScreen extends StatelessWidget {
                               : authProvider.phone,
                         ),
                         _divider(),
+                        _infoTile(
+                          icon: Icons.location_on_outlined,
+                          title: "Farm Location",
+                          value: authProvider.location,
+                        ),
+                        _divider(),
                         _settingTile(
                           icon: Icons.lock_reset,
                           title: "Change Password",
@@ -58,47 +70,9 @@ class FarmerProfileScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 34),
-                    _sectionTitle("FARMER TOOLS"),
-                    const SizedBox(height: 14),
-                    _settingsCard(
-                      children: [
-                        _settingTile(
-                          icon: Icons.verified_user_outlined,
-                          title: "Verification Status",
-                          subtitle: "Certified farmer profile",
-                          onTap: () {},
-                        ),
-                        _divider(),
-                        _settingTile(
-                          icon: Icons.eco_outlined,
-                          title: "Crop Preferences",
-                          subtitle: "Manage crop categories",
-                          onTap: () {},
-                        ),
-                        _divider(),
-                        _settingTile(
-                          icon: Icons.location_on_outlined,
-                          title: "Farm Location",
-                          subtitle: "Update farm address",
-                          onTap: () {},
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 34),
-                    _sectionTitle("SUPPORT"),
-                    const SizedBox(height: 14),
-                    _settingsCard(
-                      children: [
-                        _settingTile(
-                          icon: Icons.help_outline,
-                          title: "Help & Support",
-                          subtitle: "Get help with your account",
-                          onTap: () {},
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 70),
+
+                    const SizedBox(height: 15),
+
                     Center(
                       child: TextButton.icon(
                         onPressed: () {
@@ -110,7 +84,8 @@ class FarmerProfileScreen extends StatelessWidget {
                           "Logout",
                           style: TextStyle(
                             color: Colors.red,
-                            fontWeight: FontWeight.w800,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -123,6 +98,34 @@ class FarmerProfileScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _pickProfileImage(
+      BuildContext context,
+      AuthProvider authProvider,
+      ) async {
+    try {
+      final ImagePicker picker = ImagePicker();
+
+      final XFile? pickedImage = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+
+      if (pickedImage == null) return;
+
+      authProvider.updateProfileImage(pickedImage.path);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Profile picture updated successfully"),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Image picker error: $e")),
+      );
+    }
   }
 
   void _showChangePasswordDialog(
@@ -271,51 +274,99 @@ class FarmerProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _profileCard(AuthProvider authProvider) {
+  Widget _profileCard(
+      BuildContext context,
+      AuthProvider authProvider,
+      ) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(18, 34, 18, 28),
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const EditProfileScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              label: const Text("Edit Profile"),
+              style: TextButton.styleFrom(
+                foregroundColor: darkGreen,
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ),
+
           Stack(
             children: [
-              const CircleAvatar(
-                radius: 48,
-                backgroundImage: NetworkImage(
+              CircleAvatar(
+                radius: 52,
+                backgroundColor: const Color(0xffe4efe9),
+                backgroundImage: authProvider.profileImagePath != null &&
+                    authProvider.profileImagePath!.isNotEmpty
+                    ? FileImage(File(authProvider.profileImagePath!))
+                    : const NetworkImage(
                   "https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=300",
-                ),
+                ) as ImageProvider,
               ),
               Positioned(
                 right: 0,
                 bottom: 0,
-                child: Container(
-                  height: 36,
-                  width: 36,
-                  decoration: const BoxDecoration(
-                    color: darkGreen,
-                    shape: BoxShape.circle,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(22),
+                  onTap: () async {
+                    await _pickProfileImage(context, authProvider);
+                  },
+                  child: Container(
+                    height: 38,
+                    width: 38,
+                    decoration: BoxDecoration(
+                      color: darkGreen,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 3,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt,
+                      color: Colors.white,
+                      size: 18,
+                    ),
                   ),
-                  child: const Icon(Icons.edit, color: Colors.white, size: 20),
                 ),
               ),
             ],
           ),
+
           const SizedBox(height: 18),
+
           Text(
             authProvider.userName.isEmpty
                 ? "Farmer User"
                 : authProvider.userName,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 25,
               fontWeight: FontWeight.w900,
               color: Color(0xff202525),
             ),
           ),
+
           const SizedBox(height: 8),
+
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
@@ -331,22 +382,27 @@ class FarmerProfileScreen extends StatelessWidget {
               ),
             ),
           ),
+
           const SizedBox(height: 12),
-          const Row(
+
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.location_on_outlined,
                 size: 20,
                 color: Color(0xff4f5955),
               ),
-              SizedBox(width: 5),
-              Text(
-                "Sahiwal, Punjab",
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Color(0xff4f5955),
-                  fontWeight: FontWeight.w500,
+              const SizedBox(width: 5),
+              Flexible(
+                child: Text(
+                  authProvider.location,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    color: Color(0xff4f5955),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
