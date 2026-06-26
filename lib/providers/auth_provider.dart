@@ -101,6 +101,10 @@ class AuthProvider extends ChangeNotifier {
     _phone = phone;
     _password = password;
 
+    if (_location.isEmpty) {
+      _location = "Sahiwal, Punjab";
+    }
+
     notifyListeners();
 
     return true;
@@ -136,11 +140,12 @@ class AuthProvider extends ChangeNotifier {
     _email = "";
     _phone = "";
     _password = "";
+    _location = "";
+
     rememberMe = false;
     selectedRole = "Farmer";
-    _profileImagePath = null;
 
-    debugPrint("===== LOGOUT =====");
+    _profileImagePath = null;
 
     notifyListeners();
   }
@@ -149,6 +154,21 @@ class AuthProvider extends ChangeNotifier {
 
     debugPrint("===== PROFILE IMAGE UPDATED =====");
     debugPrint("Image Path: $imagePath");
+
+    notifyListeners();
+  }
+  void setUserData({
+    required String name,
+    required String email,
+    required String phone,
+    required String location,
+    String? profileImage,
+  }) {
+    _userName = name;
+    _email = email;
+    _phone = phone;
+    _location = location;
+    _profileImagePath = profileImage;
 
     notifyListeners();
   }

@@ -126,17 +126,12 @@ class MyCropsScreen extends StatelessWidget {
               child: Text(
                 "AgriConnect",
                 style: TextStyle(
-                  color: darkGreen,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff075739),
                 ),
               ),
             ),
-          ),
-          Icon(
-            Icons.notifications_none,
-            color: darkGreen,
-            size: 22,
           ),
         ],
       ),
