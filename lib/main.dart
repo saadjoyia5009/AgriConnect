@@ -14,6 +14,12 @@ import 'providers/inquiry_provider.dart';
 import 'screens/farmer/farmer_inquiries_screen.dart';
 import 'screens/farmer/edit_crop_screen.dart';
 import 'screens/farmer/farmer_profile_screen.dart';
+import 'providers/weather_provider.dart';
+import 'screens/farmer/weather_forecast_screen.dart';
+import 'providers/price_prediction_provider.dart';
+import 'screens/farmer/price_prediction_screen.dart';
+import 'providers/disease_detection_provider.dart';
+import 'screens/farmer/disease_detection_screen.dart';
 void main() {
   runApp(const AgriConnectApp());
 }
@@ -34,6 +40,15 @@ class AgriConnectApp extends StatelessWidget {
         ChangeNotifierProvider<InquiryProvider>(
           create: (_) => InquiryProvider(),
         ),
+        ChangeNotifierProvider<WeatherProvider>(
+          create: (_) => WeatherProvider(),
+        ),
+        ChangeNotifierProvider<PricePredictionProvider>(
+          create: (_) => PricePredictionProvider(),
+        ),
+        ChangeNotifierProvider<DiseaseDetectionProvider>(
+          create: (_) => DiseaseDetectionProvider(),
+        ),
 
       ],
       child: MaterialApp(
@@ -51,6 +66,10 @@ class AgriConnectApp extends StatelessWidget {
           '/farmerInquiries': (context) => const FarmerInquiriesScreen(),
           '/editCrop': (context) => const EditCropScreen(),
           '/profile': (context) => const FarmerProfileScreen(),
+          '/weather': (_) => const WeatherForecastScreen(),
+          '/price-prediction': (_) => const PricePredictionScreen(),
+          "/disease-detection": (_) => const DiseaseDetectionScreen(),
+
         },
       ),
     );

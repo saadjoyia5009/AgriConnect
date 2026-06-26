@@ -4,16 +4,29 @@ import 'package:provider/provider.dart';
 import '../../models/inquiry_model.dart';
 import '../../providers/inquiry_provider.dart';
 import '../../widgets/farmer_bottom_navbar.dart';
+import 'farmer_inquiry_detail_screen.dart';
 
-class FarmerInquiriesScreen extends StatelessWidget {
+class FarmerInquiriesScreen extends StatefulWidget {
   const FarmerInquiriesScreen({super.key});
 
+  @override
+  State<FarmerInquiriesScreen> createState() => _FarmerInquiriesScreenState();
+}
+
+class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
   static const Color darkGreen = Color(0xff075739);
 
   @override
-  Widget build(BuildContext context) {
-    final inquiryProvider = Provider.of<InquiryProvider>(context);
+  void initState() {
+    super.initState();
 
+    Future.microtask(() {
+      context.read<InquiryProvider>().fetchFarmerInquiries();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xfff9fbfa),
       bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 2),
@@ -21,78 +34,120 @@ class FarmerInquiriesScreen extends StatelessWidget {
         child: Column(
           children: [
             _topBar(),
-
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(18, 22, 18, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Received Inquiries",
-                      style: TextStyle(
-                        color: darkGreen,
-                        fontSize: 25,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      "Manage and respond to buyer requests for\nyour harvest.",
-                      style: TextStyle(
-                        color: Color(0xff333333),
-                        fontSize: 15,
-                        height: 1.4,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+              child: Consumer<InquiryProvider>(
+                builder: (context, inquiryProvider, _) {
+                  if (inquiryProvider.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: darkGreen),
+                    );
+                  }
 
-                    const SizedBox(height: 20),
-
-                    Row(
-                      children: [
-                        _filterChip(
-                          context,
-                          title: "Pending",
-                          selected: inquiryProvider.selectedFilter == "Pending",
-                        ),
-                        const SizedBox(width: 10),
-                        _filterChip(
-                          context,
-                          title: "Active",
-                          selected: inquiryProvider.selectedFilter == "Active",
-                        ),
-                        const SizedBox(width: 10),
-                        _filterChip(
-                          context,
-                          title: "History",
-                          selected: inquiryProvider.selectedFilter == "History",
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 22),
-
-                    ListView.builder(
-                      itemCount: inquiryProvider.inquiries.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final inquiry = inquiryProvider.inquiries[index];
-
-                        return _InquiryCard(
-                          inquiry: inquiry,
-                          onReject: () {
-                            inquiryProvider.rejectInquiry(inquiry.id);
-                          },
-                          onAccept: () {
-                            inquiryProvider.acceptInquiry(inquiry.id);
-                          },
-                        );
+                  if (inquiryProvider.errorMessage != null) {
+                    return _ErrorState(
+                      message: inquiryProvider.errorMessage!,
+                      onRetry: () {
+                        inquiryProvider.fetchFarmerInquiries();
                       },
+                    );
+                  }
+
+                  return RefreshIndicator(
+                    color: darkGreen,
+                    onRefresh: () async {
+                      await inquiryProvider.fetchFarmerInquiries();
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(18, 22, 18, 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Received Inquiries",
+                            style: TextStyle(
+                              color: darkGreen,
+                              fontSize: 25,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            "Manage and respond to buyer requests for\nyour harvest.",
+                            style: TextStyle(
+                              color: Color(0xff333333),
+                              fontSize: 15,
+                              height: 1.4,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          Row(
+                            children: [
+                              _filterChip(
+                                context,
+                                title: "Pending",
+                                selected:
+                                inquiryProvider.selectedFilter == "Pending",
+                              ),
+                              const SizedBox(width: 10),
+                              _filterChip(
+                                context,
+                                title: "Active",
+                                selected:
+                                inquiryProvider.selectedFilter == "Active",
+                              ),
+                              const SizedBox(width: 10),
+                              _filterChip(
+                                context,
+                                title: "History",
+                                selected:
+                                inquiryProvider.selectedFilter == "History",
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 22),
+
+                          if (inquiryProvider.filteredInquiries.isEmpty)
+                            const _EmptyState()
+                          else
+                            ListView.builder(
+                              itemCount:
+                              inquiryProvider.filteredInquiries.length,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                final inquiry =
+                                inquiryProvider.filteredInquiries[index];
+
+                                return _InquiryCard(
+                                  inquiry: inquiry,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => FarmerInquiryDetailScreen(
+                                          inquiryId: inquiry.id,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  onReject: () async {
+                                    await inquiryProvider.rejectInquiry(inquiry.id);
+                                  },
+                                  onAccept: () async {
+                                    await inquiryProvider.acceptInquiry(inquiry.id);
+                                  },
+                                );
+                              },
+                            ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ],
@@ -108,33 +163,27 @@ class FarmerInquiriesScreen extends StatelessWidget {
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(
-          bottom: BorderSide(color: Color(0xffe4eee8)),
+          bottom: BorderSide(
+            color: Color(0xffe4eee8),
+          ),
         ),
       ),
       child: Row(
-        children: [
-          const Icon(Icons.menu, color: darkGreen, size: 25),
-          const Expanded(
+        children: const [
+          Icon(
+            Icons.agriculture_outlined,
+            color: darkGreen,
+            size: 22,
+          ),
+          Expanded(
             child: Center(
               child: Text(
                 "AgriConnect",
                 style: TextStyle(
-                  color: darkGreen,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff075739),
                 ),
-              ),
-            ),
-          ),
-          CircleAvatar(
-            radius: 17,
-            backgroundColor: darkGreen,
-            child: ClipOval(
-              child: Image.network(
-                "https://i.pravatar.cc/100?img=15",
-                fit: BoxFit.cover,
-                width: 34,
-                height: 34,
               ),
             ),
           ),
@@ -175,40 +224,46 @@ class FarmerInquiriesScreen extends StatelessWidget {
 
 class _InquiryCard extends StatelessWidget {
   final InquiryModel inquiry;
-  final VoidCallback onAccept;
-  final VoidCallback onReject;
+  final Future<void> Function() onAccept;
+  final Future<void> Function() onReject;
+  final VoidCallback onTap;
 
   const _InquiryCard({
     required this.inquiry,
     required this.onAccept,
     required this.onReject,
+    required this.onTap,
   });
 
   static const Color darkGreen = Color(0xff075739);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xffd8e6de)),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          _imageHeader(),
-          _buyerDetails(),
-          Divider(color: Colors.grey.shade300, height: 1),
-          _priceAndActions(),
-        ],
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: const Color(0xffd8e6de)),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            _imageHeader(),
+            _buyerDetails(),
+            Divider(color: Colors.grey.shade300, height: 1),
+            _priceAndActions(context),
+          ],
+        ),
       ),
     );
   }
@@ -225,6 +280,18 @@ class _InquiryCard extends StatelessWidget {
             width: double.infinity,
             height: 125,
             fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) {
+              return Container(
+                width: double.infinity,
+                height: 125,
+                color: const Color(0xffe8f3ed),
+                child: const Icon(
+                  Icons.image_not_supported_outlined,
+                  color: darkGreen,
+                  size: 38,
+                ),
+              );
+            },
           ),
         ),
         Container(
@@ -274,13 +341,13 @@ class _InquiryCard extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
             decoration: BoxDecoration(
-              color: const Color(0xffffcc54).withOpacity(0.85),
+              color: _statusColor(inquiry.status).withOpacity(0.90),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               inquiry.status,
               style: const TextStyle(
-                color: Color(0xff8a5a00),
+                color: Colors.white,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -346,7 +413,9 @@ class _InquiryCard extends StatelessWidget {
     );
   }
 
-  Widget _priceAndActions() {
+  Widget _priceAndActions(BuildContext context) {
+    final bool isPending = inquiry.status.toLowerCase() == "pending";
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
       child: Row(
@@ -364,17 +433,25 @@ class _InquiryCard extends StatelessWidget {
               ),
             ),
           ),
-          _circleButton(
-            icon: Icons.close,
-            filled: false,
-            onTap: onReject,
-          ),
-          const SizedBox(width: 12),
-          _circleButton(
-            icon: Icons.check,
-            filled: true,
-            onTap: onAccept,
-          ),
+          if (isPending) ...[
+            _circleButton(
+              icon: Icons.close,
+              filled: false,
+              onTap: () async {
+                await onReject();
+                _showMessage(context, "Inquiry rejected");
+              },
+            ),
+            const SizedBox(width: 12),
+            _circleButton(
+              icon: Icons.check,
+              filled: true,
+              onTap: () async {
+                await onAccept();
+                _showMessage(context, "Inquiry accepted");
+              },
+            ),
+          ],
         ],
       ),
     );
@@ -422,6 +499,136 @@ class _InquiryCard extends StatelessWidget {
           icon,
           color: filled ? Colors.white : darkGreen,
           size: 25,
+        ),
+      ),
+    );
+  }
+
+  static Color _statusColor(String status) {
+    switch (status.toLowerCase()) {
+      case "active":
+      case "accepted":
+        return darkGreen;
+      case "rejected":
+      case "cancelled":
+        return Colors.red;
+      case "completed":
+      case "history":
+        return Colors.grey;
+      default:
+        return const Color(0xffff9800);
+    }
+  }
+
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: darkGreen,
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  static const Color darkGreen = Color(0xff075739);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 38),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xffd8e6de)),
+      ),
+      child: const Column(
+        children: [
+          Icon(
+            Icons.mark_email_unread_outlined,
+            color: darkGreen,
+            size: 42,
+          ),
+          SizedBox(height: 14),
+          Text(
+            "No inquiries found",
+            style: TextStyle(
+              color: darkGreen,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          SizedBox(height: 6),
+          Text(
+            "Buyer requests will appear here when they send inquiries.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Color(0xff555555),
+              fontSize: 14,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _ErrorState({
+    required this.message,
+    required this.onRetry,
+  });
+
+  static const Color darkGreen = Color(0xff075739);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(22),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.wifi_off_rounded,
+              color: Colors.red,
+              size: 46,
+            ),
+            const SizedBox(height: 14),
+            const Text(
+              "Something went wrong",
+              style: TextStyle(
+                color: darkGreen,
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Color(0xff555555),
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 18),
+            ElevatedButton(
+              onPressed: onRetry,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: darkGreen,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text("Retry"),
+            ),
+          ],
         ),
       ),
     );
