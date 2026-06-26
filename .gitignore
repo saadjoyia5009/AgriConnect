@@ -44,3 +44,24 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 devtools_options.yaml
+
+
+
+# Python
+venv/
+backend/venv/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# Flutter
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Android Studio / VS Code
+.idea/
+.vscode/

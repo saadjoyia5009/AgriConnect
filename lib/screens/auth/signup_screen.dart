@@ -60,6 +60,54 @@ class _SignupScreenState extends State<SignupScreen>
     super.dispose();
   }
 
+  Future<void> _handleSignup(AuthProvider authProvider) async {
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final phone = phoneController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (name.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please fill all fields"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final bool success = await authProvider.signup(
+      name: name,
+      email: email,
+      phone: phone,
+      password: password,
+    );
+
+    if (!mounted) return;
+
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(authProvider.errorMessage ?? "Signup failed. Try again."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Account created successfully. Please login."),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -101,9 +149,7 @@ class _SignupScreenState extends State<SignupScreen>
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
                   const Center(
                     child: Text(
                       "Create Account",
@@ -114,9 +160,7 @@ class _SignupScreenState extends State<SignupScreen>
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 10),
-
                   const Center(
                     child: Text(
                       "Join AgriConnect and start your journey.",
@@ -127,7 +171,6 @@ class _SignupScreenState extends State<SignupScreen>
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
 
                   _label("Full Name"),
@@ -139,7 +182,6 @@ class _SignupScreenState extends State<SignupScreen>
                   ),
 
                   const SizedBox(height: 18),
-
                   _label("Email"),
                   const SizedBox(height: 10),
                   _inputField(
@@ -150,7 +192,6 @@ class _SignupScreenState extends State<SignupScreen>
                   ),
 
                   const SizedBox(height: 14),
-
                   _label("Phone Number"),
                   const SizedBox(height: 10),
                   _inputField(
@@ -161,7 +202,6 @@ class _SignupScreenState extends State<SignupScreen>
                   ),
 
                   const SizedBox(height: 18),
-
                   _label("Password"),
                   const SizedBox(height: 10),
                   TextField(
@@ -183,10 +223,8 @@ class _SignupScreenState extends State<SignupScreen>
                   ),
 
                   const SizedBox(height: 18),
-
                   _label("Select Role"),
                   const SizedBox(height: 10),
-
                   DropdownButtonFormField<String>(
                     value: authProvider.selectedRole,
                     decoration: _inputDecoration(
@@ -199,60 +237,18 @@ class _SignupScreenState extends State<SignupScreen>
                       DropdownMenuItem(value: "Admin", child: Text("Admin")),
                     ],
                     onChanged: (value) {
-                      if (value != null) {
-                        authProvider.selectRole(value);
-                      }
+                      if (value != null) authProvider.selectRole(value);
                     },
                   ),
 
                   const SizedBox(height: 20),
-
                   SizedBox(
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: () async {
-                        final name = nameController.text.trim();
-                        final email = emailController.text.trim();
-                        final phone = phoneController.text.trim();
-                        final password = passwordController.text.trim();
-
-                        if (name.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Please fill all fields"),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-
-                        final bool success = await authProvider.signup(
-                          name: name,
-                          email: email,
-                          phone: phone,
-                          password: password,
-                        );
-
-                        if (!success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Signup failed. Please try again."),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Account created successfully. Please login."),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-
-                        Navigator.pushReplacementNamed(context, '/login');
-                      },
+                      onPressed: authProvider.isLoading
+                          ? null
+                          : () => _handleSignup(authProvider),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: darkGreen,
                         foregroundColor: Colors.white,
@@ -262,7 +258,16 @@ class _SignupScreenState extends State<SignupScreen>
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: const Row(
+                      child: authProvider.isLoading
+                          ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          color: Colors.white,
+                        ),
+                      )
+                          : const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
@@ -280,10 +285,11 @@ class _SignupScreenState extends State<SignupScreen>
                   ),
 
                   const SizedBox(height: 18),
-
                   Center(
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: authProvider.isLoading
+                          ? null
+                          : () {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
@@ -311,9 +317,7 @@ class _SignupScreenState extends State<SignupScreen>
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                 ],
               ),
             ),

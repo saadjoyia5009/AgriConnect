@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 
+import '../services/auth_service.dart';
+
 class AuthProvider extends ChangeNotifier {
+  final AuthService _authService = AuthService();
+
   bool isPasswordHidden = true;
   bool rememberMe = false;
+<<<<<<< HEAD
+  bool isLoading = false;
+  String? errorMessage;
+=======
   String _location = "";
   String? _profileImagePath;
 
+>>>>>>> origin/main
 
   String selectedRole = "Farmer";
 
@@ -13,13 +22,18 @@ class AuthProvider extends ChangeNotifier {
   String _email = "";
   String _phone = "";
   String _password = "";
+  String _role = "";
 
   String get userName => _userName;
   String get email => _email;
   String get phone => _phone;
   String get password => _password;
+<<<<<<< HEAD
+  String get role => _role;
+=======
   String get location => _location;
   String? get profileImagePath => _profileImagePath;
+>>>>>>> origin/main
 
   void togglePasswordVisibility() {
     isPasswordHidden = !isPasswordHidden;
@@ -50,15 +64,24 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  String _backendRole(String role) {
+    return role.toLowerCase();
+  }
+
   Future<bool> login({
     required String email,
     required String password,
   }) async {
-    debugPrint("===== LOGIN API CALL =====");
-    debugPrint("Email: $email");
-    debugPrint("Password: $password");
-    debugPrint("Role: $selectedRole");
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
 
+<<<<<<< HEAD
+    final response = await _authService.login(
+      email: email,
+      password: password,
+    );
+=======
     // Temporary local data until Django JWT API integration
     _email = email;
     _password = password;
@@ -78,8 +101,23 @@ class AuthProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+>>>>>>> origin/main
 
-    return true;
+    isLoading = false;
+
+    if (response.success) {
+      _userName = response.username ?? "User";
+      _email = response.email ?? email;
+      _role = (response.role ?? selectedRole).toLowerCase();
+      _password = password;
+
+      notifyListeners();
+      return true;
+    }
+
+    errorMessage = response.message;
+    notifyListeners();
+    return false;
   }
 
   Future<bool> signup({
@@ -88,13 +126,21 @@ class AuthProvider extends ChangeNotifier {
     required String phone,
     required String password,
   }) async {
-    debugPrint("===== SIGNUP API CALL =====");
-    debugPrint("Name: $name");
-    debugPrint("Email: $email");
-    debugPrint("Phone: $phone");
-    debugPrint("Password: $password");
-    debugPrint("Role: $selectedRole");
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
 
+<<<<<<< HEAD
+    final response = await _authService.register(
+      username: name,
+      email: email,
+      password: password,
+      password2: password,
+      role: _backendRole(selectedRole),
+      phone: phone,
+      address: "",
+    );
+=======
     // Temporary local data until Django JWT Register API integration
     _userName = name;
     _email = email;
@@ -106,8 +152,24 @@ class AuthProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+>>>>>>> origin/main
 
-    return true;
+    isLoading = false;
+
+    if (response.success) {
+      _userName = response.username ?? name;
+      _email = response.email ?? email;
+      _phone = phone;
+      _password = password;
+      _role = (response.role ?? _backendRole(selectedRole)).toLowerCase();
+
+      notifyListeners();
+      return true;
+    }
+
+    errorMessage = response.message;
+    notifyListeners();
+    return false;
   }
 
   Future<bool> forgotPassword({
@@ -119,6 +181,23 @@ class AuthProvider extends ChangeNotifier {
     return true;
   }
 
+<<<<<<< HEAD
+  Future<void> logout() async {
+    await _authService.logout();
+
+    _userName = "Farmer User";
+    _email = "";
+    _phone = "";
+    _password = "";
+    _role = "";
+    rememberMe = false;
+    selectedRole = "Farmer";
+
+    notifyListeners();
+  }
+
+=======
+>>>>>>> origin/main
   bool changePassword({
     required String currentPassword,
     required String newPassword,
@@ -128,10 +207,14 @@ class AuthProvider extends ChangeNotifier {
     }
 
     _password = newPassword;
+<<<<<<< HEAD
+    notifyListeners();
+=======
     debugPrint("Password updated successfully");
 
     notifyListeners();
 
+>>>>>>> origin/main
     return true;
   }
 
