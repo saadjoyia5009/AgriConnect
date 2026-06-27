@@ -1,5 +1,9 @@
 class CropModel {
   final String id;
+
+  final String farmerId;
+  final String farmerName;
+
   final String name;
   final String imageUrl;
   final String quantity;
@@ -15,6 +19,8 @@ class CropModel {
 
   CropModel({
     required this.id,
+    this.farmerId = '',
+    this.farmerName = '',
     required this.name,
     required this.imageUrl,
     required this.quantity,
@@ -32,25 +38,28 @@ class CropModel {
   factory CropModel.fromJson(Map<String, dynamic> json) {
     return CropModel(
       id: json["id"]?.toString() ?? "",
-      name: json["name"] ?? "",
-      imageUrl: json["image_url"] ?? json["imageUrl"] ?? "",
+      farmerId: json["farmer_id"]?.toString() ?? json["farmerId"]?.toString() ?? "",
+      farmerName: json["farmer_name"]?.toString() ?? json["farmerName"]?.toString() ?? "",
+      name: json["name"]?.toString() ?? "",
+      imageUrl: json["image_url"]?.toString() ?? json["imageUrl"]?.toString() ?? "",
       quantity: json["quantity"]?.toString() ?? "",
       price: json["price"]?.toString() ?? "",
-      unit: json["unit"] ?? "",
-      category: json["category"] ?? "",
-      status: json["status"] ?? "Active",
+      unit: json["unit"]?.toString() ?? "",
+      category: json["category"]?.toString() ?? "",
+      status: json["status"]?.toString() ?? "Active",
       isOrganic: json["is_organic"] ?? json["isOrganic"] ?? false,
-      isReadyToShip:
-      json["is_ready_to_ship"] ?? json["isReadyToShip"] ?? false,
-      location: json["location"] ?? "",
-      description: json["description"] ?? "",
-      harvestDate: json["harvest_date"] ?? json["harvestDate"] ?? "",
+      isReadyToShip: json["is_ready_to_ship"] ?? json["isReadyToShip"] ?? false,
+      location: json["location"]?.toString() ?? "",
+      description: json["description"]?.toString() ?? "",
+      harvestDate: json["harvest_date"]?.toString() ?? json["harvestDate"]?.toString() ?? "",
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       "id": id,
+      "farmer_id": farmerId,
+      "farmer_name": farmerName,
       "name": name,
       "image_url": imageUrl,
       "quantity": quantity,
@@ -68,6 +77,8 @@ class CropModel {
 
   CropModel copyWith({
     String? id,
+    String? farmerId,
+    String? farmerName,
     String? name,
     String? imageUrl,
     String? quantity,
@@ -83,6 +94,8 @@ class CropModel {
   }) {
     return CropModel(
       id: id ?? this.id,
+      farmerId: farmerId ?? this.farmerId,
+      farmerName: farmerName ?? this.farmerName,
       name: name ?? this.name,
       imageUrl: imageUrl ?? this.imageUrl,
       quantity: quantity ?? this.quantity,

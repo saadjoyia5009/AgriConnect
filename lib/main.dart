@@ -20,6 +20,13 @@ import 'providers/price_prediction_provider.dart';
 import 'screens/farmer/price_prediction_screen.dart';
 import 'providers/disease_detection_provider.dart';
 import 'screens/farmer/disease_detection_screen.dart';
+import 'screens/buyer/buyer_dashboard_screen.dart';
+import 'providers/buyer_favorite_provider.dart';
+import 'screens/buyer/buyer_favorites_screen.dart';
+import 'providers/buyer_inquiry_provider.dart';
+import 'screens/buyer/buyer_inquiries_screen.dart';
+import 'providers/buyer_profile_provider.dart';
+import 'screens/buyer/buyer_profile_screen.dart';
 void main() {
   runApp(const AgriConnectApp());
 }
@@ -49,7 +56,15 @@ class AgriConnectApp extends StatelessWidget {
         ChangeNotifierProvider<DiseaseDetectionProvider>(
           create: (_) => DiseaseDetectionProvider(),
         ),
-
+        ChangeNotifierProvider(
+          create: (_) => BuyerFavoriteProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => BuyerInquiryProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => BuyerProfileProvider(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -59,7 +74,7 @@ class AgriConnectApp extends StatelessWidget {
           '/onboarding1': (context) => const OnboardingScreenOne(),
           '/onboarding2': (context) => const OnboardingScreenTwo(),
           '/onboarding3': (context) => const OnboardingScreenThree(),
-          '/login': (context) => LoginScreen(),
+          '/login': (context) => const LoginScreen(),
           '/farmerDashboard': (context) => const FarmerDashboardScreen(),
           '/myCrops': (context) => const MyCropsScreen(),
           '/addCrop': (context) => const AddCropScreen(),
@@ -69,6 +84,11 @@ class AgriConnectApp extends StatelessWidget {
           '/weather': (_) => const WeatherForecastScreen(),
           '/price-prediction': (_) => const PricePredictionScreen(),
           "/disease-detection": (_) => const DiseaseDetectionScreen(),
+          '/buyerDashboard': (context) => const BuyerDashboardScreen(),
+          '/buyerFavorites': (context) => const BuyerFavoritesScreen(),
+          '/buyer-inquiries': (context) => const BuyerInquiriesScreen(),
+          '/buyerProfile': (context) => const BuyerProfileScreen(),
+
 
         },
       ),

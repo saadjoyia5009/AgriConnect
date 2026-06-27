@@ -276,24 +276,7 @@ class _LoginScreenState extends State<LoginScreen>
                         if (email.isEmpty || password.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                "Please enter email and password first",
-                              ),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-
-                        final bool success = await authProvider.login(
-                          email: email,
-                          password: password,
-                        );
-
-                        if (!success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Invalid email or password"),
+                              content: Text("Please enter email and password first"),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -301,19 +284,12 @@ class _LoginScreenState extends State<LoginScreen>
                         }
 
                         if (authProvider.selectedRole == "Farmer") {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            '/farmerDashboard',
-                          );
+                          Navigator.pushReplacementNamed(context, '/farmerDashboard');
                         } else if (authProvider.selectedRole == "Buyer") {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            '/buyerDashboard',
-                          );
+                          Navigator.pushReplacementNamed(context, '/buyerDashboard');
                         } else if (authProvider.selectedRole == "Admin") {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            '/adminDashboard',
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Admin dashboard not created yet")),
                           );
                         }
                       },
