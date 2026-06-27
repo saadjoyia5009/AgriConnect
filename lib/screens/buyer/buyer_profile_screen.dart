@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'edit_buyer_profile_screen.dart';
 import '../../providers/buyer_profile_provider.dart';
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
 import '../../widgets/buyer/profile/buyer_profile_header.dart';
@@ -36,6 +37,19 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
     }
   }
 
+  Future<void> _openEditProfile(profile) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditBuyerProfileScreen(profile: profile),
+      ),
+    );
+
+    if (!mounted) return;
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +66,12 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
             }
 
             if (provider.errorMessage != null) {
-              return Center(child: Text(provider.errorMessage!));
+              return Center(
+                child: Text(
+                  provider.errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              );
             }
 
             final profile = provider.profile;
@@ -74,7 +93,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
                   BuyerProfileMenuTile(
                     icon: Icons.edit_outlined,
                     title: "Edit Profile",
-                    onTap: () {},
+                    onTap: () => _openEditProfile(profile),
                   ),
                   BuyerProfileMenuTile(
                     icon: Icons.chat_bubble_outline,

@@ -18,13 +18,13 @@ class FarmerBottomNavbar extends StatelessWidget {
       onTap: (index) {
         if (index == currentIndex) return;
 
-        switch(index){
+        switch (index) {
           case 0:
-            Navigator.pushReplacementNamed(context,'/farmerDashboard');
+            Navigator.pushReplacementNamed(context, '/farmerDashboard');
             break;
 
           case 1:
-            Navigator.pushReplacementNamed(context,'/myCrops');
+            Navigator.pushReplacementNamed(context, '/myCrops');
             break;
 
           case 2:
@@ -32,7 +32,11 @@ class FarmerBottomNavbar extends StatelessWidget {
             break;
 
           case 3:
-            Navigator.pushReplacementNamed(context,'/profile');
+            Navigator.pushReplacementNamed(context, '/farmerChats');
+            break;
+
+          case 4:
+            Navigator.pushReplacementNamed(context, '/profile');
             break;
         }
       },
@@ -46,8 +50,12 @@ class FarmerBottomNavbar extends StatelessWidget {
           label: "My Crops",
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.chat_bubble),
+          icon: Icon(Icons.assignment),
           label: "Inquiries",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.chat_bubble),
+          label: "Chats",
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person),

@@ -3,10 +3,14 @@ import '../../models/buyer_inquiry_model.dart';
 
 class BuyerInquiryCard extends StatelessWidget {
   final BuyerInquiryModel inquiry;
+  final VoidCallback? onViewDetails;
+  final VoidCallback? onMessageFarmer;
 
   const BuyerInquiryCard({
     super.key,
     required this.inquiry,
+    this.onViewDetails,
+    this.onMessageFarmer,
   });
 
   Color get statusColor {
@@ -58,7 +62,7 @@ class BuyerInquiryCard extends StatelessWidget {
           _topSection(),
           const Divider(height: 1),
           _infoSection(),
-          _actionButton(context),
+          _actionButton(),
         ],
       ),
     );
@@ -76,6 +80,14 @@ class BuyerInquiryCard extends StatelessWidget {
               width: 58,
               height: 58,
               fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) {
+                return Container(
+                  width: 58,
+                  height: 58,
+                  color: const Color(0xFFEAF7EF),
+                  child: const Icon(Icons.image_not_supported_outlined),
+                );
+              },
             ),
           ),
           const SizedBox(width: 14),
@@ -203,14 +215,14 @@ class BuyerInquiryCard extends StatelessWidget {
     );
   }
 
-  Widget _actionButton(BuildContext context) {
+  Widget _actionButton() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
       child: SizedBox(
         width: double.infinity,
         height: 38,
         child: OutlinedButton(
-          onPressed: () {},
+          onPressed: isAccepted ? onMessageFarmer : onViewDetails,
           style: OutlinedButton.styleFrom(
             backgroundColor:
             isAccepted ? const Color(0xFF0E5D3B) : Colors.white,

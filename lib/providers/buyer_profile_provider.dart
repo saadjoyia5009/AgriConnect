@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import '../models/buyer_profile_model.dart';
 
@@ -6,6 +8,7 @@ class BuyerProfileProvider extends ChangeNotifier {
   bool isUpdating = false;
   String? errorMessage;
 
+  File? selectedImage;
   BuyerProfileModel? profile;
 
   Future<void> fetchProfile() async {
@@ -13,6 +16,10 @@ class BuyerProfileProvider extends ChangeNotifier {
       isLoading = true;
       errorMessage = null;
       notifyListeners();
+
+      // Later:
+      // final response = await BuyerProfileService.fetchProfile();
+      // profile = BuyerProfileModel.fromJson(response);
 
       await Future.delayed(const Duration(milliseconds: 500));
 
@@ -35,5 +42,50 @@ class BuyerProfileProvider extends ChangeNotifier {
       errorMessage = "Failed to load buyer profile";
       notifyListeners();
     }
+  }
+
+  void setProfileImage(File image) {
+    selectedImage = image;
+    notifyListeners();
+  }
+
+  Future<bool> updateProfile(BuyerProfileModel updatedProfile) async {
+    try {
+      isUpdating = true;
+      errorMessage = null;
+      notifyListeners();
+
+      // Later backend multipart:
+      // await BuyerProfileService.updateProfile(
+      //   data: updatedProfile.toJson(),
+      //   imageFile: selectedImage,
+      // );
+
+      await Future.delayed(const Duration(milliseconds: 600));
+
+      profile = updatedProfile;
+      selectedImage = null;
+
+      isUpdating = false;
+      notifyListeners();
+
+      return true;
+    } catch (e) {
+      isUpdating = false;
+      errorMessage = "Failed to update profile";
+      notifyListeners();
+
+      return false;
+    }
+  }
+
+  void clearSelectedImage() {
+    selectedImage = null;
+    notifyListeners();
+  }
+
+  void clearError() {
+    errorMessage = null;
+    notifyListeners();
   }
 }

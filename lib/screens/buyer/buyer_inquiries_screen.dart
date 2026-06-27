@@ -4,60 +4,79 @@ import 'package:provider/provider.dart';
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
 import '../../providers/buyer_inquiry_provider.dart';
 import '../../widgets/inquiry/buyer_inquiry_card.dart';
+import 'buyer_inquiry_detail_screen.dart';
+import 'buyer_farmer_chat_screen.dart';
 
 class BuyerInquiriesScreen extends StatelessWidget {
   const BuyerInquiriesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => BuyerInquiryProvider(),
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF7FAF7),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7FAF7),
 
-        bottomNavigationBar: BuyerBottomNavBar(
-          currentIndex: 2,
-          onTap: (index) => _onNavTap(context, index),
-        ),
+      bottomNavigationBar: BuyerBottomNavBar(
+        currentIndex: 2,
+        onTap: (index) => _onNavTap(context, index),
+      ),
 
-        body: SafeArea(
-          child: Column(
-            children: [
-              _appBar(),
-              _tabs(),
-              Expanded(
-                child: Consumer<BuyerInquiryProvider>(
-                  builder: (context, provider, _) {
-                    final inquiries = provider.filteredInquiries;
+      body: SafeArea(
+        child: Column(
+          children: [
+            _appBar(),
+            _tabs(),
+            Expanded(
+              child: Consumer<BuyerInquiryProvider>(
+                builder: (context, provider, _) {
+                  final inquiries = provider.filteredInquiries;
 
-                    if (inquiries.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          "No inquiries found",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF4A5D52),
-                          ),
+                  if (inquiries.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "No inquiries found",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF4A5D52),
                         ),
-                      );
-                    }
-
-                    return ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: inquiries.length,
-                      itemBuilder: (context, index) {
-                        return BuyerInquiryCard(
-                          inquiry: inquiries[index],
-                        );
-                      },
+                      ),
                     );
-                  },
-                ),
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: inquiries.length,
+                    itemBuilder: (context, index) {
+                      return BuyerInquiryCard(
+                        inquiry: inquiries[index],
+                        onViewDetails: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BuyerInquiryDetailScreen(
+                                inquiry: inquiries[index],
+                              ),
+                            ),
+                          );
+                        },
+                        onMessageFarmer: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BuyerFarmerChatScreen(
+                                inquiry: inquiries[index],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      )
+      ),
     );
   }
 

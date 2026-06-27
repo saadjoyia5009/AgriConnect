@@ -27,6 +27,8 @@ import 'providers/buyer_inquiry_provider.dart';
 import 'screens/buyer/buyer_inquiries_screen.dart';
 import 'providers/buyer_profile_provider.dart';
 import 'screens/buyer/buyer_profile_screen.dart';
+import 'providers/chat_provider.dart';
+import 'screens/farmer/farmer_chats_screen.dart';
 void main() {
   runApp(const AgriConnectApp());
 }
@@ -65,6 +67,9 @@ class AgriConnectApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => BuyerProfileProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => ChatProvider(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -88,6 +93,7 @@ class AgriConnectApp extends StatelessWidget {
           '/buyerFavorites': (context) => const BuyerFavoritesScreen(),
           '/buyer-inquiries': (context) => const BuyerInquiriesScreen(),
           '/buyerProfile': (context) => const BuyerProfileScreen(),
+          '/farmerChats': (context) => const FarmerChatsScreen(),
 
 
         },
