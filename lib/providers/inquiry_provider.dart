@@ -18,9 +18,10 @@ class InquiryProvider extends ChangeNotifier {
 
   List<InquiryModel> get filteredInquiries {
     if (_selectedFilter == "Active") {
-      return _inquiries
-          .where((item) => item.status.toLowerCase() == "active")
-          .toList();
+      return _inquiries.where((item) {
+        final status = item.status.toLowerCase();
+        return status == "active" || status == "accepted";
+      }).toList();
     }
 
     if (_selectedFilter == "History") {
@@ -136,7 +137,7 @@ class InquiryProvider extends ChangeNotifier {
       // TODO: Django REST API integration later
       // await InquiryService.updateInquiryStatus(
       //   inquiryId: id,
-      //   status: "Active",
+      //   status: "Accepted",
       // );
 
       await Future.delayed(const Duration(milliseconds: 300));
@@ -144,7 +145,7 @@ class InquiryProvider extends ChangeNotifier {
       final index = _inquiries.indexWhere((item) => item.id == id);
 
       if (index != -1) {
-        _inquiries[index] = _inquiries[index].copyWith(status: "Active");
+        _inquiries[index] = _inquiries[index].copyWith(status: "Accepted");
       }
     } catch (_) {
       _errorMessage = "Unable to accept inquiry.";

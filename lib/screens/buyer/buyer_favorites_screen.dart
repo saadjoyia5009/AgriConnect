@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/buyer_favorite_provider.dart';
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
+import '../buyer/send_inquiry_screen.dart';
 import '../../widgets/buyer/buyer_favorite_crop_card.dart';
 
 class BuyerFavoritesScreen extends StatefulWidget {
@@ -176,7 +177,16 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
         return BuyerFavoriteCropCard(
           crop: crop,
           onRemoveTap: () => provider.removeFavorite(crop.id),
-          onInquireTap: () {},
+          onInquireTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => SendInquiryScreen(
+                  crop: crop,
+                ),
+              ),
+            );
+          },
         );
       },
     );
