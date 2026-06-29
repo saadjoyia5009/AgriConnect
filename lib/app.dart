@@ -34,7 +34,21 @@ import 'screens/buyer/buyer_dashboard_screen.dart';
 import 'screens/buyer/buyer_favorites_screen.dart';
 import 'screens/buyer/buyer_inquiries_screen.dart';
 import 'screens/buyer/buyer_profile_screen.dart';
-
+import 'screens/farmer/farmer_notification_screen.dart';
+import 'providers/notification_provider.dart';
+import 'providers/admin_dashboard_provider.dart';
+import 'screens/admin/admin_dashboard_screen.dart';
+import 'providers/admin_users_provider.dart';
+import 'screens/admin/admin_users_screen.dart';
+import 'providers/admin_crops_provider.dart';
+import 'screens/admin/admin_crops_screen.dart';
+import 'providers/admin_analytics_provider.dart';
+import 'screens/admin/admin_analytics_screen.dart';
+import 'providers/admin_reports_provider.dart';
+import 'screens/admin/admin_reports_screen.dart';
+import 'screens/admin/admin_profile_screen.dart';
+import 'screens/admin/admin_main_screen.dart';
+import 'screens/auth/forgot_password_screen.dart';
 class AgriConnectApp extends StatelessWidget {
   const AgriConnectApp({super.key});
 
@@ -77,6 +91,14 @@ class AgriConnectApp extends StatelessWidget {
       '/buyerFavorites': const BuyerFavoritesScreen(),
       '/buyer-inquiries': const BuyerInquiriesScreen(),
       '/buyerProfile': const BuyerProfileScreen(),
+      '/notifications':  const FarmerNotificationScreen(),
+      '/adminDashboard': const AdminMainScreen(),
+      '/adminUsers': const AdminUsersScreen(),
+      '/adminCrops': const AdminCropsScreen(),
+      '/adminAnalytics': const AdminAnalyticsScreen(),
+      '/adminReports': const AdminReportsScreen(),
+      '/adminProfile': const AdminProfileScreen(),
+      '/forgotPassword': const ForgotPasswordScreen(),
     };
 
     return _animatedRoute(
@@ -118,6 +140,22 @@ class AgriConnectApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<ChatProvider>(
           create: (_) => ChatProvider(),
+        ),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(
+          create: (_) => AdminDashboardProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AdminUsersProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AdminCropsProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AdminAnalyticsProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AdminReportsProvider(),
         ),
       ],
       child: MaterialApp(

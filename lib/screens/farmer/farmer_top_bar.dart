@@ -23,29 +23,26 @@ class FarmerTopBar extends StatelessWidget implements PreferredSizeWidget {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       automaticallyImplyLeading: false,
-      centerTitle: false,
       toolbarHeight: 72,
+      centerTitle: true,
 
-      title: Row(
-        children: [
-          const Icon(
-            Icons.eco_rounded,
-            color: Colors.white,
-            size: 28,
-          ),
+      leading: const Padding(
+        padding: EdgeInsets.only(left: 14),
+        child: Icon(
+          Icons.agriculture_outlined,
+          color: Colors.white,
+          size: 24,
+        ),
+      ),
 
-          const SizedBox(width: 10),
-
-          Text(
-            title,
-            style: GoogleFonts.outfit(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.3,
-            ),
-          )
-        ],
+      title: Text(
+        title,
+        style: GoogleFonts.outfit(
+          color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.3,
+        ),
       ),
 
       actions: [
@@ -74,6 +71,7 @@ class FarmerTopBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
 
+                // Notification Badge
                 Positioned(
                   right: 10,
                   top: 10,

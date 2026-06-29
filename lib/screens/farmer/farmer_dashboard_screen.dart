@@ -8,6 +8,7 @@ import 'price_prediction_screen.dart';
 import 'disease_detection_screen.dart';
 import 'weather_forecast_screen.dart';
 import 'farmer_top_bar.dart';
+import 'farmer_notification_screen.dart';
 
 class FarmerDashboardScreen extends StatefulWidget {
   const FarmerDashboardScreen({super.key});
@@ -59,7 +60,12 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       appBar: FarmerTopBar(
         title: "Dashboard",
         onNotificationTap: () {
-          // notification screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const FarmerNotificationScreen(),
+            ),
+          );
         },
       ),
       backgroundColor: const Color(0xfff9fbfa),
