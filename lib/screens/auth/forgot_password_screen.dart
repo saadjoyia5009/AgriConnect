@@ -16,8 +16,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
   static const Color darkGreen = Color(0xFF0E5A3C);
 
   late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
+
 
   @override
   void initState() {
@@ -28,20 +27,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
       duration: const Duration(milliseconds: 850),
     );
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeIn,
-    );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.08),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
+
+
 
     _animationController.forward();
   }
@@ -59,11 +47,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _slideAnimation,
-          child: SafeArea(
+      body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 22),
               child: Column(
@@ -238,8 +222,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
               ),
             ),
           ),
-        ),
-      ),
+
+
     );
   }
 }

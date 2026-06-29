@@ -29,7 +29,7 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xfff9fbfa),
-      bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 2),
+      bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 3),
       body: SafeArea(
         child: Column(
           children: [

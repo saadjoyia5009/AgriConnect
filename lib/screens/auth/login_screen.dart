@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../providers/auth_provider.dart';
-import 'signup_screen.dart';
+import '../../widgets/auth/auth_background.dart';
+import '../../widgets/auth/auth_input_field.dart';
+import '../../widgets/auth/auth_role_dropdown.dart';
 import 'forgot_password_screen.dart';
+import 'signup_screen.dart';
+import 'package:animations/animations.dart';
+
+import '../farmer/farmer_dashboard_screen.dart';
+import '../buyer/buyer_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,403 +19,358 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
-    with SingleTickerProviderStateMixin {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+class _LoginScreenState extends State<LoginScreen> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
   static const Color darkGreen = Color(0xFF0E5A3C);
 
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 850),
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeIn,
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.08),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
-
-    _animationController.forward();
-  }
-
   @override
   void dispose() {
-    _animationController.dispose();
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
   }
 
+  Route _animatedRoute(Widget page) {
+    return PageRouteBuilder(
+      transitionDuration: const Duration(milliseconds: 500),
+      reverseTransitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (_, animation, secondaryAnimation) => page,
+      transitionsBuilder: (
+          context,
+          animation,
+          secondaryAnimation,
+          child,
+          ) {
+        return SharedAxisTransition(
+          animation: animation,
+          secondaryAnimation: secondaryAnimation,
+          transitionType: SharedAxisTransitionType.horizontal,
+          child: child,
+        );
+      },
+    );
+  }
+
+  void _openForgotPassword() {
+    Navigator.push(
+      context,
+      _animatedRoute(const ForgotPasswordScreen()),
+    );
+  }
+
+  void _openSignup() {
+    Navigator.push(
+      context,
+      _animatedRoute(const SignupScreen()),
+    );
+  }
+
+  void _navigateByRole(String role) {
+    Widget? screen;
+
+    switch (role.toLowerCase()) {
+      case "farmer":
+        screen = const FarmerDashboardScreen();
+        break;
+
+      case "buyer":
+        screen = const BuyerDashboardScreen();
+        break;
+
+      case "admin":
+        Navigator.pushReplacementNamed(context, '/adminDashboard');
+        return;
+    }
+
+    if (screen == null) return;
+
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 500),
+        reverseTransitionDuration: const Duration(milliseconds: 350),
+        pageBuilder: (_, __, ___) => screen!,
+        transitionsBuilder: (_, animation, secondaryAnimation, child) {
+          return FadeThroughTransition(
+            animation: animation,
+            secondaryAnimation: secondaryAnimation,
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _login(AuthProvider authProvider) async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter email and password first"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final success = await authProvider.login(
+      email: email,
+      password: password,
+    );
+
+    if (!mounted) return;
+
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(authProvider.errorMessage ?? "Invalid email or password"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    _navigateByRole(authProvider.role);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _slideAnimation,
+      backgroundColor: Colors.transparent,
+      body: AuthBackground(
+        child: SizedBox.expand(
           child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 22),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          height: 42,
-                          width: 42,
-                          decoration: BoxDecoration(
-                            color: darkGreen,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(Icons.eco, color: Colors.white),
-                        ),
-                        const SizedBox(width: 22),
-                        const Text(
-                          "AgriConnect",
-                          style: TextStyle(
-                            color: darkGreen,
-                            fontSize: 29,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  const Center(
-                    child: Text(
-                      "Welcome back",
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF1D1D1D),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  const Center(
-                    child: Text(
-                      "Please enter your details to sign in.",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF4A4A4A),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  const Text(
-                    "Email",
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  TextField(
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      hintText: "farmer@example.com",
-                      prefixIcon: const Icon(Icons.email_outlined),
-                      filled: true,
-                      fillColor: const Color(0xFFF8FAF9),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  const Text(
-                    "Password",
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  TextField(
-                    controller: passwordController,
-                    obscureText: authProvider.isPasswordHidden,
-                    decoration: InputDecoration(
-                      hintText: "••••••••",
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      suffixIcon: IconButton(
-                        onPressed: authProvider.togglePasswordVisibility,
-                        icon: Icon(
-                          authProvider.isPasswordHidden
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                        ),
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFFF8FAF9),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  const Text(
-                    "Select Your Role",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF26332D),
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  DropdownButtonFormField<String>(
-                    value: authProvider.selectedRole,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(
-                        Icons.person_outline,
-                        color: darkGreen,
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFFF8FAF9),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFD8E6DE),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: darkGreen,
-                          width: 1.5,
-                        ),
-                      ),
-                    ),
-                    items: const [
-                      DropdownMenuItem(value: "Farmer", child: Text("Farmer")),
-                      DropdownMenuItem(value: "Buyer", child: Text("Buyer")),
-                      DropdownMenuItem(value: "Admin", child: Text("Admin")),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        authProvider.selectRole(value);
-                      }
-                    },
-                  ),
-
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: authProvider.rememberMe,
-                        onChanged: (value) {
-                          authProvider.toggleRememberMe(value ?? false);
-                        },
-                        activeColor: darkGreen,
-                      ),
-                      const Text(
-                        "Remember me",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ForgotPasswordScreen(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          "Forgot Password?",
-                          style: TextStyle(
-                            color: darkGreen,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  SizedBox(
+            child: Center(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 24,
+                ),
+                child: RepaintBoundary(
+                  child: Container(
                     width: double.infinity,
-                    height: 45,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final email = emailController.text.trim();
-                        final password = passwordController.text.trim();
-
-                        if (email.isEmpty || password.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Please enter email and password first"),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-
-                        if (authProvider.selectedRole == "Farmer") {
-                          Navigator.pushReplacementNamed(context, '/farmerDashboard');
-                        } else if (authProvider.selectedRole == "Buyer") {
-                          Navigator.pushReplacementNamed(context, '/buyerDashboard');
-                        } else if (authProvider.selectedRole == "Admin") {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Admin dashboard not created yet")),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: darkGreen,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(9),
+                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.74),
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.55),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.18),
+                          blurRadius: 18,
+                          offset: const Offset(0, 10),
                         ),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Sign In",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          SizedBox(width: 14),
-                          Icon(Icons.arrow_forward),
-                        ],
-                      ),
+                      ],
                     ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  Row(
-                    children: [
-                      Expanded(child: Divider(color: Colors.grey.shade300)),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          "OR CONTINUE WITH",
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                      Expanded(child: Divider(color: Colors.grey.shade300)),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.g_mobiledata,
-                            color: Colors.red,
-                          ),
-                          label: const Text("Google"),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.black87,
-                            minimumSize: const Size(0, 50),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.store,
-                            color: Colors.blue,
-                          ),
-                          label: const Text("Market"),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.black87,
-                            minimumSize: const Size(0, 50),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Don't have an account? ",
-                          style: TextStyle(
-                            color: Colors.black54,
-                            fontSize: 15,
+                        _logo(),
+                        const SizedBox(height: 30),
+
+                        const Center(
+                          child: Text(
+                            "Welcome back",
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF1D1D1D),
+                            ),
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SignupScreen(),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            "Sign Up",
+
+                        const SizedBox(height: 8),
+
+                        const Center(
+                          child: Text(
+                            "Please enter your details to sign in.",
                             style: TextStyle(
-                              color: darkGreen,
                               fontSize: 15,
-                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF4A4A4A),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 28),
+
+                        _label("Email"),
+                        const SizedBox(height: 8),
+                        AuthInputField(
+                          controller: emailController,
+                          hintText: "farmer@example.com",
+                          icon: Icons.email_outlined,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        _label("Password"),
+                        const SizedBox(height: 8),
+                        AuthInputField(
+                          controller: passwordController,
+                          hintText: "••••••••",
+                          icon: Icons.lock_outline,
+                          obscureText: authProvider.isPasswordHidden,
+                          suffixIcon: IconButton(
+                            onPressed: authProvider.togglePasswordVisibility,
+                            icon: Icon(
+                              authProvider.isPasswordHidden
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        _label("Select Your Role"),
+                        const SizedBox(height: 8),
+                        AuthRoleDropdown(
+                          value: authProvider.selectedRole,
+                          onChanged: authProvider.selectRole,
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        Row(
+                          children: [
+                            const Spacer(),
+                            TextButton(
+                              onPressed: authProvider.isLoading
+                                  ? null
+                                  : _openForgotPassword,
+                              child: const Text(
+                                "Forgot Password?",
+                                style: TextStyle(
+                                  color: darkGreen,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        SizedBox(
+                          width: double.infinity,
+                          height: 54,
+                          child: ElevatedButton(
+                            onPressed: authProvider.isLoading
+                                ? null
+                                : () => _login(authProvider),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: darkGreen,
+                              foregroundColor: Colors.white,
+                              elevation: 4,
+                              shadowColor: darkGreen.withOpacity(0.20),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: authProvider.isLoading
+                                ? const SizedBox(
+                              height: 22,
+                              width: 22,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.4,
+                              ),
+                            )
+                                : const Text(
+                              "Login",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        Center(
+                          child: GestureDetector(
+                            onTap: authProvider.isLoading ? null : _openSignup,
+                            child: const Text.rich(
+                              TextSpan(
+                                text: "Don't have an account? ",
+                                style: TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: 14,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: "Sign Up",
+                                    style: TextStyle(
+                                      color: darkGreen,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _logo() {
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            height: 52,
+            width: 52,
+            decoration: BoxDecoration(
+              color: darkGreen,
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: const Icon(
+              Icons.eco,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
+          const SizedBox(width: 14),
+          const Text(
+            "AgriConnect",
+            style: TextStyle(
+              color: darkGreen,
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _label(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontWeight: FontWeight.w900,
+        color: Color(0xFF26332D),
       ),
     );
   }

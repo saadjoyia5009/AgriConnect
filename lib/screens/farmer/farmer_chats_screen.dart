@@ -85,23 +85,19 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
     final list = filteredChats;
 
     return Scaffold(
-      bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 3),
+      bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 2),
       backgroundColor: const Color(0xffF6FAF7),
       appBar: AppBar(
         backgroundColor: const Color(0xff0F5C3A),
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          "Buyer Chats",
+          "Chats",
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w900,
             fontSize: 22,
           ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: () {},
         ),
         actions: [
           IconButton(

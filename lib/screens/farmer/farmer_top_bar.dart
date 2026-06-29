@@ -1,0 +1,96 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class FarmerTopBar extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+  final VoidCallback? onNotificationTap;
+
+  const FarmerTopBar({
+    super.key,
+    required this.title,
+    this.onNotificationTap,
+  });
+
+  static const Color darkGreen = Color(0xFF0E5A3C);
+
+  @override
+  Size get preferredSize => const Size.fromHeight(72);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      backgroundColor: darkGreen,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      automaticallyImplyLeading: false,
+      centerTitle: false,
+      toolbarHeight: 72,
+
+      title: Row(
+        children: [
+          const Icon(
+            Icons.eco_rounded,
+            color: Colors.white,
+            size: 28,
+          ),
+
+          const SizedBox(width: 10),
+
+          Text(
+            title,
+            style: GoogleFonts.outfit(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.3,
+            ),
+          )
+        ],
+      ),
+
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: onNotificationTap ??
+                    () {
+                  Navigator.pushNamed(context, "/notifications");
+                },
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  height: 42,
+                  width: 42,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.notifications_none_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+
+                Positioned(
+                  right: 10,
+                  top: 10,
+                  child: Container(
+                    height: 8,
+                    width: 8,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

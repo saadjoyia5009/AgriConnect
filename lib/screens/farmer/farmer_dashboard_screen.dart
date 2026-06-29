@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:animations/animations.dart';
 import '../../providers/crop_provider.dart';
 import '../../widgets/farmer_bottom_navbar.dart';
+import 'add_crop_screen.dart';
+import 'price_prediction_screen.dart';
+import 'disease_detection_screen.dart';
+import 'weather_forecast_screen.dart';
+import 'farmer_top_bar.dart';
 
 class FarmerDashboardScreen extends StatefulWidget {
   const FarmerDashboardScreen({super.key});
@@ -12,7 +17,7 @@ class FarmerDashboardScreen extends StatefulWidget {
 }
 
 class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
-  bool _isLoading = true;
+  bool _isLoading = false;
   String? _errorMessage;
 
   @override
@@ -51,6 +56,12 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     final cropProvider = context.watch<CropProvider>();
 
     return Scaffold(
+      appBar: FarmerTopBar(
+        title: "Dashboard",
+        onNotificationTap: () {
+          // notification screen
+        },
+      ),
       backgroundColor: const Color(0xfff9fbfa),
       bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 0),
       body: SafeArea(
@@ -71,9 +82,6 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _topBar(context),
-                const SizedBox(height: 40),
-
                 Row(
                   children: [
                     Expanded(
@@ -124,87 +132,49 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                       icon: Icons.add,
                       title: "Add Crop",
                       active: true,
-                      onTap: () {
-                        Navigator.pushNamed(context, "/add-crop");
-                      },
+                      screen: const AddCropScreen(),
                     ),
                     _quickAction(
                       context,
                       icon: Icons.trending_up,
                       title: "Price\nPrediction",
-                      onTap: () {
-                        Navigator.pushNamed(
-                            context, "/price-prediction");
-                      },
+                      screen: const PricePredictionScreen(),
                     ),
                     _quickAction(
                       context,
                       icon: Icons.medical_services_outlined,
                       title: "Disease\nDetection",
-                      onTap: () {
-                        Navigator.pushNamed(
-                            context, "/disease-detection");
-                      },
+                      screen: const DiseaseDetectionScreen(),
                     ),
                     _quickAction(
                       context,
                       icon: Icons.cloud_outlined,
                       title: "Weather",
                       blueIcon: true,
-                      onTap: () {
-                        Navigator.pushNamed(context, "/weather");
-                      },
+                      screen: const WeatherForecastScreen(),
                     ),
                   ],
                 ),
 
                 const SizedBox(height: 45),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Recent Inquiries",
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff202525),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, "/inquiries");
-                      },
-                      child: const Text(
-                        "View All",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xff075739),
-                        ),
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 42),
+
+                const Text(
+                  "Daily Farming Tip",
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xff202525),
+                  ),
                 ),
+
+                const SizedBox(height: 14),
+
+                _dailyTipCard(),
 
                 const SizedBox(height: 12),
 
-                if (cropProvider.recentInquiries.isEmpty)
-                  _emptyInquiryCard()
-                else
-                  ...cropProvider.recentInquiries.map(
-                        (inquiry) => Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: _inquiryCard(
-                        name: inquiry.buyerName,
-                        message: inquiry.message,
-                        time: inquiry.timeAgo,
-                        image: inquiry.buyerImage,
-                        avatarText: inquiry.avatarText,
-                        showDot: inquiry.isUnread,
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
@@ -249,48 +219,6 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     );
   }
 
-  Widget _topBar(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Icon(Icons.menu, size: 30, color: Color(0xff075739)),
-        const Text(
-          "AgriConnect",
-          style: TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            color: Color(0xff075739),
-          ),
-        ),
-        GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(context, "/notifications");
-          },
-          child: Stack(
-            children: [
-              const Icon(
-                Icons.notifications_none,
-                size: 30,
-                color: Color(0xff075739),
-              ),
-              Positioned(
-                right: 2,
-                top: 2,
-                child: Container(
-                  height: 9,
-                  width: 9,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _statsCard({
     required IconData icon,
@@ -342,6 +270,118 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
               fontSize: 12,
               color: Color(0xff6d7471),
               fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _dailyTipCard() {
+    final tips = [
+      {
+        "title": "Water Early Morning",
+        "tip": "Water your crops early in the morning to reduce evaporation and help roots absorb moisture better.",
+        "icon": Icons.water_drop_outlined,
+      },
+      {
+        "title": "Check Leaves Regularly",
+        "tip": "Inspect crop leaves twice a week. Early disease signs can save your whole field from damage.",
+        "icon": Icons.health_and_safety_outlined,
+      },
+      {
+        "title": "Use Balanced Fertilizer",
+        "tip": "Avoid overusing fertilizer. Balanced nutrients improve crop growth and protect soil quality.",
+        "icon": Icons.eco_outlined,
+      },
+      {
+        "title": "Monitor Market Price",
+        "tip": "Before selling, compare crop prices and use price prediction to choose a better selling time.",
+        "icon": Icons.trending_up_rounded,
+      },
+      {
+        "title": "Remove Weeds Early",
+        "tip": "Remove weeds before they grow large because they compete with crops for water and nutrients.",
+        "icon": Icons.grass_outlined,
+      },
+    ];
+
+    final todayIndex = DateTime.now().day % tips.length;
+    final todayTip = tips[todayIndex];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xffeaf7f0),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xffbfe8ce)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 54,
+            width: 54,
+            decoration: BoxDecoration(
+              color: const Color(0xff075739),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              todayTip["icon"] as IconData,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+
+          const SizedBox(width: 16),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  todayTip["title"] as String,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xff202525),
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  todayTip["tip"] as String,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    height: 1.45,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xff3e4542),
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 7,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    "Tip updates daily",
+                    style: TextStyle(
+                      color: Color(0xff075739),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -442,163 +482,60 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       ),
     );
   }
-
   Widget _quickAction(
       BuildContext context, {
         required IconData icon,
         required String title,
-        required VoidCallback onTap,
+        required Widget screen,
         bool active = false,
         bool blueIcon = false,
       }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            height: 66,
-            width: 66,
-            decoration: BoxDecoration(
-              color: active ? const Color(0xff2d7153) : const Color(0xffe5e8e6),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              size: 28,
-              color: active
-                  ? Colors.white
-                  : blueIcon
-                  ? const Color(0xff008fe2)
-                  : const Color(0xff27634a),
-            ),
-          ),
-          const SizedBox(height: 9),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 15,
-              height: 1.2,
-              color: Color(0xff3f4845),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _emptyInquiryCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xffbfe8ce)),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Text(
-        "No recent inquiries found",
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 16,
-          color: Color(0xff6d7471),
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-
-  Widget _inquiryCard({
-    required String name,
-    required String message,
-    required String time,
-    String? avatarText,
-    String? image,
-    bool showDot = false,
-  }) {
-    return Container(
-      height: 110,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xffbfe8ce)),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: const Color(0xffcdeed3),
-            backgroundImage: image != null && image.isNotEmpty
-                ? NetworkImage(image)
-                : null,
-            child: image == null || image.isEmpty
-                ? Text(
-              avatarText ?? name.substring(0, 1).toUpperCase(),
-              style: const TextStyle(
-                color: Color(0xff1a573a),
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            )
-                : null,
-          ),
-          const SizedBox(width: 18),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff202525),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  message,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    height: 1.35,
-                    color: Color(0xff3e4542),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+    return OpenContainer(
+      transitionDuration: const Duration(milliseconds: 450),
+      closedElevation: 0,
+      openElevation: 0,
+      closedColor: Colors.transparent,
+      openColor: Colors.white,
+      closedBuilder: (context, openContainer) {
+        return GestureDetector(
+          onTap: openContainer,
+          child: Column(
             children: [
+              Container(
+                height: 66,
+                width: 66,
+                decoration: BoxDecoration(
+                  color: active ? const Color(0xff2d7153) : const Color(0xffe5e8e6),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  size: 28,
+                  color: active
+                      ? Colors.white
+                      : blueIcon
+                      ? const Color(0xff008fe2)
+                      : const Color(0xff27634a),
+                ),
+              ),
+              const SizedBox(height: 9),
               Text(
-                time,
+                title,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xff737b78),
+                  fontSize: 15,
+                  height: 1.2,
+                  color: Color(0xff3f4845),
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              if (showDot) ...[
-                const SizedBox(height: 15),
-                Container(
-                  height: 9,
-                  width: 9,
-                  decoration: const BoxDecoration(
-                    color: Color(0xff075739),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ],
             ],
           ),
-        ],
-      ),
+        );
+      },
+      openBuilder: (context, _) => screen,
     );
   }
+
+
 }
