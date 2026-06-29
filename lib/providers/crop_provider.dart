@@ -175,11 +175,10 @@ class CropProvider extends ChangeNotifier {
 
   Future<void> fetchFarmerDashboard() async {
     try {
-      isLoading = true;
       errorMessage = null;
-      notifyListeners();
 
-      await Future.delayed(const Duration(milliseconds: 500));
+      // Backend attach hone ke baad yahan API call hogi.
+      // Abhi dummy data instantly load hoga, loading indicator show nahi hoga.
 
       activeCrops = activeCount;
       newInquiries = 2;
@@ -207,10 +206,8 @@ class CropProvider extends ChangeNotifier {
         ),
       ];
 
-      isLoading = false;
       notifyListeners();
     } catch (e) {
-      isLoading = false;
       errorMessage = "Failed to load dashboard data";
       notifyListeners();
     }

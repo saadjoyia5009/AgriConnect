@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 
 class FarmerBottomNavbar extends StatelessWidget {
   final int currentIndex;
@@ -8,59 +9,46 @@ class FarmerBottomNavbar extends StatelessWidget {
     required this.currentIndex,
   });
 
+  static const Color darkGreen = Color(0xff075739);
+
+
+
+  void _navigate(BuildContext context, int index) {
+    if (index == currentIndex) return;
+
+    final routes = [
+      '/farmerDashboard',
+      '/myCrops',
+      '/farmerChats',
+      '/farmerInquiries',
+      '/profile',
+    ];
+
+    Navigator.pushReplacementNamed(
+      context,
+      routes[index],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: const Color(0xff075739),
-      unselectedItemColor: Colors.grey,
-      onTap: (index) {
-        if (index == currentIndex) return;
-
-        switch (index) {
-          case 0:
-            Navigator.pushReplacementNamed(context, '/farmerDashboard');
-            break;
-
-          case 1:
-            Navigator.pushReplacementNamed(context, '/myCrops');
-            break;
-
-          case 2:
-            Navigator.pushReplacementNamed(context, '/farmerInquiries');
-            break;
-
-          case 3:
-            Navigator.pushReplacementNamed(context, '/farmerChats');
-            break;
-
-          case 4:
-            Navigator.pushReplacementNamed(context, '/profile');
-            break;
-        }
-      },
+    return ConvexAppBar(
+      initialActiveIndex: currentIndex,
+      backgroundColor: Colors.white,
+      color: Colors.grey,
+      activeColor: darkGreen,
+      style: TabStyle.fixedCircle,
+      height: 62,
+      curveSize: 86,
+      top: -22,
+      elevation: 8,
+      onTap: (index) => _navigate(context, index),
       items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: "Home",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.local_florist),
-          label: "My Crops",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.assignment),
-          label: "Inquiries",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat_bubble),
-          label: "Chats",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: "Profile",
-        ),
+        TabItem(icon: Icons.home_rounded, title: 'Home'),
+        TabItem(icon: Icons.local_florist_rounded, title: 'Crops'),
+        TabItem(icon: Icons.chat_bubble_rounded, title: 'Chats'),
+        TabItem(icon: Icons.assignment_rounded, title: 'Inquiry'),
+        TabItem(icon: Icons.person_rounded, title: 'Profile'),
       ],
     );
   }

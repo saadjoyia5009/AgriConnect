@@ -6,143 +6,151 @@ class OnboardingScreenThree extends StatelessWidget {
 
   static const Color darkGreen = Color(0xFF0E5A3C);
 
+  void _goToLogin(BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 600),
+        pageBuilder: (_, animation, __) => const LoginScreen(),
+        transitionsBuilder: (_, animation, __, child) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+          );
+
+          return FadeTransition(
+            opacity: curved,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.08, 0),
+                end: Offset.zero,
+              ).animate(curved),
+              child: child,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:  Colors.white,
-      body: SafeArea(
-        child: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Column(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(18),
-                  topRight: Radius.circular(18),
-                ),
-                child: Image.asset(
-                  'assets/images/onboarding3.jpeg',
-                  height: 410,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+      body: TweenAnimationBuilder<double>(
+        duration: const Duration(milliseconds: 700),
+        curve: Curves.easeOutCubic,
+        tween: Tween(begin: 0, end: 1),
+        builder: (context, value, child) {
+          return Opacity(
+            opacity: value,
+            child: Transform.translate(
+              offset: Offset(0, 24 * (1 - value)),
+              child: child,
+            ),
+          );
+        },
+        child: Stack(
+          children: [
+            SizedBox(
+              height: double.infinity,
+              width: double.infinity,
+              child: Image.asset(
+                'assets/images/img.png',
+                fit: BoxFit.cover,
               ),
+            ),
 
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(24, 62, 24, 32),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(28),
-                      topRight: Radius.circular(28),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: double.infinity,
+                height: 235,
+                padding: const EdgeInsets.fromLTRB(22, 36, 22, 28),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(34),
+                    topRight: Radius.circular(34),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Direct Marketplace',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: darkGreen,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 62,
-                        width: 62,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFB8F5D4),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.storefront,
-                          color: darkGreen,
-                          size: 30,
-                        ),
+
+                    const SizedBox(height: 10),
+
+                    const Text(
+                      'Skip the middleman. Connect directly\nwith buyers and get the best value\nfor your hard work.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF333333),
+                        fontSize: 15.5,
+                        height: 1.45,
+                        fontWeight: FontWeight.w400,
                       ),
+                    ),
 
-                      const SizedBox(height: 34),
+                    const Spacer(),
 
-                      const Text(
-                        'Direct Marketplace',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color(0xFF1D1D1D),
-                          fontSize: 27,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      const Text(
-                        'Skip the middleman. Connect\ndirectly with buyers and get the\nbest value for your hard work.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color(0xFF3F3F3F),
-                          fontSize: 17,
-                          height: 1.45,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-
-                      const Spacer(),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _dot(),
-                          const SizedBox(width: 8),
-                          _dot(),
-                          const SizedBox(width: 8),
-                          Container(
-                            width: 32,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: darkGreen,
-                              borderRadius: BorderRadius.circular(12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            _dot(),
+                            const SizedBox(width: 8),
+                            _dot(),
+                            const SizedBox(width: 8),
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              width: 28,
+                              height: 7,
+                              decoration: BoxDecoration(
+                                color: darkGreen,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
 
-                      const SizedBox(height: 14),
-
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => LoginScreen(),
-                                ),
-                              );
-                            },
-
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: darkGreen,
-                            foregroundColor: Colors.white,
-                            elevation: 8,
-                            shadowColor: darkGreen.withOpacity(0.25),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(9),
+                        SizedBox(
+                          height: 52,
+                          width: 135,
+                          child: ElevatedButton(
+                            onPressed: () => _goToLogin(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: darkGreen,
+                              foregroundColor: Colors.white,
+                              elevation: 10,
+                              shadowColor: darkGreen.withOpacity(0.35),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(28),
+                              ),
                             ),
-                          ),
-                          child: const Text(
-                            'Get Started',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w800,
+                            child: const Text(
+                              'Get Started',
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
