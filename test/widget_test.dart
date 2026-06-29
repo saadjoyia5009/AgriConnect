@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:agriconnect/main.dart';
+import 'package:agriconnect/app.dart';
 
 void main() {
   testWidgets('AgriConnect app smoke test', (WidgetTester tester) async {
