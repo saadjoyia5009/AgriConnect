@@ -28,6 +28,18 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
   late final TextEditingController _phoneController;
   late final TextEditingController _locationController;
 
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color lightBackground = Color(0xffF8FAF7);
+  static const Color darkBackground = Color(0xFF0B1410);
+  static const Color darkCard = Color(0xFF15251E);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get accentColor => isDark ? lightGreen : darkGreen;
+  Color get primaryText => isDark ? Colors.white : const Color(0xff10291D);
+  Color get secondaryText => isDark ? Colors.white70 : const Color(0xff5F675F);
+
   @override
   void initState() {
     super.initState();
@@ -87,7 +99,10 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Profile updated successfully")),
+        SnackBar(
+          content: const Text("Profile updated successfully"),
+          backgroundColor: darkGreen,
+        ),
       );
       Navigator.pop(context);
     }
@@ -96,20 +111,20 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF8FAF7),
+      backgroundColor: isDark ? darkBackground : lightBackground,
       appBar: AppBar(
-        backgroundColor: const Color(0xffF8FAF7),
+        backgroundColor: isDark ? darkBackground : lightBackground,
         elevation: 0,
-        title: const Text(
+        title: Text(
           "Edit Profile",
           style: TextStyle(
-            color: Color(0xff0F5C3A),
+            color: accentColor,
             fontWeight: FontWeight.w900,
           ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xff0F5C3A)),
+          icon: Icon(Icons.arrow_back, color: accentColor),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -153,8 +168,9 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
                     child: ElevatedButton(
                       onPressed: provider.isUpdating ? null : _updateProfile,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff0F5C3A),
-                        disabledBackgroundColor: Colors.grey.shade400,
+                        backgroundColor: darkGreen,
+                        disabledBackgroundColor:
+                        isDark ? darkGreen.withOpacity(0.45) : Colors.grey.shade400,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -191,11 +207,11 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
               onTap: _pickProfileImage,
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               "Tap image to change profile photo",
               style: TextStyle(
                 fontSize: 12,
-                color: Color(0xff5F675F),
+                color: secondaryText,
               ),
             ),
           ],
@@ -211,6 +227,11 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
   }) {
     return TextFormField(
       controller: controller,
+      style: TextStyle(
+        color: primaryText,
+        fontWeight: FontWeight.w600,
+      ),
+      cursorColor: accentColor,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return "$label is required";
@@ -219,20 +240,47 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
       },
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: const Color(0xff0F5C3A)),
+        labelStyle: TextStyle(
+          color: isDark ? Colors.white60 : const Color(0xff5F675F),
+        ),
+        errorStyle: TextStyle(
+          color: isDark ? Colors.red.shade200 : Colors.red,
+          fontWeight: FontWeight.w600,
+        ),
+        prefixIcon: Icon(icon, color: accentColor),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: isDark ? darkCard : Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xffDCE7DD)),
+          borderSide: BorderSide(
+            color: isDark ? Colors.white12 : const Color(0xffDCE7DD),
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xffDCE7DD)),
+          borderSide: BorderSide(
+            color: isDark ? Colors.white12 : const Color(0xffDCE7DD),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xff0F5C3A)),
+          borderSide: BorderSide(
+            color: accentColor,
+            width: 1.3,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(
+            color: isDark ? Colors.red.shade200 : Colors.red,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(
+            color: isDark ? Colors.red.shade200 : Colors.red,
+            width: 1.3,
+          ),
         ),
       ),
     );

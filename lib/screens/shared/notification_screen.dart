@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../models/notification_model.dart';
 import '../../providers/notification_provider.dart';
 
 class NotificationScreen extends StatelessWidget {
-  final String userRole; // farmer or buyer
+  final String userRole;
 
   const NotificationScreen({
     super.key,
@@ -13,7 +14,6 @@ class NotificationScreen extends StatelessWidget {
 
   static const Color darkGreen = Color(0xFF0E5A3C);
   static const Color lightGreen = Color(0xFFEAF7F0);
-  static const Color bgColor = Color(0xFFF6F8F5);
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class NotificationScreen extends StatelessWidget {
     final unreadCount = provider.unreadCount(userRole);
 
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
@@ -78,16 +78,9 @@ class NotificationScreen extends StatelessWidget {
                       SnackBar(
                         content: Text(notification.title),
                         behavior: SnackBarBehavior.floating,
+                        backgroundColor: darkGreen,
                       ),
                     );
-
-                    // Future navigation:
-                    // if (notification.navigationType == "chat") {
-                    //   Navigator.push(...ChatScreen);
-                    // }
-                    // if (notification.navigationType == "inquiry_detail") {
-                    //   Navigator.push(...InquiryDetailScreen);
-                    // }
                   },
                 );
               },
@@ -195,6 +188,8 @@ class _FilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SizedBox(
       height: 48,
       child: ListView.separated(
@@ -211,9 +206,13 @@ class _FilterChips extends StatelessWidget {
             selected: isSelected,
             onSelected: (_) => onChanged(filter),
             selectedColor: NotificationScreen.darkGreen,
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).cardColor,
             labelStyle: TextStyle(
-              color: isSelected ? Colors.white : const Color(0xFF1E3328),
+              color: isSelected
+                  ? Colors.white
+                  : isDark
+                  ? Colors.white
+                  : const Color(0xFF1E3328),
               fontWeight: FontWeight.w800,
             ),
             shape: RoundedRectangleBorder(
@@ -221,6 +220,8 @@ class _FilterChips extends StatelessWidget {
               side: BorderSide(
                 color: isSelected
                     ? NotificationScreen.darkGreen
+                    : isDark
+                    ? Colors.white12
                     : Colors.grey.shade300,
               ),
             ),
@@ -266,6 +267,8 @@ class _NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return InkWell(
       borderRadius: BorderRadius.circular(22),
       onTap: onTap,
@@ -273,17 +276,26 @@ class _NotificationCard extends StatelessWidget {
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color:
-          notification.isRead ? Colors.white : NotificationScreen.lightGreen,
+          color: notification.isRead
+              ? Theme.of(context).cardColor
+              : isDark
+              ? const Color(0xFF173526)
+              : NotificationScreen.lightGreen,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
             color: notification.isRead
-                ? Colors.grey.shade200
-                : NotificationScreen.darkGreen.withOpacity(0.22),
+                ? isDark
+                ? Colors.white12
+                : Colors.grey.shade200
+                : NotificationScreen.darkGreen.withOpacity(
+              isDark ? 0.45 : 0.22,
+            ),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.045),
+              color: isDark
+                  ? Colors.black.withOpacity(0.18)
+                  : Colors.black.withOpacity(0.045),
               blurRadius: 18,
               offset: const Offset(0, 8),
             ),
@@ -298,7 +310,7 @@ class _NotificationCard extends StatelessWidget {
                   height: 52,
                   width: 52,
                   decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.12),
+                    color: iconColor.withOpacity(isDark ? 0.20 : 0.12),
                     borderRadius: BorderRadius.circular(17),
                   ),
                   child: Icon(
@@ -329,8 +341,8 @@ class _NotificationCard extends StatelessWidget {
                 children: [
                   Text(
                     notification.title,
-                    style: const TextStyle(
-                      color: Color(0xFF16251C),
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                       fontSize: 15.5,
                       fontWeight: FontWeight.w900,
                     ),
@@ -339,7 +351,7 @@ class _NotificationCard extends StatelessWidget {
                   Text(
                     notification.message,
                     style: TextStyle(
-                      color: Colors.grey.shade700,
+                      color: isDark ? Colors.white60 : Colors.grey.shade700,
                       fontSize: 13.5,
                       height: 1.35,
                       fontWeight: FontWeight.w500,
@@ -351,13 +363,14 @@ class _NotificationCard extends StatelessWidget {
                       Icon(
                         Icons.access_time_rounded,
                         size: 15,
-                        color: Colors.grey.shade500,
+                        color: isDark ? Colors.white54 : Colors.grey.shade500,
                       ),
                       const SizedBox(width: 5),
                       Text(
                         notification.time,
                         style: TextStyle(
-                          color: Colors.grey.shade600,
+                          color:
+                          isDark ? Colors.white60 : Colors.grey.shade600,
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
                         ),
@@ -370,7 +383,7 @@ class _NotificationCard extends StatelessWidget {
             const SizedBox(width: 6),
             Icon(
               Icons.chevron_right_rounded,
-              color: Colors.grey.shade400,
+              color: isDark ? Colors.white38 : Colors.grey.shade400,
             ),
           ],
         ),
@@ -388,6 +401,8 @@ class _EmptyNotificationView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final message = userRole == "farmer"
         ? "New inquiries and buyer chat alerts will appear here."
         : "Inquiry updates and farmer chat alerts will appear here.";
@@ -401,15 +416,15 @@ class _EmptyNotificationView extends StatelessWidget {
             Icon(
               Icons.notifications_none_rounded,
               size: 76,
-              color: Colors.grey.shade400,
+              color: isDark ? Colors.white38 : Colors.grey.shade400,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               "No notifications found",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF16251C),
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
             const SizedBox(height: 8),
@@ -417,7 +432,7 @@ class _EmptyNotificationView extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.grey.shade600,
+                color: isDark ? Colors.white60 : Colors.grey.shade600,
                 fontWeight: FontWeight.w500,
               ),
             ),

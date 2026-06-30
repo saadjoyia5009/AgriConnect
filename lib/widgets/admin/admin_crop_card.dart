@@ -18,6 +18,8 @@ class AdminCropCard extends StatelessWidget {
   });
 
   static const Color darkGreen = Color(0xFF0E5A3C);
+  static const Color lightGreen = Color(0xff9ff2c1);
+  static const Color darkCard = Color(0xFF15251E);
 
   Color get statusColor {
     switch (crop.status) {
@@ -34,15 +36,20 @@ class AdminCropCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? darkCard : Colors.white,
         borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: isDark ? Colors.white10 : Colors.transparent,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.055),
+            color: Colors.black.withOpacity(isDark ? 0.22 : 0.055),
             blurRadius: 16,
             offset: const Offset(0, 9),
           ),
@@ -56,12 +63,14 @@ class AdminCropCard extends StatelessWidget {
                 height: 54,
                 width: 54,
                 decoration: BoxDecoration(
-                  color: darkGreen.withOpacity(0.12),
+                  color: isDark
+                      ? darkGreen.withOpacity(0.28)
+                      : darkGreen.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(17),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.grass_rounded,
-                  color: darkGreen,
+                  color: isDark ? lightGreen : darkGreen,
                   size: 28,
                 ),
               ),
@@ -74,10 +83,10 @@ class AdminCropCard extends StatelessWidget {
                       crop.cropName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF1F3328),
+                        color: isDark ? Colors.white : const Color(0xFF1F3328),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -87,7 +96,7 @@ class AdminCropCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12.5,
-                        color: Colors.grey.shade600,
+                        color: isDark ? Colors.white70 : Colors.grey.shade600,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -95,6 +104,8 @@ class AdminCropCard extends StatelessWidget {
                 ),
               ),
               PopupMenuButton<String>(
+                color: isDark ? const Color(0xFF1E3128) : Colors.white,
+                iconColor: isDark ? Colors.white70 : Colors.black87,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -109,11 +120,21 @@ class AdminCropCard extends StatelessWidget {
                       crop.status == "Active"
                           ? "Mark Inactive"
                           : "Mark Active",
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black87,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: "delete",
-                    child: Text("Delete Listing"),
+                    child: Text(
+                      "Delete Listing",
+                      style: TextStyle(
+                        color: isDark ? Colors.red.shade200 : Colors.red,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -122,29 +143,29 @@ class AdminCropCard extends StatelessWidget {
           const SizedBox(height: 14),
           Row(
             children: [
-              _info(Icons.category_rounded, crop.category),
+              _info(context, Icons.category_rounded, crop.category),
               const SizedBox(width: 10),
-              _info(Icons.location_on_rounded, crop.location),
+              _info(context, Icons.location_on_rounded, crop.location),
             ],
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-              _info(Icons.payments_rounded, crop.price),
+              _info(context, Icons.payments_rounded, crop.price),
               const SizedBox(width: 10),
-              _info(Icons.inventory_2_rounded, crop.quantity),
+              _info(context, Icons.inventory_2_rounded, crop.quantity),
             ],
           ),
           const SizedBox(height: 12),
           Row(
             children: [
-              _chip(crop.status, statusColor),
+              _chip(context, crop.status, statusColor),
               const Spacer(),
               Text(
                 crop.listedDate,
                 style: TextStyle(
                   fontSize: 11.5,
-                  color: Colors.grey.shade500,
+                  color: isDark ? Colors.white54 : Colors.grey.shade500,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -158,11 +179,17 @@ class AdminCropCard extends StatelessWidget {
         .slideY(begin: 0.14, end: 0);
   }
 
-  Widget _info(IconData icon, String text) {
+  Widget _info(BuildContext context, IconData icon, String text) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Expanded(
       child: Row(
         children: [
-          Icon(icon, size: 15, color: Colors.grey.shade500),
+          Icon(
+            icon,
+            size: 15,
+            color: isDark ? Colors.white54 : Colors.grey.shade500,
+          ),
           const SizedBox(width: 5),
           Expanded(
             child: Text(
@@ -171,7 +198,7 @@ class AdminCropCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey.shade700,
+                color: isDark ? Colors.white70 : Colors.grey.shade700,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -181,18 +208,23 @@ class AdminCropCard extends StatelessWidget {
     );
   }
 
-  Widget _chip(String text, Color color) {
+  Widget _chip(BuildContext context, String text, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.11),
+        color: color.withOpacity(isDark ? 0.20 : 0.11),
         borderRadius: BorderRadius.circular(30),
+        border: Border.all(
+          color: color.withOpacity(isDark ? 0.28 : 0),
+        ),
       ),
       child: Text(
         text,
         style: TextStyle(
           fontSize: 11,
-          color: color,
+          color: isDark && color == Colors.grey ? Colors.white70 : color,
           fontWeight: FontWeight.w900,
         ),
       ),

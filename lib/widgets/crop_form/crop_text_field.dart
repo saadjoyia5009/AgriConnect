@@ -31,14 +31,23 @@ class CropTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label(label),
+        labelWidget(label, context),
         TextField(
           controller: controller,
           keyboardType: keyboardType,
           maxLines: maxLines,
           readOnly: readOnly,
           onTap: onTap,
+          style: TextStyle(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white
+                : const Color(0xff26332e),
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
+          cursorColor: darkGreen,
           decoration: inputDecoration(
+            context: context,
             hint: hint,
             icon: icon,
             suffixIcon: suffixIcon,
@@ -48,56 +57,68 @@ class CropTextField extends StatelessWidget {
     );
   }
 
-  static Widget labelWidget(String text) {
-    return _label(text);
-  }
+  static Widget labelWidget(String text, [BuildContext? context]) {
+    final isDark = context != null &&
+        Theme.of(context).brightness == Brightness.dark;
 
-  static Widget _label(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w800,
-          color: Color(0xff333333),
+          color: isDark ? Colors.white.withOpacity(0.86) : const Color(0xff333333),
         ),
       ),
     );
   }
 
   static InputDecoration inputDecoration({
+    BuildContext? context,
     required String hint,
     IconData? icon,
     IconData? suffixIcon,
   }) {
+    final isDark = context != null &&
+        Theme.of(context).brightness == Brightness.dark;
+
+    final iconColor = isDark ? Colors.white60 : const Color(0xff777777);
+    final borderColor = isDark ? Colors.white24 : const Color(0xffd8e6de);
+
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(fontSize: 13, color: Color(0xff777777)),
+      hintStyle: TextStyle(
+        fontSize: 13,
+        color: isDark ? Colors.white38 : const Color(0xff777777),
+      ),
       prefixIcon: icon == null
           ? null
           : Icon(
         icon,
         size: 18,
-        color: Color(0xff777777),
+        color: iconColor,
       ),
       suffixIcon: suffixIcon == null
           ? null
           : Icon(
         suffixIcon,
         size: 18,
-        color: Color(0xff777777),
+        color: iconColor,
       ),
       filled: true,
-      fillColor: const Color(0xfffbfcfb),
+      fillColor: isDark ? const Color(0xff1E1E1E) : const Color(0xfffbfcfb),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(7),
-        borderSide: const BorderSide(color: Color(0xffd8e6de)),
+        borderSide: BorderSide(color: borderColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(7),
-        borderSide: const BorderSide(color: darkGreen),
+        borderSide: BorderSide(
+          color: isDark ? const Color(0xff39b77a) : darkGreen,
+          width: 1.3,
+        ),
       ),
     );
   }

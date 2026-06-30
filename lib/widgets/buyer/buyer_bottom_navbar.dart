@@ -11,15 +11,22 @@ class BuyerBottomNavBar extends StatelessWidget {
     required this.onTap,
   });
 
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color lightGreen = Color(0xffA8F0C8);
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF15251E) : Colors.white,
         boxShadow: [
           BoxShadow(
             blurRadius: 20,
-            color: Colors.black12,
+            color: isDark
+                ? Colors.black.withOpacity(0.35)
+                : Colors.black12,
           ),
         ],
       ),
@@ -37,13 +44,24 @@ class BuyerBottomNavBar extends StatelessWidget {
             curve: Curves.easeOutExpo,
             rippleColor: Colors.transparent,
             hoverColor: Colors.transparent,
-            tabBackgroundColor: const Color(0xffA8F0C8),
-            color: Colors.grey,
-            activeColor: const Color(0xff1B5E20),
+
+            tabBackgroundColor: isDark
+                ? darkGreen.withOpacity(0.35)
+                : lightGreen,
+
+            color: isDark
+                ? Colors.white60
+                : Colors.grey,
+
+            activeColor: isDark
+                ? lightGreen
+                : darkGreen,
+
             padding: const EdgeInsets.symmetric(
               horizontal: 18,
               vertical: 14,
             ),
+
             tabs: const [
               GButton(
                 icon: Icons.home_outlined,

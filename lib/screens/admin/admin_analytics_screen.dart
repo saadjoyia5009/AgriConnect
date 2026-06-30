@@ -15,6 +15,17 @@ class AdminAnalyticsScreen extends StatefulWidget {
 
 class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   static const Color darkGreen = Color(0xFF0E5A3C);
+  static const Color lightBackground = Color(0xFFF4F8F5);
+  static const Color darkBackground = Color(0xFF0B1410);
+  static const Color darkCard = Color(0xFF15251E);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get accentColor => isDark ? lightGreen : darkGreen;
+  Color get primaryText => isDark ? Colors.white : const Color(0xFF123524);
+  Color get secondaryText => isDark ? Colors.white70 : Colors.grey.shade600;
+  Color get chartLabelColor => isDark ? Colors.white60 : Colors.grey.shade600;
 
   @override
   void initState() {
@@ -27,9 +38,9 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F8F5),
+      backgroundColor: isDark ? darkBackground : lightBackground,
       appBar: AppBar(
-        backgroundColor: darkGreen,
+        backgroundColor: isDark ? darkCard : darkGreen,
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -45,7 +56,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           }
 
           return RefreshIndicator(
-            color: darkGreen,
+            color: accentColor,
+            backgroundColor: isDark ? darkCard : Colors.white,
             onRefresh: provider.fetchAnalytics,
             child: ListView(
               physics: const BouncingScrollPhysics(),
@@ -70,8 +82,13 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
+        gradient: LinearGradient(
+          colors: isDark
+              ? const [
+            Color(0xFF123524),
+            Color(0xFF0E5A3C),
+          ]
+              : const [
             Color(0xFF0E5A3C),
             Color(0xFF157A52),
           ],
@@ -79,7 +96,9 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
         borderRadius: BorderRadius.circular(26),
         boxShadow: [
           BoxShadow(
-            color: darkGreen.withOpacity(0.22),
+            color: isDark
+                ? Colors.black.withOpacity(0.35)
+                : darkGreen.withOpacity(0.22),
             blurRadius: 22,
             offset: const Offset(0, 12),
           ),
@@ -94,10 +113,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           _summaryItem("Deals", provider.completedDeals.toString()),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(duration: 450.ms)
-        .slideY(begin: -0.12, end: 0);
+    ).animate().fadeIn(duration: 450.ms).slideY(begin: -0.12, end: 0);
   }
 
   Widget _summaryItem(String label, String value) {
@@ -113,6 +129,10 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
             ),
           ),
           const SizedBox(height: 5),
+          const Text(
+            " ",
+            style: TextStyle(fontSize: 0),
+          ),
           Text(
             label,
             style: const TextStyle(
@@ -129,7 +149,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     return Container(
       height: 42,
       width: 1,
-      color: Colors.white.withOpacity(0.25),
+      color: Colors.white.withOpacity(isDark ? 0.14 : 0.25),
     );
   }
 
@@ -147,7 +167,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
             drawVerticalLine: false,
             getDrawingHorizontalLine: (_) {
               return FlLine(
-                color: Colors.grey.withOpacity(0.18),
+                color: isDark ? Colors.white10 : Colors.grey.withOpacity(0.18),
                 strokeWidth: 1,
               );
             },
@@ -180,7 +200,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
-                        color: Colors.grey.shade600,
+                        color: chartLabelColor,
                       ),
                     ),
                   );
@@ -191,12 +211,12 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           lineBarsData: [
             LineChartBarData(
               isCurved: true,
-              color: darkGreen,
+              color: accentColor,
               barWidth: 4,
               dotData: const FlDotData(show: true),
               belowBarData: BarAreaData(
                 show: true,
-                color: darkGreen.withOpacity(0.10),
+                color: accentColor.withOpacity(0.12),
               ),
               spots: List.generate(
                 entries.length,
@@ -246,7 +266,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w800,
-                        color: Colors.grey.shade600,
+                        color: chartLabelColor,
                       ),
                     ),
                   );
@@ -262,7 +282,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                 BarChartRodData(
                   toY: entries[index].value,
                   width: 24,
-                  color: Colors.orange,
+                  color: isDark ? const Color(0xffffc166) : Colors.orange,
                   borderRadius: BorderRadius.circular(9),
                 ),
               ],
@@ -286,17 +306,17 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           sectionsSpace: 3,
           sections: List.generate(entries.length, (index) {
             final colors = [
-              Colors.orange,
-              Colors.green,
+              isDark ? const Color(0xffffc166) : Colors.orange,
+              isDark ? lightGreen : Colors.green,
               Colors.redAccent,
-              Colors.blue,
+              isDark ? const Color(0xff7bb8ff) : Colors.blue,
             ];
 
             return PieChartSectionData(
               value: entries[index].value,
               title: entries[index].key,
               radius: 62,
-              color: colors[index],
+              color: colors[index % colors.length],
               titleStyle: const TextStyle(
                 color: Colors.white,
                 fontSize: 11,
@@ -320,11 +340,14 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
       height: 285,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? darkCard : Colors.white,
         borderRadius: BorderRadius.circular(26),
+        border: Border.all(
+          color: isDark ? Colors.white10 : Colors.transparent,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.055),
+            color: Colors.black.withOpacity(isDark ? 0.22 : 0.055),
             blurRadius: 18,
             offset: const Offset(0, 10),
           ),
@@ -335,8 +358,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: Color(0xFF123524),
+            style: TextStyle(
+              color: primaryText,
               fontSize: 18,
               fontWeight: FontWeight.w900,
             ),
@@ -345,7 +368,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           Text(
             subtitle,
             style: TextStyle(
-              color: Colors.grey.shade600,
+              color: secondaryText,
               fontWeight: FontWeight.w600,
               fontSize: 12.5,
             ),
@@ -354,9 +377,6 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           Expanded(child: child),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(duration: 480.ms, delay: delay.ms)
-        .slideY(begin: 0.15, end: 0);
+    ).animate().fadeIn(duration: 480.ms, delay: delay.ms).slideY(begin: 0.15, end: 0);
   }
 }

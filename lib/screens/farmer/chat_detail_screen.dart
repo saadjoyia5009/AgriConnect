@@ -22,6 +22,8 @@ class ChatDetailScreen extends StatefulWidget {
 }
 
 class _ChatDetailScreenState extends State<ChatDetailScreen> {
+  static const Color darkGreen = Color(0xff0F5C3A);
+
   final TextEditingController _messageController = TextEditingController();
 
   @override
@@ -57,21 +59,23 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ChatProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: const Color(0xffF8F5EF),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xff0F5C3A),
+        backgroundColor: darkGreen,
         elevation: 0,
         titleSpacing: 0,
         title: Row(
           children: [
             CircleAvatar(
-              backgroundColor: const Color(0xffDFF4E4),
+              backgroundColor:
+              isDark ? Colors.white12 : const Color(0xffDFF4E4),
               child: Text(
                 _getInitials(widget.receiverName),
                 style: const TextStyle(
-                  color: Color(0xff0F5C3A),
+                  color: darkGreen,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -105,9 +109,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           Expanded(
             child: provider.isLoading
                 ? const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xff0F5C3A),
-              ),
+              child: CircularProgressIndicator(color: darkGreen),
             )
                 : ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -130,12 +132,16 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: isMe
-                          ? const Color(0xffDDF8D8)
-                          : Colors.white,
+                          ? isDark
+                          ? const Color(0xff214A36)
+                          : const Color(0xffDDF8D8)
+                          : Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: isDark
+                              ? Colors.black.withOpacity(0.18)
+                              : Colors.black.withOpacity(0.05),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -146,7 +152,11 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                       children: [
                         Text(
                           message.message,
-                          style: const TextStyle(
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.color,
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                             height: 1.35,
@@ -156,7 +166,9 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                         Text(
                           _formatTime(message.createdAt),
                           style: TextStyle(
-                            color: Colors.grey.shade600,
+                            color: isDark
+                                ? Colors.white60
+                                : Colors.grey.shade600,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -175,9 +187,11 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   }
 
   Widget _messageInput() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       child: SafeArea(
         top: false,
         child: Row(
@@ -186,7 +200,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               onPressed: () {},
               icon: Icon(
                 Icons.emoji_emotions_outlined,
-                color: Colors.grey.shade600,
+                color: isDark ? Colors.white70 : Colors.grey.shade600,
               ),
             ),
             Expanded(
@@ -194,8 +208,14 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                 controller: _messageController,
                 minLines: 1,
                 maxLines: 4,
-                decoration: const InputDecoration(
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+                decoration: InputDecoration(
                   hintText: "Type a message...",
+                  hintStyle: TextStyle(
+                    color: isDark ? Colors.white54 : Colors.grey.shade500,
+                  ),
                   border: InputBorder.none,
                 ),
               ),
@@ -204,12 +224,12 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               onPressed: () {},
               icon: Icon(
                 Icons.attach_file,
-                color: Colors.grey.shade600,
+                color: isDark ? Colors.white70 : Colors.grey.shade600,
               ),
             ),
             CircleAvatar(
               radius: 24,
-              backgroundColor: const Color(0xff0F5C3A),
+              backgroundColor: darkGreen,
               child: IconButton(
                 onPressed: _sendMessage,
                 icon: const Icon(

@@ -58,14 +58,18 @@ class AddCropFormCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return AbsorbPointer(
       absorbing: isSubmitting,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: const Color(0xffd8e6de)),
+          color: Theme.of(context).cardColor,
+          border: Border.all(
+            color: isDark ? Colors.white12 : const Color(0xffd8e6de),
+          ),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
@@ -79,17 +83,17 @@ class AddCropFormCard extends StatelessWidget {
                 fontWeight: FontWeight.w900,
               ),
             ),
-            const Divider(height: 28),
-
+            Divider(
+              height: 28,
+              color: isDark ? Colors.white12 : Colors.grey.shade300,
+            ),
             CropTextField(
               label: "Crop Name",
               controller: cropNameController,
               hint: "e.g., Organic Honeycrisp Apples",
               icon: Icons.grass_outlined,
             ),
-
             const SizedBox(height: 18),
-
             CropDropdown(
               label: "Category",
               value: selectedCategory,
@@ -105,9 +109,7 @@ class AddCropFormCard extends StatelessWidget {
               ],
               onChanged: onCategoryChanged,
             ),
-
             const SizedBox(height: 18),
-
             CropDropdown(
               label: "Crop Status",
               value: selectedStatus,
@@ -116,9 +118,7 @@ class AddCropFormCard extends StatelessWidget {
               items: const ["Active", "Sold Out"],
               onChanged: onStatusChanged,
             ),
-
             const SizedBox(height: 18),
-
             CropTextField(
               label: "Est. Harvest Date",
               controller: TextEditingController(text: harvestDate),
@@ -128,9 +128,7 @@ class AddCropFormCard extends StatelessWidget {
               readOnly: true,
               onTap: onPickHarvestDate,
             ),
-
             const SizedBox(height: 18),
-
             Row(
               children: [
                 Expanded(
@@ -154,9 +152,7 @@ class AddCropFormCard extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 18),
-
             CropTextField(
               label: "Price (per unit)",
               controller: priceController,
@@ -164,23 +160,21 @@ class AddCropFormCard extends StatelessWidget {
               icon: Icons.attach_money,
               keyboardType: TextInputType.number,
             ),
-
             const SizedBox(height: 18),
-
-            const Row(
+            Row(
               children: [
                 Text(
                   "Farm Location",
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xff333333),
+                    color: isDark ? Colors.white70 : const Color(0xff333333),
                   ),
                 ),
-                Spacer(),
-                Icon(Icons.my_location, size: 14, color: darkGreen),
-                SizedBox(width: 4),
-                Text(
+                const Spacer(),
+                const Icon(Icons.my_location, size: 14, color: darkGreen),
+                const SizedBox(width: 4),
+                const Text(
                   "Use Current Location",
                   style: TextStyle(
                     color: darkGreen,
@@ -190,33 +184,38 @@ class AddCropFormCard extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 8),
-
             TextField(
               controller: locationController,
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyLarge?.color,
+              ),
               decoration: CropTextField.inputDecoration(
                 hint: "Search address or drop a pin...",
                 icon: Icons.location_on_outlined,
+              ).copyWith(
+                fillColor: Theme.of(context).cardColor,
+                hintStyle: TextStyle(
+                  color: isDark ? Colors.white54 : Colors.grey.shade500,
+                ),
               ),
             ),
-
             const SizedBox(height: 10),
-
             Container(
               height: 95,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: const Color(0xffe7e7f3),
+                color: isDark ? Colors.white10 : const Color(0xffe7e7f3),
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: isDark ? Colors.white12 : Colors.transparent,
+                ),
               ),
               child: const Center(
                 child: Icon(Icons.location_on, color: Colors.red, size: 36),
               ),
             ),
-
             const SizedBox(height: 18),
-
             CropTextField(
               label: "Description",
               controller: descriptionController,
@@ -225,20 +224,16 @@ class AddCropFormCard extends StatelessWidget {
               icon: Icons.description_outlined,
               maxLines: 4,
             ),
-
             const SizedBox(height: 18),
-
-            const Text(
+            Text(
               "Quick Attributes",
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: Color(0xff333333),
+                color: isDark ? Colors.white70 : const Color(0xff333333),
               ),
             ),
-
             const SizedBox(height: 10),
-
             Wrap(
               spacing: 8,
               runSpacing: 8,

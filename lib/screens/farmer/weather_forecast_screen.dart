@@ -13,6 +13,18 @@ class WeatherForecastScreen extends StatefulWidget {
 class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
   final TextEditingController _searchController = TextEditingController();
 
+  static const Color darkGreen = Color(0xff075739);
+  static const Color darkBackground = Color(0xFF0B1410);
+  static const Color darkCard = Color(0xFF15251E);
+  static const Color lightBackground = Color(0xfff9fbfa);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get primaryText => isDark ? Colors.white : const Color(0xff202525);
+  Color get secondaryText => isDark ? Colors.white70 : const Color(0xff4f5b56);
+  Color get accentColor => isDark ? lightGreen : darkGreen;
+
   @override
   void initState() {
     super.initState();
@@ -22,26 +34,35 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = context.watch<WeatherProvider>();
 
     return Scaffold(
-      backgroundColor: const Color(0xfff9fbfa),
+      backgroundColor: isDark ? darkBackground : lightBackground,
       body: SafeArea(
         child: provider.isLoading
-            ? const Center(
-          child: CircularProgressIndicator(
-            color: Color(0xff075739),
-          ),
+            ? Center(
+          child: CircularProgressIndicator(color: accentColor),
         )
             : provider.errorMessage != null
             ? _errorView(provider)
             : provider.weather == null
-            ? const Center(child: Text("No weather data found"))
+            ? Center(
+          child: Text(
+            "No weather data found",
+            style: TextStyle(color: primaryText),
+          ),
+        )
             : RefreshIndicator(
-          color: const Color(0xff075739),
-          onRefresh: () =>
-              provider.fetchWeatherForecast(),
+          color: accentColor,
+          backgroundColor: isDark ? darkCard : Colors.white,
+          onRefresh: () => provider.fetchWeatherForecast(),
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 25),
@@ -58,12 +79,12 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
                 const SizedBox(height: 22),
                 _suggestionCard(provider.weather!),
                 const SizedBox(height: 22),
-                const Text(
+                Text(
                   "5-Day Outlook",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xff075739),
+                    color: accentColor,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -83,27 +104,27 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
       children: [
         GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: const Icon(
+          child: Icon(
             Icons.arrow_back,
-            color: Color(0xff075739),
+            color: accentColor,
             size: 26,
           ),
         ),
-        const Expanded(
+        Expanded(
           child: Center(
             child: Text(
               "AgriConnect",
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Color(0xff075739),
+                color: accentColor,
               ),
             ),
           ),
         ),
-        const Icon(
+        Icon(
           Icons.account_circle_outlined,
-          color: Color(0xff075739),
+          color: accentColor,
           size: 26,
         ),
       ],
@@ -114,30 +135,30 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           "Weather Forecast",
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.bold,
-            color: Color(0xff075739),
+            color: accentColor,
           ),
         ),
         const SizedBox(height: 8),
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.location_on_outlined,
               size: 17,
-              color: Color(0xff4f5b56),
+              color: secondaryText,
             ),
             const SizedBox(width: 5),
             Expanded(
               child: Text(
                 weather.location,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xff4f5b56),
+                  color: secondaryText,
                 ),
               ),
             ),
@@ -150,25 +171,35 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
   Widget _searchField(WeatherProvider provider) {
     return TextField(
       controller: _searchController,
+      style: TextStyle(
+        color: primaryText,
+        fontWeight: FontWeight.w600,
+      ),
+      cursorColor: accentColor,
       onSubmitted: (value) {
         provider.fetchWeatherForecast(city: value.trim());
       },
       decoration: InputDecoration(
         hintText: "Search city...",
-        prefixIcon: const Icon(
+        hintStyle: TextStyle(
+          color: isDark ? Colors.white38 : Colors.grey,
+        ),
+        prefixIcon: Icon(
           Icons.search,
-          color: Color(0xff6d7471),
+          color: isDark ? Colors.white60 : const Color(0xff6d7471),
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: isDark ? darkCard : Colors.white,
         contentPadding: const EdgeInsets.symmetric(vertical: 15),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xffd8dedb)),
+          borderSide: BorderSide(
+            color: isDark ? Colors.white12 : const Color(0xffd8dedb),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xff075739)),
+          borderSide: BorderSide(color: accentColor, width: 1.3),
         ),
       ),
     );
@@ -179,11 +210,11 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: const Color(0xff55bfea),
+        color: isDark ? const Color(0xff1D6F8F) : const Color(0xff55bfea),
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
+            color: Colors.black.withOpacity(isDark ? 0.25 : 0.12),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -231,34 +262,29 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 20),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.18),
+              color: Colors.white.withOpacity(isDark ? 0.14 : 0.18),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
               children: [
                 Row(
                   children: [
-                    _infoItem(Icons.water_drop_outlined, "Humidity",
-                        weather.humidity),
+                    _infoItem(Icons.water_drop_outlined, "Humidity", weather.humidity),
                     _infoItem(Icons.air, "Wind", weather.wind),
                   ],
                 ),
                 const SizedBox(height: 22),
                 Row(
                   children: [
-                    _infoItem(Icons.grain, "Precipitation",
-                        weather.precipitation),
-                    _infoItem(Icons.thermostat, "Feels Like",
-                        weather.feelsLike),
+                    _infoItem(Icons.grain, "Precipitation", weather.precipitation),
+                    _infoItem(Icons.thermostat, "Feels Like", weather.feelsLike),
                   ],
                 ),
                 const SizedBox(height: 22),
                 Row(
                   children: [
-                    _infoItem(Icons.wb_sunny_outlined, "UV Index",
-                        weather.uvIndex),
-                    _infoItem(Icons.visibility_outlined, "Visibility",
-                        weather.visibility),
+                    _infoItem(Icons.wb_sunny_outlined, "UV Index", weather.uvIndex),
+                    _infoItem(Icons.visibility_outlined, "Visibility", weather.visibility),
                   ],
                 ),
               ],
@@ -300,22 +326,25 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xffffd8d5),
+        color: isDark ? Colors.red.withOpacity(0.15) : const Color(0xffffd8d5),
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark ? Colors.red.withOpacity(0.25) : Colors.transparent,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
+          Icon(
             Icons.warning_amber_rounded,
-            color: Color(0xffd65345),
+            color: isDark ? Colors.red.shade200 : const Color(0xffd65345),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               "Farming Suggestion: ${weather.farmingSuggestion}",
-              style: const TextStyle(
-                color: Color(0xffb33b31),
+              style: TextStyle(
+                color: isDark ? Colors.red.shade100 : const Color(0xffb33b31),
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 height: 1.45,
@@ -332,19 +361,21 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? darkCard : Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xffd8dedb)),
+        border: Border.all(
+          color: isDark ? Colors.white10 : const Color(0xffd8dedb),
+        ),
       ),
       child: Row(
         children: [
           Expanded(
             child: Text(
               item.day,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: Color(0xff3e4542),
+                color: primaryText,
               ),
             ),
           ),
@@ -358,17 +389,17 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
             children: [
               Text(
                 item.highTemp,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xff202525),
+                  color: primaryText,
                 ),
               ),
               Text(
                 item.lowTemp,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: Color(0xff202525),
+                  color: secondaryText,
                 ),
               ),
             ],
@@ -383,7 +414,7 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
       child: ElevatedButton(
         onPressed: () => provider.fetchWeatherForecast(),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xff075739),
+          backgroundColor: darkGreen,
           foregroundColor: Colors.white,
         ),
         child: const Text("Retry"),

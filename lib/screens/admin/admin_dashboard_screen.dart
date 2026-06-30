@@ -16,6 +16,16 @@ class AdminDashboardScreen extends StatefulWidget {
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   static const Color darkGreen = Color(0xFF0E5A3C);
+  static const Color lightBackground = Color(0xFFF4F8F5);
+  static const Color darkBackground = Color(0xFF0B1410);
+  static const Color darkCard = Color(0xFF15251E);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get accentColor => isDark ? lightGreen : darkGreen;
+  Color get primaryText => isDark ? Colors.white : const Color(0xFF123524);
+  Color get secondaryText => isDark ? Colors.white70 : Colors.grey;
 
   @override
   void initState() {
@@ -28,7 +38,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F8F5),
+      backgroundColor: isDark ? darkBackground : lightBackground,
       body: Consumer<AdminDashboardProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading) {
@@ -38,14 +48,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           final stats = provider.stats;
 
           if (stats == null) {
-            return const Center(
-              child: Text("No dashboard data found"),
+            return Center(
+              child: Text(
+                "No dashboard data found",
+                style: TextStyle(
+                  color: primaryText,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             );
           }
 
           return SafeArea(
             child: RefreshIndicator(
-              color: darkGreen,
+              color: accentColor,
+              backgroundColor: isDark ? darkCard : Colors.white,
               onRefresh: provider.fetchDashboardStats,
               child: ListView(
                 physics: const BouncingScrollPhysics(),
@@ -129,8 +146,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
+        gradient: LinearGradient(
+          colors: isDark
+              ? const [
+            Color(0xFF123524),
+            Color(0xFF0E5A3C),
+          ]
+              : const [
             Color(0xFF0E5A3C),
             Color(0xFF157A52),
           ],
@@ -138,7 +160,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: darkGreen.withOpacity(0.25),
+            color: isDark
+                ? Colors.black.withOpacity(0.35)
+                : darkGreen.withOpacity(0.25),
             blurRadius: 24,
             offset: const Offset(0, 14),
           ),
@@ -150,7 +174,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             height: 54,
             width: 54,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.18),
+              color: Colors.white.withOpacity(isDark ? 0.14 : 0.18),
               borderRadius: BorderRadius.circular(18),
             ),
             child: const Icon(
@@ -186,22 +210,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(duration: 500.ms)
-        .slideY(begin: -0.18, end: 0);
+    ).animate().fadeIn(duration: 500.ms).slideY(begin: -0.18, end: 0);
   }
 
   Widget _quickActions(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           "Quick Actions",
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF123524),
+            color: primaryText,
           ),
         ),
         const SizedBox(height: 14),
@@ -253,10 +274,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ],
         ),
       ],
-    )
-        .animate()
-        .fadeIn(duration: 500.ms, delay: 650.ms)
-        .slideY(begin: 0.15, end: 0);
+    ).animate().fadeIn(duration: 500.ms, delay: 650.ms).slideY(begin: 0.15, end: 0);
   }
 
   Widget _actionCard(
@@ -274,11 +292,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? darkCard : Colors.white,
           borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: isDark ? Colors.white10 : Colors.transparent,
+          ),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.10),
+              color: isDark
+                  ? Colors.black.withOpacity(0.22)
+                  : color.withOpacity(0.10),
               blurRadius: 16,
               offset: const Offset(0, 9),
             ),
@@ -290,7 +313,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               height: 48,
               width: 48,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
+                color: color.withOpacity(isDark ? 0.20 : 0.12),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(icon, color: color),
@@ -298,9 +321,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             const SizedBox(height: 12),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF123524),
+                color: primaryText,
               ),
             ),
           ],
@@ -314,11 +337,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       height: 280,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? darkCard : Colors.white,
         borderRadius: BorderRadius.circular(26),
+        border: Border.all(
+          color: isDark ? Colors.white10 : Colors.transparent,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withOpacity(isDark ? 0.22 : 0.06),
             blurRadius: 20,
             offset: const Offset(0, 12),
           ),
@@ -327,12 +353,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Platform Overview",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF123524),
+              color: primaryText,
             ),
           ),
           const SizedBox(height: 18),
@@ -366,10 +392,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           padding: const EdgeInsets.only(top: 8),
                           child: Text(
                             labels[value.toInt()],
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: Colors.grey,
+                              color: secondaryText,
                             ),
                           ),
                         );
@@ -387,10 +413,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(duration: 500.ms, delay: 500.ms)
-        .slideY(begin: 0.18, end: 0);
+    ).animate().fadeIn(duration: 500.ms, delay: 500.ms).slideY(begin: 0.18, end: 0);
   }
 
   BarChartGroupData _barGroup(int x, double y, Color color) {

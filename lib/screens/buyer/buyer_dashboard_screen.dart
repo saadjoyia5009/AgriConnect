@@ -20,6 +20,18 @@ class BuyerDashboardScreen extends StatefulWidget {
 class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
   int _selectedIndex = 0;
 
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color lightBackground = Color(0xffF8FAF7);
+  static const Color darkBackground = Color(0xFF0B1410);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get accentColor => isDark ? lightGreen : darkGreen;
+  Color get primaryText => isDark ? Colors.white : const Color(0xff1F2722);
+  Color get secondaryText => isDark ? Colors.white70 : const Color(0xff5F675F);
+  Color get iconColor => isDark ? Colors.white70 : const Color(0xff26342D);
+
   @override
   void initState() {
     super.initState();
@@ -31,10 +43,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
 
   void _onNavTap(int index) {
     if (index == 1) {
-      Navigator.pushReplacementNamed(
-        context,
-        '/buyerFavorites',
-      );
+      Navigator.pushReplacementNamed(context, '/buyerFavorites');
     }
 
     if (index == 2) {
@@ -42,10 +51,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
     }
 
     if (index == 3) {
-      Navigator.pushReplacementNamed(
-        context,
-        '/buyerProfile',
-      );
+      Navigator.pushReplacementNamed(context, '/buyerProfile');
     }
 
     setState(() => _selectedIndex = index);
@@ -54,7 +60,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF8FAF7),
+      backgroundColor: isDark ? darkBackground : lightBackground,
       bottomNavigationBar: BuyerBottomNavBar(
         currentIndex: _selectedIndex,
         onTap: _onNavTap,
@@ -69,32 +75,31 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
                 children: [
                   _topBar(),
                   const SizedBox(height: 34),
-                  const Text(
+                  Text(
                     'Good morning, Buyer.',
                     style: TextStyle(
                       fontSize: 23,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xff1F2722),
+                      color: primaryText,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Find the freshest produce today.',
                     style: TextStyle(
                       fontSize: 15,
-                      color: Color(0xff5F675F),
+                      color: secondaryText,
                     ),
                   ),
                   const SizedBox(height: 16),
                   BuyerSearchBar(
                     hintText: 'Search for crops or sellers...',
                     onChanged: (value) {
-                      print("SEARCH: $value");
                       provider.searchCrops(value);
                     },
                   ),
                   const SizedBox(height: 34),
-                  const BuyerSectionHeader(title: 'Browse Categories'),
+                  BuyerSectionHeader(title: 'Browse Categories'),
                   const SizedBox(height: 14),
                   _categoryGrid(provider),
                   const SizedBox(height: 34),
@@ -117,12 +122,12 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
   Widget _topBar() {
     return Row(
       children: [
-        const Icon(Icons.menu, size: 25, color: Color(0xff26342D)),
+        Icon(Icons.menu, size: 25, color: iconColor),
         const Spacer(),
-        const Text(
+        Text(
           'AgriConnect',
           style: TextStyle(
-            color: Color(0xff0F5C3A),
+            color: accentColor,
             fontWeight: FontWeight.w900,
             fontSize: 21,
           ),
@@ -130,16 +135,16 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
         const Spacer(),
         IconButton(
           onPressed: () {},
-          icon: const Icon(
+          icon: Icon(
             Icons.notifications_none,
-            color: Color(0xff26342D),
+            color: iconColor,
           ),
         ),
       ],
     );
   }
 
-  Widget _categoryGrid(CropProvider provider){
+  Widget _categoryGrid(CropProvider provider) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -179,11 +184,13 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
     );
   }
 
-  Widget _recommendedCrops(CropProvider provider){
+  Widget _recommendedCrops(CropProvider provider) {
     if (provider.isLoading) {
-      return const SizedBox(
+      return SizedBox(
         height: 220,
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(
+          child: CircularProgressIndicator(color: accentColor),
+        ),
       );
     }
 
@@ -193,16 +200,27 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
         child: Center(
           child: Text(
             provider.errorMessage!,
-            style: const TextStyle(color: Colors.red),
+            style: TextStyle(
+              color: isDark ? Colors.red.shade200 : Colors.red,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       );
     }
 
     if (provider.recommendedCrops.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 180,
-        child: Center(child: Text('No crops found')),
+        child: Center(
+          child: Text(
+            'No crops found',
+            style: TextStyle(
+              color: secondaryText,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       );
     }
 
@@ -218,8 +236,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
             builder: (context, favoriteProvider, _) {
               return BuyerCropCard(
                 crop: crop,
-                isFavorite:
-                favoriteProvider.isFavorite(crop.id),
+                isFavorite: favoriteProvider.isFavorite(crop.id),
                 onTap: () {
                   Navigator.push(
                     context,
