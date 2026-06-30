@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animations/animations.dart';
+
 import '../../providers/crop_provider.dart';
 import '../../widgets/farmer_bottom_navbar.dart';
 import 'add_crop_screen.dart';
@@ -18,6 +19,10 @@ class FarmerDashboardScreen extends StatefulWidget {
 }
 
 class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
+  static const Color darkGreen = Color(0xff075739);
+  static const Color mediumGreen = Color(0xff2d7153);
+  static const Color lightGreen = Color(0xff0F8A3B);
+
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -35,10 +40,6 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       });
 
       final cropProvider = context.read<CropProvider>();
-
-      // Backend ready:
-      // CropProvider mein ye method add karna hoga:
-      // Future<void> fetchFarmerDashboard();
       await cropProvider.fetchFarmerDashboard();
 
       if (!mounted) return;
@@ -68,17 +69,15 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
           );
         },
       ),
-      backgroundColor: const Color(0xfff9fbfa),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 0),
       body: SafeArea(
         child: RefreshIndicator(
-          color: const Color(0xff075739),
+          color: darkGreen,
           onRefresh: _loadDashboardData,
           child: _isLoading
               ? const Center(
-            child: CircularProgressIndicator(
-              color: Color(0xff075739),
-            ),
+            child: CircularProgressIndicator(color: darkGreen),
           )
               : _errorMessage != null
               ? _errorView()
@@ -95,7 +94,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                         icon: Icons.local_florist,
                         title: "Active Crops",
                         value: cropProvider.activeCrops.toString(),
-                        subtitle: "Updated ",
+                        subtitle: "Updated",
                       ),
                     ),
                     const SizedBox(width: 18),
@@ -109,27 +108,14 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 20),
-
                 if (cropProvider.weatherAlert != null)
                   _weatherAlertCard(cropProvider.weatherAlert!)
                 else
                   _emptyWeatherCard(),
-
                 const SizedBox(height: 35),
-
-                const Text(
-                  "Quick Actions",
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff202525),
-                  ),
-                ),
-
+                _sectionTitle("Quick Actions"),
                 const SizedBox(height: 14),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -161,30 +147,26 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 45),
-
-                const SizedBox(height: 42),
-
-                const Text(
-                  "Daily Farming Tip",
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff202525),
-                  ),
-                ),
-
+                _sectionTitle("Daily Farming Tip"),
                 const SizedBox(height: 14),
-
                 _dailyTipCard(),
-
                 const SizedBox(height: 12),
-
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String title) {
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: 26,
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).textTheme.bodyLarge?.color,
       ),
     );
   }
@@ -203,10 +185,10 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
         Center(
           child: Text(
             _errorMessage!,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
-              color: Color(0xff202525),
+              color: Theme.of(context).textTheme.bodyLarge?.color,
             ),
           ),
         ),
@@ -215,7 +197,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
           child: ElevatedButton(
             onPressed: _loadDashboardData,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xff075739),
+              backgroundColor: darkGreen,
               foregroundColor: Colors.white,
             ),
             child: const Text("Retry"),
@@ -225,35 +207,47 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     );
   }
 
-
   Widget _statsCard({
     required IconData icon,
     required String title,
     required String value,
     required String subtitle,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: 160,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xffbfe8ce)),
+        color: Theme.of(context).cardColor,
+        border: Border.all(
+          color: isDark ? Colors.white12 : const Color(0xffbfe8ce),
+        ),
         borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withOpacity(0.18)
+                : Colors.black.withOpacity(0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: const Color(0xff2d7153), size: 28),
+              Icon(icon, color: mediumGreen, size: 28),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xff3e4542),
+                    color: isDark ? Colors.white70 : const Color(0xff3e4542),
                   ),
                 ),
               ),
@@ -262,19 +256,19 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
           const Spacer(),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 31,
               fontWeight: FontWeight.bold,
-              color: Color(0xff171b1a),
+              color: Theme.of(context).textTheme.bodyLarge?.color,
             ),
           ),
           Text(
             subtitle,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: Color(0xff6d7471),
+              color: isDark ? Colors.white60 : const Color(0xff6d7471),
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -284,30 +278,37 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   }
 
   Widget _dailyTipCard() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final tips = [
       {
         "title": "Water Early Morning",
-        "tip": "Water your crops early in the morning to reduce evaporation and help roots absorb moisture better.",
+        "tip":
+        "Water your crops early in the morning to reduce evaporation and help roots absorb moisture better.",
         "icon": Icons.water_drop_outlined,
       },
       {
         "title": "Check Leaves Regularly",
-        "tip": "Inspect crop leaves twice a week. Early disease signs can save your whole field from damage.",
+        "tip":
+        "Inspect crop leaves twice a week. Early disease signs can save your whole field from damage.",
         "icon": Icons.health_and_safety_outlined,
       },
       {
         "title": "Use Balanced Fertilizer",
-        "tip": "Avoid overusing fertilizer. Balanced nutrients improve crop growth and protect soil quality.",
+        "tip":
+        "Avoid overusing fertilizer. Balanced nutrients improve crop growth and protect soil quality.",
         "icon": Icons.eco_outlined,
       },
       {
         "title": "Monitor Market Price",
-        "tip": "Before selling, compare crop prices and use price prediction to choose a better selling time.",
+        "tip":
+        "Before selling, compare crop prices and use price prediction to choose a better selling time.",
         "icon": Icons.trending_up_rounded,
       },
       {
         "title": "Remove Weeds Early",
-        "tip": "Remove weeds before they grow large because they compete with crops for water and nutrients.",
+        "tip":
+        "Remove weeds before they grow large because they compete with crops for water and nutrients.",
         "icon": Icons.grass_outlined,
       },
     ];
@@ -319,9 +320,20 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xffeaf7f0),
+        color: isDark ? Theme.of(context).cardColor : const Color(0xffeaf7f0),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xffbfe8ce)),
+        border: Border.all(
+          color: isDark ? Colors.white12 : const Color(0xffbfe8ce),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withOpacity(0.18)
+                : Colors.black.withOpacity(0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,7 +342,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
             height: 54,
             width: 54,
             decoration: BoxDecoration(
-              color: const Color(0xff075739),
+              color: darkGreen,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
@@ -339,49 +351,43 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
               size: 28,
             ),
           ),
-
           const SizedBox(width: 16),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   todayTip["title"] as String,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xff202525),
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
-
                 const SizedBox(height: 8),
-
                 Text(
                   todayTip["tip"] as String,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     height: 1.45,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xff3e4542),
+                    color: isDark ? Colors.white70 : const Color(0xff3e4542),
                   ),
                 ),
-
                 const SizedBox(height: 14),
-
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? Colors.white12 : Colors.white,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
+                  child: Text(
                     "Tip updates daily",
                     style: TextStyle(
-                      color: Color(0xff075739),
+                      color: isDark ? Colors.white : darkGreen,
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
                     ),
@@ -396,91 +402,125 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   }
 
   Widget _weatherAlertCard(dynamic weather) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, "/weather");
       },
       child: Container(
-      height: 150,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xffeffaff),
-        border: Border.all(color: const Color(0xffb6def7)),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -5,
-            bottom: -5,
-            child: Icon(
-              Icons.cloud_outlined,
-              size: 110,
-              color: Colors.lightBlue.withOpacity(0.12),
+        height: 150,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isDark ? Theme.of(context).cardColor : const Color(0xffeffaff),
+          border: Border.all(
+            color: isDark ? Colors.white12 : const Color(0xffb6def7),
+          ),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: isDark
+                  ? Colors.black.withOpacity(0.18)
+                  : Colors.black.withOpacity(0.03),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
-                children: [
-                  Icon(Icons.warning, color: Color(0xff168ad1), size: 28),
-                  SizedBox(width: 15),
-                  Text(
-                    "Weather Alert",
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xff3d4643),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -5,
+              bottom: -5,
+              child: Icon(
+                Icons.cloud_outlined,
+                size: 110,
+                color: Colors.lightBlue.withOpacity(isDark ? 0.08 : 0.12),
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.warning,
+                      color: Color(0xff168ad1),
+                      size: 28,
                     ),
+                    const SizedBox(width: 15),
+                    Text(
+                      "Weather Alert",
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white70 : const Color(0xff3d4643),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  weather.title ?? "Weather Update",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(
-                weather.title ?? "Weather Update",
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xff252929),
                 ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                weather.description ?? "",
-                style: const TextStyle(
-                  fontSize: 18,
-                  color: Color(0xff444b49),
+                const SizedBox(height: 3),
+                Text(
+                  weather.description ?? "",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: isDark ? Colors.white70 : const Color(0xff444b49),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
-      ),
-      );
+    );
   }
 
   Widget _emptyWeatherCard() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: 120,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xffbfe8ce)),
+        color: Theme.of(context).cardColor,
+        border: Border.all(
+          color: isDark ? Colors.white12 : const Color(0xffbfe8ce),
+        ),
         borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withOpacity(0.18)
+                : Colors.black.withOpacity(0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.cloud_done_outlined, color: Color(0xff075739), size: 32),
-          SizedBox(width: 15),
+          const Icon(
+            Icons.cloud_done_outlined,
+            color: darkGreen,
+            size: 32,
+          ),
+          const SizedBox(width: 15),
           Expanded(
             child: Text(
               "No weather alert available right now",
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
-                color: Color(0xff3e4542),
+                color: isDark ? Colors.white70 : const Color(0xff3e4542),
               ),
             ),
           ),
@@ -488,6 +528,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       ),
     );
   }
+
   Widget _quickAction(
       BuildContext context, {
         required IconData icon,
@@ -496,12 +537,14 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
         bool active = false,
         bool blueIcon = false,
       }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return OpenContainer(
-      transitionDuration: const Duration(milliseconds: 450),
+      transitionDuration: const Duration(milliseconds: 350),
       closedElevation: 0,
       openElevation: 0,
       closedColor: Colors.transparent,
-      openColor: Colors.white,
+      openColor: Theme.of(context).scaffoldBackgroundColor,
       closedBuilder: (context, openContainer) {
         return GestureDetector(
           onTap: openContainer,
@@ -511,8 +554,15 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                 height: 66,
                 width: 66,
                 decoration: BoxDecoration(
-                  color: active ? const Color(0xff2d7153) : const Color(0xffe5e8e6),
+                  color: active
+                      ? mediumGreen
+                      : isDark
+                      ? Theme.of(context).cardColor
+                      : const Color(0xffe5e8e6),
                   shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isDark ? Colors.white12 : Colors.transparent,
+                  ),
                 ),
                 child: Icon(
                   icon,
@@ -521,17 +571,17 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                       ? Colors.white
                       : blueIcon
                       ? const Color(0xff008fe2)
-                      : const Color(0xff27634a),
+                      : mediumGreen,
                 ),
               ),
               const SizedBox(height: 9),
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   height: 1.2,
-                  color: Color(0xff3f4845),
+                  color: isDark ? Colors.white70 : const Color(0xff3f4845),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -542,6 +592,4 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       openBuilder: (context, _) => screen,
     );
   }
-
-
 }

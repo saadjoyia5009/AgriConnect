@@ -114,7 +114,7 @@ class _EditCropScreenState extends State<EditCropScreen> {
     final isSubmitting = context.watch<CropProvider>().isSubmitting;
 
     return Scaffold(
-      backgroundColor: const Color(0xfff9fbfa),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -156,22 +156,27 @@ class _EditCropScreenState extends State<EditCropScreen> {
   }
 
   Widget _topBar(bool isSubmitting) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: 58,
       padding: const EdgeInsets.symmetric(horizontal: 18),
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       child: Row(
         children: [
           GestureDetector(
             onTap: isSubmitting ? null : () => Navigator.pop(context),
-            child: const Icon(Icons.arrow_back, color: darkGreen),
+            child: Icon(
+              Icons.arrow_back,
+              color: isDark ? Colors.white : darkGreen,
+            ),
           ),
-          const Expanded(
+          Expanded(
             child: Center(
               child: Text(
                 "Edit Crop Listing",
                 style: TextStyle(
-                  color: darkGreen,
+                  color: isDark ? Colors.white : darkGreen,
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                 ),
@@ -224,9 +229,11 @@ class _EditCropScreenState extends State<EditCropScreen> {
   }
 
   Widget _bottomSaveSection(bool isSubmitting) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
-      color: const Color(0xfff9fbfa),
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: Column(
         children: [
           CropSubmitButton(
@@ -238,10 +245,13 @@ class _EditCropScreenState extends State<EditCropScreen> {
             onPressed: _saveChanges,
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             "By saving, you agree to update your listing\nterms in the marketplace.",
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 11, color: Color(0xff333333)),
+            style: TextStyle(
+              fontSize: 11,
+              color: isDark ? Colors.white60 : const Color(0xff333333),
+            ),
           ),
         ],
       ),

@@ -11,6 +11,9 @@ class FarmerChatsScreen extends StatefulWidget {
 }
 
 class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color lightGreen = Color(0xff0F8A3B);
+
   final TextEditingController _searchController = TextEditingController();
 
   String selectedFilter = "All";
@@ -86,9 +89,9 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
 
     return Scaffold(
       bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 2),
-      backgroundColor: const Color(0xffF6FAF7),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xff0F5C3A),
+        backgroundColor: darkGreen,
         elevation: 0,
         centerTitle: true,
         title: const Text(
@@ -128,29 +131,47 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
   }
 
   Widget _searchBox() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
       child: TextField(
         controller: _searchController,
         onChanged: (_) => setState(() {}),
+        style: TextStyle(
+          color: Theme.of(context).textTheme.bodyLarge?.color,
+        ),
         decoration: InputDecoration(
           hintText: "Search buyer or crop...",
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: const Icon(Icons.tune),
+          hintStyle: TextStyle(
+            color: isDark ? Colors.white54 : Colors.grey.shade500,
+          ),
+          prefixIcon: Icon(
+            Icons.search,
+            color: Theme.of(context).iconTheme.color,
+          ),
+          suffixIcon: Icon(
+            Icons.tune,
+            color: Theme.of(context).iconTheme.color,
+          ),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Theme.of(context).cardColor,
           contentPadding: const EdgeInsets.symmetric(vertical: 16),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(26),
-            borderSide: BorderSide(color: Colors.grey.shade200),
+            borderSide: BorderSide(
+              color: isDark ? Colors.white12 : Colors.grey.shade200,
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(26),
-            borderSide: BorderSide(color: Colors.grey.shade200),
+            borderSide: BorderSide(
+              color: isDark ? Colors.white12 : Colors.grey.shade200,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(26),
-            borderSide: const BorderSide(color: Color(0xff0F5C3A)),
+            borderSide: const BorderSide(color: darkGreen),
           ),
         ),
       ),
@@ -159,6 +180,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
 
   Widget _filterChips() {
     final filters = ["All", "Unread", "Active", "Closed"];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SizedBox(
       height: 54,
@@ -175,18 +197,24 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
             label: Text(
               filter,
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black,
+                color: isSelected
+                    ? Colors.white
+                    : isDark
+                    ? Colors.white
+                    : Colors.black,
                 fontWeight: FontWeight.w800,
               ),
             ),
             selected: isSelected,
-            selectedColor: const Color(0xff0F8A3B),
-            backgroundColor: Colors.white,
+            selectedColor: lightGreen,
+            backgroundColor: Theme.of(context).cardColor,
             showCheckmark: false,
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
-              side: BorderSide(color: Colors.grey.shade200),
+              side: BorderSide(
+                color: isDark ? Colors.white12 : Colors.grey.shade200,
+              ),
             ),
             onSelected: (_) {
               setState(() {
@@ -200,6 +228,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
   }
 
   Widget _chatCard(Map<String, dynamic> chat) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final initials = _getInitials(chat["buyerName"]);
 
     return InkWell(
@@ -220,11 +249,13 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: isDark
+                  ? Colors.black.withOpacity(0.18)
+                  : Colors.black.withOpacity(0.06),
               blurRadius: 14,
               offset: const Offset(0, 8),
             ),
@@ -234,11 +265,12 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundColor: const Color(0xffDFF4E4),
+              backgroundColor:
+              isDark ? Colors.white12 : const Color(0xffDFF4E4),
               child: Text(
                 initials,
                 style: const TextStyle(
-                  color: Color(0xff0F5C3A),
+                  color: darkGreen,
                   fontWeight: FontWeight.w900,
                   fontSize: 18,
                 ),
@@ -251,7 +283,8 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
                 children: [
                   Text(
                     chat["buyerName"],
-                    style: const TextStyle(
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                       fontWeight: FontWeight.w900,
                       fontSize: 16,
                     ),
@@ -267,7 +300,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: Color(0xff0F8A3B),
+                            color: lightGreen,
                             fontWeight: FontWeight.w800,
                             fontSize: 13,
                           ),
@@ -281,7 +314,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: Colors.grey.shade600,
+                      color: isDark ? Colors.white60 : Colors.grey.shade600,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -295,7 +328,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
                 Text(
                   chat["time"],
                   style: TextStyle(
-                    color: Colors.grey.shade600,
+                    color: isDark ? Colors.white60 : Colors.grey.shade600,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),
@@ -304,7 +337,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
                 if (chat["unread"] > 0)
                   CircleAvatar(
                     radius: 13,
-                    backgroundColor: const Color(0xff0F8A3B),
+                    backgroundColor: lightGreen,
                     child: Text(
                       chat["unread"].toString(),
                       style: const TextStyle(
@@ -323,11 +356,13 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
   }
 
   Widget _emptyState() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
       child: Text(
         "No chats found",
         style: TextStyle(
-          color: Colors.grey.shade600,
+          color: isDark ? Colors.white60 : Colors.grey.shade600,
           fontWeight: FontWeight.w700,
           fontSize: 16,
         ),

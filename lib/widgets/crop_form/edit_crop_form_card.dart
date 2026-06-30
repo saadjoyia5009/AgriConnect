@@ -34,16 +34,21 @@ class EditCropFormCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return AbsorbPointer(
       absorbing: isSubmitting,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 18),
         padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xff121212) : Colors.white,
+          borderRadius: const BorderRadius.vertical(
             top: Radius.circular(14),
             bottom: Radius.circular(8),
+          ),
+          border: Border.all(
+            color: isDark ? Colors.white10 : Colors.transparent,
           ),
         ),
         child: Column(
@@ -114,10 +119,18 @@ class EditCropFormCard extends StatelessWidget {
                   height: 56,
                   width: 56,
                   decoration: BoxDecoration(
-                    color: const Color(0xffa7f2c8),
+                    color: isDark
+                        ? darkGreen.withOpacity(0.25)
+                        : const Color(0xffa7f2c8),
                     borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isDark ? Colors.white12 : Colors.transparent,
+                    ),
                   ),
-                  child: const Icon(Icons.my_location, color: darkGreen),
+                  child: Icon(
+                    Icons.my_location,
+                    color: isDark ? const Color(0xff9ff2c1) : darkGreen,
+                  ),
                 ),
               ],
             ),
@@ -132,21 +145,26 @@ class EditCropFormCard extends StatelessWidget {
             ),
             const SizedBox(height: 28),
 
-            const Divider(color: Color(0xffeef2ef)),
+            Divider(
+              color: isDark ? Colors.white12 : const Color(0xffeef2ef),
+            ),
             const SizedBox(height: 8),
 
-            const Row(
+            Row(
               children: [
                 Text(
                   "Visibility Settings",
                   style: TextStyle(
-                    color: darkGreen,
+                    color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                Spacer(),
-                Icon(Icons.chevron_right, color: darkGreen),
+                const Spacer(),
+                Icon(
+                  Icons.chevron_right,
+                  color: isDark ? const Color(0xff9ff2c1) : darkGreen,
+                ),
               ],
             ),
           ],

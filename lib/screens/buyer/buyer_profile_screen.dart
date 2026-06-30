@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'edit_buyer_profile_screen.dart';
 import '../../providers/buyer_profile_provider.dart';
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
+import '../../providers/theme_provider.dart';
 import '../../widgets/buyer/profile/buyer_profile_header.dart';
 import '../../widgets/buyer/profile/buyer_profile_stats.dart';
 import '../../widgets/buyer/profile/buyer_profile_menu_tile.dart';
@@ -16,10 +17,21 @@ class BuyerProfileScreen extends StatefulWidget {
 }
 
 class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color lightBackground = Color(0xffF8FAF7);
+  static const Color darkBackground = Color(0xFF0B1410);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get accentColor => isDark ? lightGreen : darkGreen;
+  Color get iconColor => isDark ? Colors.white70 : const Color(0xff26342D);
+  Color get primaryText => isDark ? Colors.white : const Color(0xff10291D);
+  Color get errorColor => isDark ? Colors.red.shade200 : Colors.red;
+
   @override
   void initState() {
     super.initState();
-
     Future.microtask(() {
       context.read<BuyerProfileProvider>().fetchProfile();
     });
@@ -50,10 +62,77 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
     setState(() {});
   }
 
+  void _openThemeSheet() {
+    final themeProvider = context.read<ThemeProvider>();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF15251E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Choose Theme",
+                style: TextStyle(
+                  color: primaryText,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              ListTile(
+                leading: Icon(Icons.light_mode_outlined, color: accentColor),
+                title: Text(
+                  "Light Mode",
+                  style: TextStyle(color: primaryText),
+                ),
+                onTap: () {
+                  themeProvider.setLightMode();
+                  Navigator.pop(context);
+                },
+              ),
+
+              ListTile(
+                leading: Icon(Icons.dark_mode_outlined, color: accentColor),
+                title: Text(
+                  "Dark Mode",
+                  style: TextStyle(color: primaryText),
+                ),
+                onTap: () {
+                  themeProvider.setDarkMode();
+                  Navigator.pop(context);
+                },
+              ),
+
+              ListTile(
+                leading: Icon(Icons.phone_iphone, color: accentColor),
+                title: Text(
+                  "System Default",
+                  style: TextStyle(color: primaryText),
+                ),
+                onTap: () {
+                  themeProvider.setSystemMode();
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF8FAF7),
+      backgroundColor: isDark ? darkBackground : lightBackground,
       bottomNavigationBar: BuyerBottomNavBar(
         currentIndex: 3,
         onTap: _onNavTap,
@@ -62,14 +141,14 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
         child: Consumer<BuyerProfileProvider>(
           builder: (context, provider, _) {
             if (provider.isLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(child: CircularProgressIndicator(color: accentColor));
             }
 
             if (provider.errorMessage != null) {
               return Center(
                 child: Text(
                   provider.errorMessage!,
-                  style: const TextStyle(color: Colors.red),
+                  style: TextStyle(color: errorColor, fontWeight: FontWeight.w600),
                 ),
               );
             }
@@ -77,7 +156,12 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
             final profile = provider.profile;
 
             if (profile == null) {
-              return const Center(child: Text("No profile found"));
+              return Center(
+                child: Text(
+                  "No profile found",
+                  style: TextStyle(color: primaryText, fontWeight: FontWeight.w600),
+                ),
+              );
             }
 
             return SingleChildScrollView(
@@ -96,18 +180,19 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
                     onTap: () => _openEditProfile(profile),
                   ),
                   BuyerProfileMenuTile(
+                    icon: isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+                    title: isDark ? "Dark Mode" : "Light Mode",
+                    onTap: _openThemeSheet,
+                  ),
+                  BuyerProfileMenuTile(
                     icon: Icons.chat_bubble_outline,
                     title: "My Inquiries",
-                    onTap: () {
-                      Navigator.pushNamed(context, '/buyer-inquiries');
-                    },
+                    onTap: () => Navigator.pushNamed(context, '/buyer-inquiries'),
                   ),
                   BuyerProfileMenuTile(
                     icon: Icons.favorite_border,
                     title: "Favorite Crops",
-                    onTap: () {
-                      Navigator.pushNamed(context, '/buyerFavorites');
-                    },
+                    onTap: () => Navigator.pushNamed(context, '/buyerFavorites'),
                   ),
                   BuyerProfileMenuTile(
                     icon: Icons.notifications_none,
@@ -137,19 +222,19 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
 
   Widget _topBar() {
     return Row(
-      children: const [
-        Icon(Icons.menu, size: 25, color: Color(0xff26342D)),
-        Spacer(),
+      children: [
+        Icon(Icons.menu, size: 25, color: iconColor),
+        const Spacer(),
         Text(
           "Buyer Profile",
           style: TextStyle(
-            color: Color(0xff0F5C3A),
+            color: accentColor,
             fontWeight: FontWeight.w900,
             fontSize: 21,
           ),
         ),
-        Spacer(),
-        Icon(Icons.settings_outlined, color: Color(0xff26342D)),
+        const Spacer(),
+        Icon(Icons.settings_outlined, color: iconColor),
       ],
     );
   }

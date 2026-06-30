@@ -10,10 +10,14 @@ class ProfileSectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Text(
       title,
-      style: const TextStyle(
-        color: Color(0xff4f5955),
+      style: TextStyle(
+        color: isDark
+            ? Colors.grey.shade400
+            : const Color(0xff4f5955),
         fontSize: 15,
         fontWeight: FontWeight.w900,
         letterSpacing: 1.1,

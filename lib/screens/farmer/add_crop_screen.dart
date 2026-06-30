@@ -136,7 +136,7 @@ class _AddCropScreenState extends State<AddCropScreen> {
     final isSubmitting = context.watch<CropProvider>().isSubmitting;
 
     return Scaffold(
-      backgroundColor: const Color(0xfff9fbfa),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -205,12 +205,18 @@ class _AddCropScreenState extends State<AddCropScreen> {
   }
 
   Widget _topBar(bool isSubmitting) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: 58,
       padding: const EdgeInsets.symmetric(horizontal: 18),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Color(0xffe4eee8))),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        border: Border(
+          bottom: BorderSide(
+            color: isDark ? Colors.white12 : const Color(0xffe4eee8),
+          ),
+        ),
       ),
       child: Row(
         children: [
@@ -218,18 +224,18 @@ class _AddCropScreenState extends State<AddCropScreen> {
             onTap: isSubmitting
                 ? null
                 : () => Navigator.pushReplacementNamed(context, '/myCrops'),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back,
-              color: Color(0xff4f5955),
+              color: Theme.of(context).iconTheme.color,
               size: 22,
             ),
           ),
-          const Expanded(
+          Expanded(
             child: Center(
               child: Text(
                 "List New Crop",
                 style: TextStyle(
-                  color: darkGreen,
+                  color: isDark ? Colors.white : darkGreen,
                   fontSize: 17,
                   fontWeight: FontWeight.w900,
                 ),

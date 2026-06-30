@@ -7,6 +7,7 @@ import '../../widgets/profile/profile_header_card.dart';
 import '../../widgets/profile/profile_info_tile.dart';
 import '../../widgets/profile/profile_section_title.dart';
 import '../../widgets/profile/profile_settings_card.dart';
+import '../../providers/theme_provider.dart';
 
 class FarmerProfileScreen extends StatelessWidget {
   const FarmerProfileScreen({super.key});
@@ -18,7 +19,7 @@ class FarmerProfileScreen extends StatelessWidget {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xfff9fbfa),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 4),
       body: SafeArea(
         child: Column(
@@ -66,6 +67,24 @@ class FarmerProfileScreen extends StatelessWidget {
                           showArrow: true,
                           onTap: () {
                             _showChangePasswordDialog(context, authProvider);
+                          },
+                        ),
+
+                        _divider(),
+                        Consumer<ThemeProvider>(
+                          builder: (context, themeProvider, child) {
+                            return ProfileInfoTile(
+                              icon: themeProvider.isDarkMode
+                                  ? Icons.dark_mode_outlined
+                                  : Icons.light_mode_outlined,
+                              title: "Appearance",
+                              value: themeProvider.isDarkMode ? "Dark Mode" : "Light Mode",
+                              subtitle: "Tap to switch app theme",
+                              showArrow: true,
+                              onTap: () {
+                                themeProvider.toggleTheme();
+                              },
+                            );
                           },
                         ),
                       ],

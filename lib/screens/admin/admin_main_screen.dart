@@ -17,6 +17,9 @@ class AdminMainScreen extends StatefulWidget {
 class _AdminMainScreenState extends State<AdminMainScreen> {
   int currentIndex = 0;
 
+  static const Color lightBackground = Color(0xFFF4F8F5);
+  static const Color darkBackground = Color(0xFF0B1410);
+
   final List<Widget> screens = const [
     AdminDashboardScreen(),
     AdminUsersScreen(),
@@ -27,12 +30,17 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F8F5),
+      backgroundColor:
+      isDark ? darkBackground : lightBackground,
+
       body: IndexedStack(
         index: currentIndex,
         children: screens,
       ),
+
       bottomNavigationBar: AdminBottomNavbar(
         currentIndex: currentIndex,
         onTap: (index) {

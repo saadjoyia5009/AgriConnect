@@ -16,23 +16,36 @@ class BuyerCategoryCard extends StatelessWidget {
     this.onTap,
   });
 
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color lightGreen = Color(0xffA8F0C8);
+
   @override
   Widget build(BuildContext context) {
     final hasImage = imageUrl != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(
-          color: hasImage ? Colors.grey.shade200 : const Color(0xffD4F0DC),
+          color: hasImage
+              ? null
+              : (isDark
+              ? const Color(0xFF15251E)
+              : const Color(0xffD4F0DC)),
           borderRadius: BorderRadius.circular(12),
+          border: isDark && !hasImage
+              ? Border.all(color: Colors.white10)
+              : null,
           image: hasImage
               ? DecorationImage(
             image: NetworkImage(imageUrl!),
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.35),
+              Colors.black.withOpacity(
+                isDark ? 0.55 : 0.35,
+              ),
               BlendMode.darken,
             ),
           )
@@ -49,13 +62,14 @@ class BuyerCategoryCard extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
+                fontSize: 15,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               subtitle,
               style: const TextStyle(
-                color: Colors.white,
+                color: Colors.white70,
                 fontSize: 12,
               ),
             ),
@@ -64,13 +78,20 @@ class BuyerCategoryCard extends StatelessWidget {
             : Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon ?? Icons.category, color: const Color(0xff0F5C3A)),
+            Icon(
+              icon ?? Icons.category,
+              color: isDark ? lightGreen : darkGreen,
+              size: 28,
+            ),
             const SizedBox(height: 10),
             Text(
               title,
-              style: const TextStyle(
+              textAlign: TextAlign.center,
+              style: TextStyle(
                 fontWeight: FontWeight.w800,
-                color: Color(0xff1F2722),
+                color: isDark
+                    ? Colors.white
+                    : const Color(0xff1F2722),
               ),
             ),
           ],

@@ -18,6 +18,8 @@ class FarmerTopBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return AppBar(
       backgroundColor: darkGreen,
       surfaceTintColor: Colors.transparent,
@@ -25,7 +27,6 @@ class FarmerTopBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       toolbarHeight: 72,
       centerTitle: true,
-
       leading: const Padding(
         padding: EdgeInsets.only(left: 14),
         child: Icon(
@@ -34,7 +35,6 @@ class FarmerTopBar extends StatelessWidget implements PreferredSizeWidget {
           size: 24,
         ),
       ),
-
       title: Text(
         title,
         style: GoogleFonts.outfit(
@@ -44,7 +44,6 @@ class FarmerTopBar extends StatelessWidget implements PreferredSizeWidget {
           letterSpacing: 0.3,
         ),
       ),
-
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16),
@@ -61,8 +60,13 @@ class FarmerTopBar extends StatelessWidget implements PreferredSizeWidget {
                   height: 42,
                   width: 42,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: isDark
+                        ? Colors.white.withOpacity(0.10)
+                        : Colors.white.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(isDark ? 0.08 : 0.12),
+                    ),
                   ),
                   child: const Icon(
                     Icons.notifications_none_rounded,
@@ -70,8 +74,6 @@ class FarmerTopBar extends StatelessWidget implements PreferredSizeWidget {
                     size: 24,
                   ),
                 ),
-
-                // Notification Badge
                 Positioned(
                   right: 10,
                   top: 10,

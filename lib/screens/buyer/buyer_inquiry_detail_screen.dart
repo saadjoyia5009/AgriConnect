@@ -9,25 +9,44 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
     required this.inquiry,
   });
 
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color lightBackground = Color(0xffF8FAF7);
+  static const Color darkBackground = Color(0xFF0B1410);
+  static const Color darkCard = Color(0xFF15251E);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
+  bool _isDark(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  Color _accent(BuildContext context) =>
+      _isDark(context) ? lightGreen : darkGreen;
+
+  Color _primaryText(BuildContext context) =>
+      _isDark(context) ? Colors.white : const Color(0xff10291D);
+
+  Color _secondaryText(BuildContext context) =>
+      _isDark(context) ? Colors.white70 : const Color(0xff5F675F);
+
   @override
   Widget build(BuildContext context) {
+    final isDark = _isDark(context);
     final isAccepted = inquiry.status.toLowerCase() == "accepted";
 
     return Scaffold(
-      backgroundColor: const Color(0xffF8FAF7),
+      backgroundColor: isDark ? darkBackground : lightBackground,
       appBar: AppBar(
-        backgroundColor: const Color(0xffF8FAF7),
+        backgroundColor: isDark ? darkBackground : lightBackground,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           "Inquiry Details",
           style: TextStyle(
-            color: Color(0xff0F5C3A),
+            color: _accent(context),
             fontWeight: FontWeight.w900,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xff0F5C3A)),
+          icon: Icon(Icons.arrow_back, color: _accent(context)),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -37,13 +56,13 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _cropCard(),
+            _cropCard(context),
             const SizedBox(height: 18),
-            _infoCard(),
+            _infoCard(context),
             const SizedBox(height: 18),
-            _messageCard(),
+            _messageCard(context),
             const SizedBox(height: 18),
-            _timelineCard(),
+            _timelineCard(context),
             const SizedBox(height: 90),
           ],
         ),
@@ -51,10 +70,10 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _cropCard() {
+  Widget _cropCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: _cardDecoration(),
+      decoration: _cardDecoration(context),
       child: Row(
         children: [
           ClipRRect(
@@ -73,22 +92,22 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   inquiry.cropName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xff10291D),
+                    color: _primaryText(context),
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   inquiry.farmerName,
-                  style: const TextStyle(
-                    color: Color(0xff5F675F),
+                  style: TextStyle(
+                    color: _secondaryText(context),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 10),
-                _statusChip(inquiry.status),
+                _statusChip(context, inquiry.status),
               ],
             ),
           ),
@@ -97,44 +116,44 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _infoCard() {
+  Widget _infoCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(),
+      decoration: _cardDecoration(context),
       child: Column(
         children: [
-          _detailRow("Quantity", inquiry.quantity),
-          _detailRow("Offer Price", inquiry.offerPrice),
-          _detailRow("Delivery Date", inquiry.deliveryDate),
-          _detailRow("Inquiry Date", inquiry.date),
+          _detailRow(context, "Quantity", inquiry.quantity),
+          _detailRow(context, "Offer Price", inquiry.offerPrice),
+          _detailRow(context, "Delivery Date", inquiry.deliveryDate),
+          _detailRow(context, "Inquiry Date", inquiry.date),
         ],
       ),
     );
   }
 
-  Widget _messageCard() {
+  Widget _messageCard(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(),
+      decoration: _cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Buyer Message",
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w900,
-              color: Color(0xff10291D),
+              color: _primaryText(context),
             ),
           ),
           const SizedBox(height: 10),
           Text(
             inquiry.message,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               height: 1.5,
-              color: Color(0xff4E5A52),
+              color: _secondaryText(context),
             ),
           ),
         ],
@@ -142,26 +161,27 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _timelineCard() {
+  Widget _timelineCard(BuildContext context) {
     final status = inquiry.status.toLowerCase();
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(),
+      decoration: _cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Inquiry Timeline",
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w900,
-              color: Color(0xff10291D),
+              color: _primaryText(context),
             ),
           ),
           const SizedBox(height: 16),
-          _timelineItem("Inquiry Sent", true),
+          _timelineItem(context, "Inquiry Sent", true),
           _timelineItem(
+            context,
             "Farmer Response",
             status == "accepted" ||
                 status == "declined" ||
@@ -169,6 +189,7 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
                 status == "completed",
           ),
           _timelineItem(
+            context,
             "Deal Completed",
             status == "completed",
             isLast: true,
@@ -178,7 +199,14 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _timelineItem(String title, bool completed, {bool isLast = false}) {
+  Widget _timelineItem(
+      BuildContext context,
+      String title,
+      bool completed, {
+        bool isLast = false,
+      }) {
+    final isDark = _isDark(context);
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -186,14 +214,18 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
           children: [
             Icon(
               completed ? Icons.check_circle : Icons.radio_button_unchecked,
-              color: completed ? const Color(0xff0F5C3A) : Colors.grey,
+              color: completed
+                  ? _accent(context)
+                  : (isDark ? Colors.white30 : Colors.grey),
               size: 22,
             ),
             if (!isLast)
               Container(
                 height: 34,
                 width: 2,
-                color: completed ? const Color(0xff0F5C3A) : Colors.grey.shade300,
+                color: completed
+                    ? _accent(context)
+                    : (isDark ? Colors.white12 : Colors.grey.shade300),
               ),
           ],
         ),
@@ -204,7 +236,9 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
             title,
             style: TextStyle(
               fontWeight: FontWeight.w800,
-              color: completed ? const Color(0xff10291D) : Colors.grey,
+              color: completed
+                  ? _primaryText(context)
+                  : (isDark ? Colors.white38 : Colors.grey),
             ),
           ),
         ),
@@ -212,15 +246,15 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(String title, String value) {
+  Widget _detailRow(BuildContext context, String title, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Row(
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: Color(0xff6A756D),
+            style: TextStyle(
+              color: _secondaryText(context),
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -229,8 +263,8 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.end,
-              style: const TextStyle(
-                color: Color(0xff10291D),
+              style: TextStyle(
+                color: _primaryText(context),
                 fontWeight: FontWeight.w900,
               ),
             ),
@@ -240,20 +274,26 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _statusChip(String status) {
-    Color bgColor = const Color(0xffE6ECE8);
-    Color textColor = const Color(0xff4E6B59);
+  Widget _statusChip(BuildContext context, String status) {
+    final isDark = _isDark(context);
+
+    Color bgColor = isDark ? Colors.white10 : const Color(0xffE6ECE8);
+    Color textColor = isDark ? Colors.white70 : const Color(0xff4E6B59);
 
     if (status.toLowerCase() == "accepted") {
-      bgColor = const Color(0xffA8F0C8);
-      textColor = const Color(0xff0F5C3A);
+      bgColor = isDark
+          ? darkGreen.withOpacity(0.35)
+          : const Color(0xffA8F0C8);
+      textColor = isDark ? lightGreen : darkGreen;
     } else if (status.toLowerCase() == "declined" ||
         status.toLowerCase() == "rejected") {
-      bgColor = const Color(0xffFFD6D6);
-      textColor = Colors.red;
+      bgColor =
+      isDark ? Colors.red.withOpacity(0.18) : const Color(0xffFFD6D6);
+      textColor = isDark ? Colors.red.shade200 : Colors.red;
     } else if (status.toLowerCase() == "completed") {
-      bgColor = const Color(0xffD7E8FF);
-      textColor = Colors.blue;
+      bgColor =
+      isDark ? Colors.blue.withOpacity(0.18) : const Color(0xffD7E8FF);
+      textColor = isDark ? Colors.blue.shade200 : Colors.blue;
     }
 
     return Container(
@@ -274,9 +314,18 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
   }
 
   Widget _bottomButton(BuildContext context, bool isAccepted) {
+    final isDark = _isDark(context);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 12, 18, 18),
-      decoration: const BoxDecoration(color: Colors.white),
+      decoration: BoxDecoration(
+        color: isDark ? darkCard : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? Colors.white10 : const Color(0xffDCE7DD),
+          ),
+        ),
+      ),
       child: SizedBox(
         height: 52,
         width: double.infinity,
@@ -285,9 +334,11 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
             Navigator.pop(context);
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor:
-            isAccepted ? const Color(0xff0F5C3A) : Colors.white,
-            side: const BorderSide(color: Color(0xff0F5C3A)),
+            backgroundColor: isAccepted
+                ? darkGreen
+                : (isDark ? const Color(0xff1E1E1E) : Colors.white),
+            foregroundColor: isAccepted ? Colors.white : _accent(context),
+            side: BorderSide(color: _accent(context)),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
@@ -295,7 +346,7 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
           child: Text(
             isAccepted ? "Message Farmer" : "Back to Inquiries",
             style: TextStyle(
-              color: isAccepted ? Colors.white : const Color(0xff0F5C3A),
+              color: isAccepted ? Colors.white : _accent(context),
               fontWeight: FontWeight.w900,
               fontSize: 16,
             ),
@@ -305,11 +356,15 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
     );
   }
 
-  BoxDecoration _cardDecoration() {
+  BoxDecoration _cardDecoration(BuildContext context) {
+    final isDark = _isDark(context);
+
     return BoxDecoration(
-      color: Colors.white,
+      color: isDark ? darkCard : Colors.white,
       borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: const Color(0xffDCE7DD)),
+      border: Border.all(
+        color: isDark ? Colors.white10 : const Color(0xffDCE7DD),
+      ),
     );
   }
 }

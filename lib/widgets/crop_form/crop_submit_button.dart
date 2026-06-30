@@ -22,6 +22,8 @@ class CropSubmitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SizedBox(
       width: double.infinity,
       height: 48,
@@ -36,18 +38,30 @@ class CropSubmitButton extends StatelessWidget {
             color: Colors.white,
           ),
         )
-            : Icon(icon, size: 18),
+            : Icon(
+          icon,
+          size: 18,
+          color: Colors.white,
+        ),
         label: Text(
           isSubmitting ? loadingTitle : title,
           style: const TextStyle(
             fontWeight: FontWeight.w900,
             fontSize: 15,
+            color: Colors.white,
           ),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: darkGreen,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: darkGreen.withOpacity(0.7),
+          disabledBackgroundColor: isDark
+              ? darkGreen.withOpacity(0.45)
+              : darkGreen.withOpacity(0.70),
+          disabledForegroundColor: Colors.white70,
+          elevation: isDark ? 0 : 2,
+          shadowColor: isDark
+              ? Colors.transparent
+              : Colors.black26,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),

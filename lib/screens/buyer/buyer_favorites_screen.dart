@@ -16,12 +16,25 @@ class BuyerFavoritesScreen extends StatefulWidget {
 class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
   int _selectedIndex = 1;
 
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color lightBackground = Color(0xffF8FAF7);
+  static const Color darkBackground = Color(0xFF0B1410);
+  static const Color darkCard = Color(0xFF15251E);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
   final List<String> categories = [
     "All Favorites",
     "Vegetables",
     "Fruits",
     "Grains",
   ];
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get accentColor => isDark ? lightGreen : darkGreen;
+  Color get primaryText => isDark ? Colors.white : const Color(0xff10291D);
+  Color get secondaryText => isDark ? Colors.white70 : const Color(0xff5F675F);
+  Color get iconColor => isDark ? Colors.white70 : const Color(0xff26342D);
 
   @override
   void initState() {
@@ -48,7 +61,7 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF8FAF7),
+      backgroundColor: isDark ? darkBackground : lightBackground,
       bottomNavigationBar: BuyerBottomNavBar(
         currentIndex: _selectedIndex,
         onTap: _onNavTap,
@@ -65,20 +78,20 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           "Favorite Crops",
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xff0F5C3A),
+                            color: accentColor,
                           ),
                         ),
                         const SizedBox(height: 6),
-                        const Text(
+                        Text(
                           "Your saved items from local growers.",
                           style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xff5F675F),
+                            color: secondaryText,
                           ),
                         ),
                         const SizedBox(height: 22),
@@ -102,12 +115,12 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
       child: Row(
         children: [
-          const Icon(Icons.menu, color: Color(0xff26342D)),
+          Icon(Icons.menu, color: iconColor),
           const Spacer(),
-          const Text(
+          Text(
             "AgriConnect",
             style: TextStyle(
-              color: Color(0xff0F5C3A),
+              color: accentColor,
               fontWeight: FontWeight.w900,
               fontSize: 18,
             ),
@@ -137,14 +150,21 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
             label: Text(category),
             selected: selected,
             onSelected: (_) => provider.changeCategory(category),
-            selectedColor: const Color(0xffBDF2CE),
-            backgroundColor: Colors.white,
+            selectedColor:
+            isDark ? darkGreen.withOpacity(0.35) : const Color(0xffBDF2CE),
+            backgroundColor: isDark ? darkCard : Colors.white,
             labelStyle: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: selected ? const Color(0xff0F5C3A) : Colors.black87,
+              color: selected
+                  ? accentColor
+                  : (isDark ? Colors.white70 : Colors.black87),
             ),
-            side: const BorderSide(color: Color(0xffDCE7DD)),
+            side: BorderSide(
+              color: selected
+                  ? accentColor
+                  : (isDark ? Colors.white12 : const Color(0xffDCE7DD)),
+            ),
             showCheckmark: false,
           );
         },
@@ -154,16 +174,26 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
 
   Widget _favoriteList(BuyerFavoriteProvider provider) {
     if (provider.isLoading) {
-      return const SizedBox(
+      return SizedBox(
         height: 300,
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(
+          child: CircularProgressIndicator(color: accentColor),
+        ),
       );
     }
 
     if (provider.favoriteCrops.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 300,
-        child: Center(child: Text("No favorite crops found")),
+        child: Center(
+          child: Text(
+            "No favorite crops found",
+            style: TextStyle(
+              color: secondaryText,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       );
     }
 
@@ -181,9 +211,7 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => SendInquiryScreen(
-                  crop: crop,
-                ),
+                builder: (_) => SendInquiryScreen(crop: crop),
               ),
             );
           },

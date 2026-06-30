@@ -19,7 +19,20 @@ class BuyerFarmerChatScreen extends StatefulWidget {
 class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
   final TextEditingController _messageController = TextEditingController();
 
-  String get chatId => "${widget.inquiry.buyerId}_${widget.inquiry.farmerId}_${widget.inquiry.cropId}";
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color lightBackground = Color(0xffF8FAF7);
+  static const Color darkBackground = Color(0xFF0B1410);
+  static const Color darkCard = Color(0xFF15251E);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get accentColor => isDark ? lightGreen : darkGreen;
+  Color get primaryText => isDark ? Colors.white : const Color(0xff10291D);
+  Color get secondaryText => isDark ? Colors.white70 : const Color(0xff5F675F);
+
+  String get chatId =>
+      "${widget.inquiry.buyerId}_${widget.inquiry.farmerId}_${widget.inquiry.cropId}";
 
   @override
   void initState() {
@@ -55,25 +68,26 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
     final inquiry = widget.inquiry;
 
     return Scaffold(
-      backgroundColor: const Color(0xffF8FAF7),
+      backgroundColor: isDark ? darkBackground : lightBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? darkCard : Colors.white,
         elevation: 0,
         titleSpacing: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xff0F5C3A)),
+          icon: Icon(Icons.arrow_back, color: accentColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
           children: [
             CircleAvatar(
-              backgroundColor: const Color(0xffEAF7EF),
+              backgroundColor:
+              isDark ? darkGreen.withOpacity(0.25) : const Color(0xffEAF7EF),
               child: Text(
                 inquiry.farmerName.isNotEmpty
                     ? inquiry.farmerName[0].toUpperCase()
                     : "F",
-                style: const TextStyle(
-                  color: Color(0xff0F5C3A),
+                style: TextStyle(
+                  color: accentColor,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -87,8 +101,8 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
                     inquiry.farmerName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Color(0xff10291D),
+                    style: TextStyle(
+                      color: primaryText,
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
                     ),
@@ -97,8 +111,8 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
                     inquiry.cropName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Color(0xff5F675F),
+                    style: TextStyle(
+                      color: secondaryText,
                       fontSize: 12,
                     ),
                   ),
@@ -115,11 +129,21 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
             child: Consumer<ChatProvider>(
               builder: (context, provider, _) {
                 if (provider.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(
+                    child: CircularProgressIndicator(color: accentColor),
+                  );
                 }
 
                 if (provider.errorMessage != null) {
-                  return Center(child: Text(provider.errorMessage!));
+                  return Center(
+                    child: Text(
+                      provider.errorMessage!,
+                      style: TextStyle(
+                        color: isDark ? Colors.red.shade200 : Colors.red,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  );
                 }
 
                 final messages = provider.messages;
@@ -153,9 +177,11 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
       margin: const EdgeInsets.all(14),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xffEAF7EF),
+        color: isDark ? darkCard : const Color(0xffEAF7EF),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xffDCE7DD)),
+        border: Border.all(
+          color: isDark ? Colors.white10 : const Color(0xffDCE7DD),
+        ),
       ),
       child: Row(
         children: [
@@ -170,8 +196,11 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
                 return Container(
                   width: 52,
                   height: 52,
-                  color: Colors.white,
-                  child: const Icon(Icons.image_not_supported_outlined),
+                  color: isDark ? const Color(0xff1E1E1E) : Colors.white,
+                  child: Icon(
+                    Icons.image_not_supported_outlined,
+                    color: isDark ? Colors.white60 : Colors.grey,
+                  ),
                 );
               },
             ),
@@ -183,17 +212,17 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
               children: [
                 Text(
                   inquiry.cropName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w900,
-                    color: Color(0xff10291D),
+                    color: primaryText,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   "Qty: ${inquiry.quantity} • Offer: ${inquiry.offerPrice}",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xff5F675F),
+                    color: secondaryText,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -217,14 +246,20 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         constraints: const BoxConstraints(maxWidth: 280),
         decoration: BoxDecoration(
-          color: isMe ? const Color(0xff0F5C3A) : Colors.white,
+          color: isMe
+              ? darkGreen
+              : (isDark ? darkCard : Colors.white),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
             bottomLeft: Radius.circular(isMe ? 16 : 4),
             bottomRight: Radius.circular(isMe ? 4 : 16),
           ),
-          border: isMe ? null : Border.all(color: const Color(0xffDCE7DD)),
+          border: isMe
+              ? null
+              : Border.all(
+            color: isDark ? Colors.white10 : const Color(0xffDCE7DD),
+          ),
         ),
         child: Column(
           crossAxisAlignment:
@@ -233,7 +268,7 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
             Text(
               text,
               style: TextStyle(
-                color: isMe ? Colors.white : const Color(0xff10291D),
+                color: isMe ? Colors.white : primaryText,
                 fontSize: 14,
                 height: 1.4,
               ),
@@ -242,7 +277,9 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
             Text(
               time,
               style: TextStyle(
-                color: isMe ? Colors.white70 : const Color(0xff7A837C),
+                color: isMe
+                    ? Colors.white70
+                    : (isDark ? Colors.white54 : const Color(0xff7A837C)),
                 fontSize: 10,
               ),
             ),
@@ -255,7 +292,14 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
   Widget _messageInput() {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
-      decoration: const BoxDecoration(color: Colors.white),
+      decoration: BoxDecoration(
+        color: isDark ? darkCard : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? Colors.white10 : const Color(0xffDCE7DD),
+          ),
+        ),
+      ),
       child: Row(
         children: [
           Expanded(
@@ -263,19 +307,35 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
               controller: _messageController,
               minLines: 1,
               maxLines: 4,
+              style: TextStyle(
+                color: primaryText,
+                fontWeight: FontWeight.w600,
+              ),
+              cursorColor: accentColor,
               decoration: InputDecoration(
                 hintText: "Type your message...",
+                hintStyle: TextStyle(
+                  color: isDark ? Colors.white38 : Colors.grey,
+                ),
                 filled: true,
-                fillColor: const Color(0xffF8FAF7),
+                fillColor: isDark ? const Color(0xff1E1E1E) : lightBackground,
                 contentPadding:
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(22),
-                  borderSide: const BorderSide(color: Color(0xffDCE7DD)),
+                  borderSide: BorderSide(
+                    color: isDark ? Colors.white12 : const Color(0xffDCE7DD),
+                  ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(22),
-                  borderSide: const BorderSide(color: Color(0xffDCE7DD)),
+                  borderSide: BorderSide(
+                    color: isDark ? Colors.white12 : const Color(0xffDCE7DD),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(22),
+                  borderSide: BorderSide(color: accentColor, width: 1.2),
                 ),
               ),
             ),
@@ -283,7 +343,7 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
           const SizedBox(width: 8),
           CircleAvatar(
             radius: 24,
-            backgroundColor: const Color(0xff0F5C3A),
+            backgroundColor: darkGreen,
             child: IconButton(
               icon: const Icon(Icons.send, color: Colors.white, size: 20),
               onPressed: _sendMessage,

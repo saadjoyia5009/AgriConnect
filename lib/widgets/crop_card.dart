@@ -18,12 +18,15 @@ class MyCropCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isActive = crop.status == "Active";
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xffd8e6de)),
+        color: isDark ? const Color(0xff1E1E1E) : Colors.white,
+        border: Border.all(
+          color: isDark ? Colors.white10 : const Color(0xffd8e6de),
+        ),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
@@ -31,9 +34,7 @@ class MyCropCard extends StatelessWidget {
           Stack(
             children: [
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(10),
-                ),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
                 child: Image.network(
                   crop.imageUrl,
                   height: 150,
@@ -45,19 +46,22 @@ class MyCropCard extends StatelessWidget {
                 top: 8,
                 right: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: isActive ? darkGreen : Colors.grey.shade300,
+                    // FIX: Status Background color
+                    color: isActive
+                        ? darkGreen
+                        : (isDark ? Colors.white10 : Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     crop.status,
                     style: TextStyle(
                       fontSize: 11,
-                      color: isActive ? Colors.white : Colors.grey.shade700,
+                      // FIX: Status Text color
+                      color: isActive
+                          ? Colors.white
+                          : (isDark ? Colors.white54 : Colors.grey.shade700),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -65,7 +69,6 @@ class MyCropCard extends StatelessWidget {
               ),
             ],
           ),
-
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
             child: Column(
@@ -75,10 +78,10 @@ class MyCropCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         crop.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xff222222),
+                          color: isDark ? Colors.white : const Color(0xff222222),
                         ),
                       ),
                     ),
@@ -87,45 +90,49 @@ class MyCropCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w900,
-                        color: isActive ? darkGreen : Colors.grey,
+                        color: isActive ? (isDark ? const Color(0xff4CAF50) : darkGreen) : Colors.grey,
                       ),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 8),
-
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.inventory_2_outlined,
                       size: 14,
-                      color: Color(0xff4f5955),
+                      color: isDark ? Colors.white60 : const Color(0xff4f5955),
                     ),
                     const SizedBox(width: 4),
                     Text(
                       crop.quantity,
-                      style: const TextStyle(fontSize: 13),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? Colors.white70 : Colors.black87,
+                      ),
                     ),
                     if (crop.category.isNotEmpty) ...[
                       const SizedBox(width: 14),
-                      const Icon(
+                      Icon(
                         Icons.eco_outlined,
                         size: 14,
-                        color: Color(0xff4f5955),
+                        // FIX: Category Icon color
+                        color: isDark ? Colors.white60 : const Color(0xff4f5955),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         crop.category,
-                        style: const TextStyle(fontSize: 13),
+                        style: TextStyle(
+                          fontSize: 13,
+                          // FIX: Category Text color
+                          color: isDark ? Colors.white70 : Colors.black87,
+                        ),
                       ),
                     ],
                   ],
                 ),
-
                 const SizedBox(height: 12),
-                Divider(color: Colors.grey.shade300),
-
+                Divider(color: isDark ? Colors.white12 : Colors.grey.shade300),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -134,8 +141,8 @@ class MyCropCard extends StatelessWidget {
                       icon: const Icon(Icons.edit, size: 14),
                       label: const Text("Edit"),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.black87,
-                        side: BorderSide(color: Colors.grey.shade300),
+                        foregroundColor: isDark ? Colors.white : Colors.black87,
+                        side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
                         minimumSize: const Size(70, 34),
                       ),
                     ),
@@ -144,9 +151,7 @@ class MyCropCard extends StatelessWidget {
                       onPressed: onDelete,
                       icon: const Icon(Icons.delete_outline, size: 14),
                       label: const Text("Delete"),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.red,
-                      ),
+                      style: TextButton.styleFrom(foregroundColor: Colors.red),
                     ),
                   ],
                 ),

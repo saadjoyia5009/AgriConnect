@@ -24,6 +24,18 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
   final TextEditingController _deliveryDateController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
 
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color lightBackground = Color(0xffF8FAF7);
+  static const Color darkBackground = Color(0xFF0B1410);
+  static const Color darkCard = Color(0xFF15251E);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get accentColor => isDark ? lightGreen : darkGreen;
+  Color get primaryText => isDark ? Colors.white : const Color(0xff10291D);
+  Color get secondaryText => isDark ? Colors.white70 : const Color(0xff5F675F);
+
   @override
   void dispose() {
     _quantityController.dispose();
@@ -57,7 +69,10 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
       Navigator.pushReplacementNamed(context, '/buyer-inquiries');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(provider.errorMessage ?? "Failed to send inquiry")),
+        SnackBar(
+          content: Text(provider.errorMessage ?? "Failed to send inquiry"),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -67,20 +82,20 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
     final crop = widget.crop;
 
     return Scaffold(
-      backgroundColor: const Color(0xffF8FAF7),
+      backgroundColor: isDark ? darkBackground : lightBackground,
       appBar: AppBar(
-        backgroundColor: const Color(0xffF8FAF7),
+        backgroundColor: isDark ? darkBackground : lightBackground,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           "Send Inquiry",
           style: TextStyle(
-            color: Color(0xff0F5C3A),
+            color: accentColor,
             fontWeight: FontWeight.w900,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xff0F5C3A)),
+          icon: Icon(Icons.arrow_back, color: accentColor),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -123,8 +138,10 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                     child: ElevatedButton(
                       onPressed: provider.isSubmitting ? null : _submitInquiry,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff0F5C3A),
-                        disabledBackgroundColor: Colors.grey.shade400,
+                        backgroundColor: darkGreen,
+                        disabledBackgroundColor: isDark
+                            ? darkGreen.withOpacity(0.45)
+                            : Colors.grey.shade400,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -167,8 +184,11 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                 return Container(
                   height: 78,
                   width: 78,
-                  color: const Color(0xffEAF7EF),
-                  child: const Icon(Icons.image_not_supported_outlined),
+                  color: isDark ? const Color(0xff1E1E1E) : const Color(0xffEAF7EF),
+                  child: Icon(
+                    Icons.image_not_supported_outlined,
+                    color: isDark ? Colors.white60 : darkGreen,
+                  ),
                 );
               },
             ),
@@ -182,27 +202,27 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                   crop.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xff10291D),
+                    color: primaryText,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   crop.farmerName.isNotEmpty ? crop.farmerName : "Unknown Farmer",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xff5F675F),
+                    color: secondaryText,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   "${crop.price}${crop.unit}",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
-                    color: Color(0xff0F5C3A),
+                    color: accentColor,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -222,6 +242,11 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
   }) {
     return TextFormField(
       controller: controller,
+      style: TextStyle(
+        color: primaryText,
+        fontWeight: FontWeight.w600,
+      ),
+      cursorColor: accentColor,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return "$label is required";
@@ -240,6 +265,11 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
     return TextFormField(
       controller: _messageController,
       maxLines: 5,
+      style: TextStyle(
+        color: primaryText,
+        fontWeight: FontWeight.w600,
+      ),
+      cursorColor: accentColor,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return "Message is required";
@@ -262,30 +292,62 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
     return InputDecoration(
       labelText: label,
       hintText: hint,
-      prefixIcon: Icon(icon, color: const Color(0xff0F5C3A)),
+      labelStyle: TextStyle(
+        color: isDark ? Colors.white60 : const Color(0xff5F675F),
+      ),
+      hintStyle: TextStyle(
+        color: isDark ? Colors.white38 : Colors.grey,
+      ),
+      errorStyle: TextStyle(
+        color: isDark ? Colors.red.shade200 : Colors.red,
+        fontWeight: FontWeight.w600,
+      ),
+      prefixIcon: Icon(icon, color: accentColor),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: isDark ? darkCard : Colors.white,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xffDCE7DD)),
+        borderSide: BorderSide(
+          color: isDark ? Colors.white12 : const Color(0xffDCE7DD),
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xffDCE7DD)),
+        borderSide: BorderSide(
+          color: isDark ? Colors.white12 : const Color(0xffDCE7DD),
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xff0F5C3A), width: 1.4),
+        borderSide: BorderSide(
+          color: accentColor,
+          width: 1.4,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(
+          color: isDark ? Colors.red.shade200 : Colors.red,
+        ),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(
+          color: isDark ? Colors.red.shade200 : Colors.red,
+          width: 1.4,
+        ),
       ),
     );
   }
 
   BoxDecoration _cardDecoration() {
     return BoxDecoration(
-      color: Colors.white,
+      color: isDark ? darkCard : Colors.white,
       borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: const Color(0xffDCE7DD)),
+      border: Border.all(
+        color: isDark ? Colors.white10 : const Color(0xffDCE7DD),
+      ),
     );
   }
 }

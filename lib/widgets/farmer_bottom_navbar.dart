@@ -11,8 +11,6 @@ class FarmerBottomNavbar extends StatelessWidget {
 
   static const Color darkGreen = Color(0xff075739);
 
-
-
   void _navigate(BuildContext context, int index) {
     if (index == currentIndex) return;
 
@@ -32,16 +30,18 @@ class FarmerBottomNavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return ConvexAppBar(
       initialActiveIndex: currentIndex,
-      backgroundColor: Colors.white,
-      color: Colors.grey,
-      activeColor: darkGreen,
+      backgroundColor: isDark ? const Color(0xff1E1E1E) : Colors.white,
+      color: isDark ? Colors.white60 : Colors.grey,
+      activeColor: isDark ? const Color(0xff9ff2c1) : darkGreen,
       style: TabStyle.fixedCircle,
       height: 62,
       curveSize: 86,
       top: -22,
-      elevation: 8,
+      elevation: isDark ? 0 : 8,
       onTap: (index) => _navigate(context, index),
       items: const [
         TabItem(icon: Icons.home_rounded, title: 'Home'),

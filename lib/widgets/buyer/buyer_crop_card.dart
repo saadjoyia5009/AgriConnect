@@ -17,20 +17,28 @@ class BuyerCropCard extends StatelessWidget {
     this.isFavorite = false,
   });
 
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color darkCard = Color(0xFF15251E);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 200,
         margin: const EdgeInsets.only(right: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? darkCard : Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xffE2E8E1)),
+          border: Border.all(
+            color: isDark ? Colors.white10 : const Color(0xffE2E8E1),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withOpacity(isDark ? 0.22 : 0.05),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
@@ -56,18 +64,19 @@ class BuyerCropCard extends StatelessWidget {
                       onTap: onFavoriteTap,
                       child: Container(
                         padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xff1E1E1E) : Colors.white,
                           shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isDark ? Colors.white12 : Colors.transparent,
+                          ),
                         ),
                         child: Icon(
-                          isFavorite
-                              ? Icons.favorite
-                              : Icons.favorite_border,
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
                           size: 20,
                           color: isFavorite
                               ? Colors.red
-                              : const Color(0xff9AA39C),
+                              : (isDark ? Colors.white70 : const Color(0xff9AA39C)),
                         ),
                       ),
                     ),
@@ -86,9 +95,10 @@ class BuyerCropCard extends StatelessWidget {
                             crop.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w800,
                               fontSize: 13,
+                              color: isDark ? Colors.white : Colors.black87,
                             ),
                           ),
                         ),
@@ -99,14 +109,16 @@ class BuyerCropCard extends StatelessWidget {
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xffDCF5E1),
+                              color: isDark
+                                  ? darkGreen.withOpacity(0.30)
+                                  : const Color(0xffDCF5E1),
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: const Text(
+                            child: Text(
                               'Organic',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: Color(0xff0F5C3A),
+                                color: isDark ? lightGreen : darkGreen,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -116,10 +128,10 @@ class BuyerCropCard extends StatelessWidget {
                     const SizedBox(height: 9),
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.location_on_outlined,
                           size: 15,
-                          color: Color(0xff6B7280),
+                          color: isDark ? Colors.white60 : const Color(0xff6B7280),
                         ),
                         const SizedBox(width: 4),
                         Expanded(
@@ -127,8 +139,8 @@ class BuyerCropCard extends StatelessWidget {
                             crop.location,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Color(0xff5F675F),
+                            style: TextStyle(
+                              color: isDark ? Colors.white70 : const Color(0xff5F675F),
                               fontSize: 12,
                             ),
                           ),
@@ -144,16 +156,16 @@ class BuyerCropCard extends StatelessWidget {
                               children: [
                                 TextSpan(
                                   text: '${crop.price} ',
-                                  style: const TextStyle(
-                                    color: Color(0xff0F5C3A),
+                                  style: TextStyle(
+                                    color: isDark ? lightGreen : darkGreen,
                                     fontSize: 18,
                                     fontWeight: FontWeight.w900,
                                   ),
                                 ),
                                 TextSpan(
                                   text: crop.unit,
-                                  style: const TextStyle(
-                                    color: Color(0xff5F675F),
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white70 : const Color(0xff5F675F),
                                     fontSize: 13,
                                   ),
                                 ),
@@ -166,7 +178,7 @@ class BuyerCropCard extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: const BoxDecoration(
-                              color: Color(0xff0F5C3A),
+                              color: darkGreen,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(

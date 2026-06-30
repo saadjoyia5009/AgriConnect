@@ -34,9 +34,6 @@ class ProfileHeaderCard extends StatelessWidget {
           content: Text("Profile picture updated successfully"),
         ),
       );
-
-      // Later backend API call yahan add hogi:
-      // await AuthService.uploadProfileImage(File(pickedImage.path));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Image picker error: $e")),
@@ -57,12 +54,32 @@ class ProfileHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final cardColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final titleColor = isDark ? Colors.white : const Color(0xff202525);
+    final subtitleColor =
+    isDark ? Colors.grey.shade400 : const Color(0xff4f5955);
+    final avatarBgColor =
+    isDark ? const Color(0xFF2A3A33) : const Color(0xffe4efe9);
+    final badgeBgColor =
+    isDark ? darkGreen.withOpacity(0.18) : const Color(0xffdff3e8);
+    final borderColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          if (!isDark)
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+        ],
       ),
       child: Column(
         children: [
@@ -80,7 +97,8 @@ class ProfileHeaderCard extends StatelessWidget {
               icon: const Icon(Icons.edit_outlined, size: 18),
               label: const Text("Edit Profile"),
               style: TextButton.styleFrom(
-                foregroundColor: darkGreen,
+                foregroundColor:
+                isDark ? const Color(0xFF6FD59D) : darkGreen,
                 textStyle: const TextStyle(
                   fontWeight: FontWeight.w800,
                 ),
@@ -91,7 +109,7 @@ class ProfileHeaderCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 52,
-                backgroundColor: const Color(0xffe4efe9),
+                backgroundColor: avatarBgColor,
                 backgroundImage: _getProfileImage(),
               ),
               Positioned(
@@ -109,7 +127,7 @@ class ProfileHeaderCard extends StatelessWidget {
                       color: darkGreen,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.white,
+                        color: borderColor,
                         width: 3,
                       ),
                     ),
@@ -129,23 +147,23 @@ class ProfileHeaderCard extends StatelessWidget {
                 ? "Farmer User"
                 : authProvider.userName,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 25,
               fontWeight: FontWeight.w900,
-              color: Color(0xff202525),
+              color: titleColor,
             ),
           ),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xffdff3e8),
+              color: badgeBgColor,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text(
+            child: Text(
               "Certified Organic Farmer",
               style: TextStyle(
-                color: darkGreen,
+                color: isDark ? const Color(0xFF6FD59D) : darkGreen,
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
@@ -155,19 +173,19 @@ class ProfileHeaderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.location_on_outlined,
                 size: 20,
-                color: Color(0xff4f5955),
+                color: subtitleColor,
               ),
               const SizedBox(width: 5),
               Flexible(
                 child: Text(
                   authProvider.location,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
-                    color: Color(0xff4f5955),
+                    color: subtitleColor,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

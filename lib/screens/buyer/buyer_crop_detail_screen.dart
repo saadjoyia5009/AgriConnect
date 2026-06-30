@@ -10,10 +10,34 @@ class BuyerCropDetailScreen extends StatelessWidget {
     required this.crop,
   });
 
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color lightBackground = Color(0xffF8FAF7);
+  static const Color darkBackground = Color(0xFF0B1410);
+  static const Color darkCard = Color(0xFF15251E);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
+  bool _isDark(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark;
+  }
+
+  Color _accent(BuildContext context) {
+    return _isDark(context) ? lightGreen : darkGreen;
+  }
+
+  Color _primaryText(BuildContext context) {
+    return _isDark(context) ? Colors.white : const Color(0xff10291D);
+  }
+
+  Color _secondaryText(BuildContext context) {
+    return _isDark(context) ? Colors.white70 : const Color(0xff6A756D);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDark = _isDark(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xffF8FAF7),
+      backgroundColor: isDark ? darkBackground : lightBackground,
       bottomNavigationBar: _bottomButtons(context),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -25,15 +49,15 @@ class BuyerCropDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _titleSection(),
+                    _titleSection(context),
                     const SizedBox(height: 18),
-                    _farmerCard(),
+                    _farmerCard(context),
                     const SizedBox(height: 18),
-                    _detailsGrid(),
+                    _detailsGrid(context),
                     const SizedBox(height: 18),
-                    _descriptionSection(),
+                    _descriptionSection(context),
                     const SizedBox(height: 18),
-                    _attributeSection(),
+                    _attributeSection(context),
                     const SizedBox(height: 90),
                   ],
                 ),
@@ -46,6 +70,8 @@ class BuyerCropDetailScreen extends StatelessWidget {
   }
 
   Widget _imageHeader(BuildContext context) {
+    final isDark = _isDark(context);
+
     return Stack(
       children: [
         Image.network(
@@ -57,11 +83,11 @@ class BuyerCropDetailScreen extends StatelessWidget {
             return Container(
               height: 280,
               width: double.infinity,
-              color: const Color(0xffEAF7EF),
-              child: const Icon(
+              color: isDark ? darkCard : const Color(0xffEAF7EF),
+              child: Icon(
                 Icons.image_not_supported_outlined,
                 size: 60,
-                color: Color(0xff0F5C3A),
+                color: _accent(context),
               ),
             );
           },
@@ -70,9 +96,12 @@ class BuyerCropDetailScreen extends StatelessWidget {
           top: 14,
           left: 14,
           child: CircleAvatar(
-            backgroundColor: Colors.white,
+            backgroundColor: isDark ? const Color(0xff1E1E1E) : Colors.white,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Color(0xff0F5C3A)),
+              icon: Icon(
+                Icons.arrow_back,
+                color: _accent(context),
+              ),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -81,9 +110,12 @@ class BuyerCropDetailScreen extends StatelessWidget {
           top: 14,
           right: 14,
           child: CircleAvatar(
-            backgroundColor: Colors.white,
+            backgroundColor: isDark ? const Color(0xff1E1E1E) : Colors.white,
             child: IconButton(
-              icon: const Icon(Icons.favorite_border, color: Color(0xff0F5C3A)),
+              icon: Icon(
+                Icons.favorite_border,
+                color: _accent(context),
+              ),
               onPressed: () {},
             ),
           ),
@@ -92,24 +124,24 @@ class BuyerCropDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _titleSection() {
+  Widget _titleSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           crop.name,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.w900,
-            color: Color(0xff10291D),
+            color: _primaryText(context),
           ),
         ),
         const SizedBox(height: 8),
         Text(
           crop.category,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: Color(0xff6A756D),
+            color: _secondaryText(context),
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -127,16 +159,21 @@ class BuyerCropDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _farmerCard() {
+  Widget _farmerCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(),
+      decoration: _cardDecoration(context),
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 26,
-            backgroundColor: Color(0xffEAF7EF),
-            child: Icon(Icons.person, color: Color(0xff0F5C3A)),
+            backgroundColor: _isDark(context)
+                ? darkGreen.withOpacity(0.22)
+                : const Color(0xffEAF7EF),
+            child: Icon(
+              Icons.person,
+              color: _accent(context),
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -145,36 +182,37 @@ class BuyerCropDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   crop.location,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xff10291D),
+                    color: _primaryText(context),
                   ),
                 ),
                 const SizedBox(height: 5),
-                const Text(
+                Text(
                   "Farmer uploaded crop",
                   style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xff5F675F),
+                    color: _secondaryText(context),
                   ),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.verified, color: Color(0xff0F8A4C)),
+          Icon(Icons.verified, color: _accent(context)),
         ],
       ),
     );
   }
 
-  Widget _detailsGrid() {
+  Widget _detailsGrid(BuildContext context) {
     return Column(
       children: [
         Row(
           children: [
             Expanded(
               child: _detailBox(
+                context: context,
                 title: "Quantity",
                 value: crop.quantity,
                 icon: Icons.inventory_2_outlined,
@@ -183,6 +221,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _detailBox(
+                context: context,
                 title: "Price",
                 value: "${crop.price}${crop.unit}",
                 icon: Icons.sell_outlined,
@@ -195,6 +234,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
           children: [
             Expanded(
               child: _detailBox(
+                context: context,
                 title: "Harvest Date",
                 value: crop.harvestDate,
                 icon: Icons.calendar_month_outlined,
@@ -203,6 +243,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _detailBox(
+                context: context,
                 title: "Status",
                 value: crop.status,
                 icon: Icons.info_outline,
@@ -215,23 +256,24 @@ class BuyerCropDetailScreen extends StatelessWidget {
   }
 
   Widget _detailBox({
+    required BuildContext context,
     required String title,
     required String value,
     required IconData icon,
   }) {
     return Container(
       padding: const EdgeInsets.all(15),
-      decoration: _cardDecoration(),
+      decoration: _cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: const Color(0xff0F5C3A)),
+          Icon(icon, color: _accent(context)),
           const SizedBox(height: 12),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: Color(0xff6A756D),
+              color: _secondaryText(context),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -240,9 +282,9 @@ class BuyerCropDetailScreen extends StatelessWidget {
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
-              color: Color(0xff10291D),
+              color: _primaryText(context),
               fontWeight: FontWeight.w900,
             ),
           ),
@@ -251,28 +293,30 @@ class BuyerCropDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _descriptionSection() {
+  Widget _descriptionSection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(),
+      decoration: _cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Description",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
-              color: Color(0xff10291D),
+              color: _primaryText(context),
             ),
           ),
           const SizedBox(height: 10),
           Text(
             crop.description,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               height: 1.5,
-              color: Color(0xff4E5A52),
+              color: _isDark(context)
+                  ? Colors.white70
+                  : const Color(0xff4E5A52),
             ),
           ),
         ],
@@ -280,19 +324,19 @@ class BuyerCropDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _attributeSection() {
+  Widget _attributeSection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(),
+      decoration: _cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Crop Attributes",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
-              color: Color(0xff10291D),
+              color: _primaryText(context),
             ),
           ),
           const SizedBox(height: 14),
@@ -312,21 +356,33 @@ class BuyerCropDetailScreen extends StatelessWidget {
   }
 
   Widget _bottomButtons(BuildContext context) {
+    final isDark = _isDark(context);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 12, 18, 18),
-      decoration: const BoxDecoration(color: Colors.white),
+      decoration: BoxDecoration(
+        color: isDark ? darkCard : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? Colors.white10 : const Color(0xffDCE7DD),
+          ),
+        ),
+      ),
       child: Row(
         children: [
           Container(
             height: 52,
             width: 58,
             decoration: BoxDecoration(
+              color: isDark ? const Color(0xff1E1E1E) : Colors.white,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xffDCE7DD)),
+              border: Border.all(
+                color: isDark ? Colors.white12 : const Color(0xffDCE7DD),
+              ),
             ),
             child: IconButton(
               icon: const Icon(Icons.favorite_border),
-              color: const Color(0xff0F5C3A),
+              color: _accent(context),
               onPressed: () {},
             ),
           ),
@@ -344,7 +400,8 @@ class BuyerCropDetailScreen extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff0F5C3A),
+                  backgroundColor: darkGreen,
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -365,14 +422,18 @@ class BuyerCropDetailScreen extends StatelessWidget {
     );
   }
 
-  BoxDecoration _cardDecoration() {
+  BoxDecoration _cardDecoration(BuildContext context) {
+    final isDark = _isDark(context);
+
     return BoxDecoration(
-      color: Colors.white,
+      color: isDark ? darkCard : Colors.white,
       borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: const Color(0xffDCE7DD)),
+      border: Border.all(
+        color: isDark ? Colors.white10 : const Color(0xffDCE7DD),
+      ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.035),
+          color: Colors.black.withOpacity(isDark ? 0.20 : 0.035),
           blurRadius: 12,
           offset: const Offset(0, 5),
         ),
@@ -386,20 +447,30 @@ class _SmallChip extends StatelessWidget {
 
   const _SmallChip({required this.text});
 
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xffEAF7EF),
+        color: isDark
+            ? darkGreen.withOpacity(0.25)
+            : const Color(0xffEAF7EF),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? Colors.white10 : Colors.transparent,
+        ),
       ),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w800,
-          color: Color(0xff0F5C3A),
+          color: isDark ? lightGreen : darkGreen,
         ),
       ),
     );
@@ -411,26 +482,39 @@ class _AttributeChip extends StatelessWidget {
 
   const _AttributeChip({required this.text});
 
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
       decoration: BoxDecoration(
-        color: const Color(0xffF2F8F4),
+        color: isDark
+            ? const Color(0xff1E1E1E)
+            : const Color(0xffF2F8F4),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xffDCE7DD)),
+        border: Border.all(
+          color: isDark ? Colors.white12 : const Color(0xffDCE7DD),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.check_circle, size: 16, color: Color(0xff0F8A4C)),
+          Icon(
+            Icons.check_circle,
+            size: 16,
+            color: isDark ? lightGreen : const Color(0xff0F8A4C),
+          ),
           const SizedBox(width: 6),
           Text(
             text,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: Color(0xff33443B),
+              color: isDark ? Colors.white70 : const Color(0xff33443B),
             ),
           ),
         ],

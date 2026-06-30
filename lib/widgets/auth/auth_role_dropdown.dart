@@ -14,107 +14,108 @@ class AuthRoleDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.92),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        isExpanded: true,
-        icon: const Icon(
-          Icons.keyboard_arrow_down_rounded,
-          color: darkGreen,
-          size: 28,
+    return Theme(
+      data: ThemeData.light(),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.92),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        dropdownColor: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-
-        decoration: InputDecoration(
-          prefixIcon: Container(
-            margin: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: darkGreen.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
+        child: DropdownButtonFormField<String>(
+          value: value,
+          isExpanded: true,
+          icon: const Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: darkGreen,
+            size: 28,
+          ),
+          dropdownColor: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          style: const TextStyle(
+            color: Color(0xFF1D1D1D),
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white.withOpacity(0.92),
+            prefixIcon: Container(
+              margin: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: darkGreen.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.person_outline,
+                color: darkGreen,
+              ),
             ),
-            child: const Icon(
-              Icons.person_outline,
-              color: darkGreen,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 18,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Color(0xFFDDE5E0)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Color(0xFFDDE5E0)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(
+                color: darkGreen,
+                width: 1.5,
+              ),
             ),
           ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 18,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(
-              color: Color(0xFFDDE5E0),
+          items: const [
+            DropdownMenuItem(
+              value: "Farmer",
+              child: Row(
+                children: [
+                  Icon(Icons.agriculture, color: darkGreen, size: 20),
+                  SizedBox(width: 10),
+                  Text("Farmer"),
+                ],
+              ),
             ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(
-              color: Color(0xFFDDE5E0),
+            DropdownMenuItem(
+              value: "Buyer",
+              child: Row(
+                children: [
+                  Icon(Icons.shopping_cart_outlined, color: darkGreen, size: 20),
+                  SizedBox(width: 10),
+                  Text("Buyer"),
+                ],
+              ),
             ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(
-              color: darkGreen,
-              width: 1.5,
+            DropdownMenuItem(
+              value: "Admin",
+              child: Row(
+                children: [
+                  Icon(Icons.admin_panel_settings_outlined,
+                      color: darkGreen, size: 20),
+                  SizedBox(width: 10),
+                  Text("Admin"),
+                ],
+              ),
             ),
-          ),
+          ],
+          onChanged: (selectedValue) {
+            if (selectedValue != null) {
+              onChanged(selectedValue);
+            }
+          },
         ),
-
-        items: const [
-          DropdownMenuItem(
-            value: "Farmer",
-            child: Row(
-              children: [
-                Icon(Icons.agriculture,
-                    color: darkGreen, size: 20),
-                SizedBox(width: 10),
-                Text("Farmer"),
-              ],
-            ),
-          ),
-          DropdownMenuItem(
-            value: "Buyer",
-            child: Row(
-              children: [
-                Icon(Icons.shopping_cart_outlined,
-                    color: darkGreen, size: 20),
-                SizedBox(width: 10),
-                Text("Buyer"),
-              ],
-            ),
-          ),
-          DropdownMenuItem(
-            value: "Admin",
-            child: Row(
-              children: [
-                Icon(Icons.admin_panel_settings_outlined,
-                    color: darkGreen, size: 20),
-                SizedBox(width: 10),
-                Text("Admin"),
-              ],
-            ),
-          ),
-        ],
-
-        onChanged: (selectedValue) {
-          if (selectedValue != null) {
-            onChanged(selectedValue);
-          }
-        },
       ),
     );
   }

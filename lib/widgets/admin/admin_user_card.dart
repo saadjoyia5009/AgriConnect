@@ -16,20 +16,26 @@ class AdminUserCard extends StatelessWidget {
   });
 
   static const Color darkGreen = Color(0xFF0E5A3C);
+  static const Color lightGreen = Color(0xff9ff2c1);
+  static const Color darkCard = Color(0xFF15251E);
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final bool isFarmer = user.role == "Farmer";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? darkCard : Colors.white,
         borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: isDark ? Colors.white10 : Colors.transparent,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.055),
+            color: Colors.black.withOpacity(isDark ? 0.22 : 0.055),
             blurRadius: 16,
             offset: const Offset(0, 9),
           ),
@@ -39,11 +45,16 @@ class AdminUserCard extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 28,
-            backgroundColor:
-            isFarmer ? darkGreen.withOpacity(0.12) : Colors.blue.withOpacity(0.12),
+            backgroundColor: isFarmer
+                ? darkGreen.withOpacity(isDark ? 0.28 : 0.12)
+                : Colors.blue.withOpacity(isDark ? 0.22 : 0.12),
             child: Icon(
-              isFarmer ? Icons.agriculture_rounded : Icons.shopping_bag_rounded,
-              color: isFarmer ? darkGreen : Colors.blue,
+              isFarmer
+                  ? Icons.agriculture_rounded
+                  : Icons.shopping_bag_rounded,
+              color: isFarmer
+                  ? (isDark ? lightGreen : darkGreen)
+                  : Colors.blue,
             ),
           ),
           const SizedBox(width: 14),
@@ -55,10 +66,10 @@ class AdminUserCard extends StatelessWidget {
                   user.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF1F3328),
+                    color: isDark ? Colors.white : const Color(0xFF1F3328),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -68,16 +79,21 @@ class AdminUserCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12.5,
-                    color: Colors.grey.shade600,
+                    color: isDark ? Colors.white70 : Colors.grey.shade600,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    _chip(user.role, isFarmer ? darkGreen : Colors.blue),
+                    _chip(
+                      context,
+                      user.role,
+                      isFarmer ? darkGreen : Colors.blue,
+                    ),
                     const SizedBox(width: 8),
                     _chip(
+                      context,
                       user.isActive ? "Active" : "Suspended",
                       user.isActive ? Colors.green : Colors.redAccent,
                     ),
@@ -87,6 +103,8 @@ class AdminUserCard extends StatelessWidget {
             ),
           ),
           PopupMenuButton<String>(
+            color: isDark ? const Color(0xFF1E3128) : Colors.white,
+            iconColor: isDark ? Colors.white70 : Colors.black87,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -96,7 +114,13 @@ class AdminUserCard extends StatelessWidget {
             itemBuilder: (_) => [
               PopupMenuItem(
                 value: "status",
-                child: Text(user.isActive ? "Suspend User" : "Activate User"),
+                child: Text(
+                  user.isActive ? "Suspend User" : "Activate User",
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black87,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ],
           ),
@@ -108,18 +132,23 @@ class AdminUserCard extends StatelessWidget {
         .slideY(begin: 0.14, end: 0);
   }
 
-  Widget _chip(String text, Color color) {
+  Widget _chip(BuildContext context, String text, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.11),
+        color: color.withOpacity(isDark ? 0.20 : 0.11),
         borderRadius: BorderRadius.circular(30),
+        border: Border.all(
+          color: color.withOpacity(isDark ? 0.30 : 0),
+        ),
       ),
       child: Text(
         text,
         style: TextStyle(
           fontSize: 11,
-          color: color,
+          color: isDark && color == darkGreen ? lightGreen : color,
           fontWeight: FontWeight.w900,
         ),
       ),

@@ -14,6 +14,16 @@ class AdminReportsScreen extends StatefulWidget {
 
 class _AdminReportsScreenState extends State<AdminReportsScreen> {
   static const Color darkGreen = Color(0xFF0E5A3C);
+  static const Color lightBackground = Color(0xFFF4F8F5);
+  static const Color darkBackground = Color(0xFF0B1410);
+  static const Color darkCard = Color(0xFF15251E);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get accentColor => isDark ? lightGreen : darkGreen;
+  Color get primaryText => isDark ? Colors.white : const Color(0xFF123524);
+  Color get secondaryText => isDark ? Colors.white70 : Colors.grey.shade700;
 
   @override
   void initState() {
@@ -26,9 +36,9 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F8F5),
+      backgroundColor: isDark ? darkBackground : lightBackground,
       appBar: AppBar(
-        backgroundColor: darkGreen,
+        backgroundColor: isDark ? darkCard : darkGreen,
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -48,10 +58,13 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
               _filters(provider),
               Expanded(
                 child: provider.reports.isEmpty
-                    ? const Center(
+                    ? Center(
                   child: Text(
                     "No reports found",
-                    style: TextStyle(fontWeight: FontWeight.w800),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: primaryText,
+                    ),
                   ),
                 )
                     : ListView.builder(
@@ -99,14 +112,23 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
               duration: const Duration(milliseconds: 250),
               padding: const EdgeInsets.symmetric(horizontal: 18),
               decoration: BoxDecoration(
-                color: selected ? darkGreen : Colors.white,
+                color: selected
+                    ? (isDark ? darkGreen.withOpacity(0.45) : darkGreen)
+                    : (isDark ? darkCard : Colors.white),
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: selected
+                      ? accentColor
+                      : (isDark ? Colors.white10 : Colors.transparent),
+                ),
               ),
               child: Center(
                 child: Text(
                   filter,
                   style: TextStyle(
-                    color: selected ? Colors.white : Colors.grey.shade700,
+                    color: selected
+                        ? (isDark ? lightGreen : Colors.white)
+                        : secondaryText,
                     fontWeight: FontWeight.w900,
                   ),
                 ),

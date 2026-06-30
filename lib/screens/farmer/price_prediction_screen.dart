@@ -26,11 +26,20 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
     "Potatoes",
   ];
 
+  static const Color darkGreen = Color(0xff075739);
+  static const Color lightBg = Color(0xfff9fbfa);
+  static const Color darkBg = Color(0xff0B1410);
+  static const Color darkCard = Color(0xff15251E);
+
   @override
   void dispose() {
     quantityController.dispose();
     marketController.dispose();
     super.dispose();
+  }
+
+  bool _isDark(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark;
   }
 
   void _predictPrice() {
@@ -56,9 +65,10 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<PricePredictionProvider>();
+    final isDark = _isDark(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xfff9fbfa),
+      backgroundColor: isDark ? darkBg : lightBg,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 25),
@@ -67,37 +77,32 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
             children: [
               _topBar(context),
               const SizedBox(height: 28),
-
-              const Text(
+              Text(
                 "Price Prediction",
                 style: TextStyle(
-                  color: Color(0xff075739),
+                  color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 "Forecast market prices to optimize your selling strategy.",
                 style: TextStyle(
-                  color: Color(0xff202525),
+                  color: isDark ? Colors.white70 : const Color(0xff202525),
                   fontSize: 15,
                   height: 1.4,
                 ),
               ),
-
               const SizedBox(height: 28),
-
               _parametersCard(provider),
-
               const SizedBox(height: 22),
-
               if (provider.isLoading)
-                const Center(
+                Center(
                   child: Padding(
-                    padding: EdgeInsets.all(30),
+                    padding: const EdgeInsets.all(30),
                     child: CircularProgressIndicator(
-                      color: Color(0xff075739),
+                      color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                     ),
                   ),
                 )
@@ -118,24 +123,26 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
   }
 
   Widget _topBar(BuildContext context) {
+    final isDark = _isDark(context);
+
     return Row(
       children: [
         GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: const Icon(
+          child: Icon(
             Icons.arrow_back,
-            color: Color(0xff075739),
+            color: isDark ? const Color(0xff9ff2c1) : darkGreen,
             size: 27,
           ),
         ),
-        const Expanded(
+        Expanded(
           child: Center(
             child: Text(
               "AgriConnect",
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Color(0xff075739),
+                color: isDark ? const Color(0xff9ff2c1) : darkGreen,
               ),
             ),
           ),
@@ -149,6 +156,8 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
   }
 
   Widget _parametersCard(PricePredictionProvider provider) {
+    final isDark = _isDark(context);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -156,82 +165,78 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Prediction Parameters",
             style: TextStyle(
-              color: Color(0xff075739),
+              color: isDark ? const Color(0xff9ff2c1) : darkGreen,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 22),
-
-          const Text(
-            "Crop Type",
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: Color(0xff202525),
-            ),
-          ),
+          _label("Crop Type"),
           const SizedBox(height: 8),
-
           DropdownButtonFormField<String>(
             value: selectedCrop,
-            hint: const Text("Select a crop"),
+            dropdownColor: isDark ? const Color(0xff1E1E1E) : Colors.white,
+            iconEnabledColor: isDark ? Colors.white70 : darkGreen,
+            style: TextStyle(
+              color: isDark ? Colors.white : const Color(0xff26332e),
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+            hint: Text(
+              "Select a crop",
+              style: TextStyle(
+                color: isDark ? Colors.white38 : Colors.grey,
+              ),
+            ),
+            decoration: _inputDecoration(Icons.eco_outlined),
             items: cropTypes.map((crop) {
               return DropdownMenuItem(
                 value: crop,
-                child: Text(crop),
+                child: Text(
+                  crop,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : const Color(0xff26332e),
+                  ),
+                ),
               );
             }).toList(),
             onChanged: (value) {
               setState(() => selectedCrop = value);
             },
-            decoration: _inputDecoration(Icons.eco_outlined),
           ),
-
           const SizedBox(height: 18),
-
-          const Text(
-            "Quantity (Tons)",
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: Color(0xff202525),
-            ),
-          ),
+          _label("Quantity (Tons)"),
           const SizedBox(height: 8),
-
           TextField(
             controller: quantityController,
             keyboardType: TextInputType.number,
+            style: TextStyle(
+              color: isDark ? Colors.white : const Color(0xff26332e),
+              fontWeight: FontWeight.w600,
+            ),
+            cursorColor: isDark ? const Color(0xff9ff2c1) : darkGreen,
             decoration: _inputDecoration(Icons.hourglass_empty).copyWith(
               hintText: "e.g., 50",
             ),
           ),
-
           const SizedBox(height: 18),
-
-          const Text(
-            "Market Location",
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: Color(0xff202525),
-            ),
-          ),
+          _label("Market Location"),
           const SizedBox(height: 8),
-
           TextField(
             controller: marketController,
+            style: TextStyle(
+              color: isDark ? Colors.white : const Color(0xff26332e),
+              fontWeight: FontWeight.w600,
+            ),
+            cursorColor: isDark ? const Color(0xff9ff2c1) : darkGreen,
             decoration: _inputDecoration(Icons.location_on_outlined).copyWith(
               hintText: "e.g., Sahiwal Market",
             ),
           ),
-
           const SizedBox(height: 22),
-
           SizedBox(
             width: double.infinity,
             height: 54,
@@ -243,8 +248,9 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff075739),
+                backgroundColor: darkGreen,
                 foregroundColor: Colors.white,
+                disabledBackgroundColor: darkGreen.withOpacity(0.55),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(9),
                 ),
@@ -256,7 +262,22 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
     );
   }
 
+  Widget _label(String text) {
+    final isDark = _isDark(context);
+
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.bold,
+        color: isDark ? Colors.white70 : const Color(0xff202525),
+      ),
+    );
+  }
+
   Widget _estimatedValueCard(PricePredictionModel prediction) {
+    final isDark = _isDark(context);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(22),
@@ -264,22 +285,21 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Estimated Market Value",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xff4f5b56),
+              color: isDark ? Colors.white70 : const Color(0xff4f5b56),
             ),
           ),
           const SizedBox(height: 12),
-
           Row(
             children: [
               Text(
                 prediction.estimatedRange,
-                style: const TextStyle(
-                  color: Color(0xff075739),
+                style: TextStyle(
+                  color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -287,42 +307,40 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
               const SizedBox(width: 8),
               Text(
                 prediction.unit,
-                style: const TextStyle(
-                  color: Color(0xff202525),
+                style: TextStyle(
+                  color: isDark ? Colors.white70 : const Color(0xff202525),
                   fontSize: 14,
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 22),
-
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
             decoration: BoxDecoration(
-              color: const Color(0xffcdeed3),
+              color: isDark
+                  ? darkGreen.withOpacity(0.25)
+                  : const Color(0xffcdeed3),
               borderRadius: BorderRadius.circular(22),
             ),
             child: Text(
               prediction.changePercent,
-              style: const TextStyle(
-                color: Color(0xff075739),
+              style: TextStyle(
+                color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
               ),
             ),
           ),
-
           const SizedBox(height: 24),
-
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: const Color(0xfff1f2f1),
+              color: isDark ? const Color(0xff1E1E1E) : const Color(0xfff1f2f1),
               borderRadius: BorderRadius.circular(8),
-              border: const Border(
+              border: Border(
                 left: BorderSide(
-                  color: Color(0xff075739),
+                  color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                   width: 4,
                 ),
               ),
@@ -330,16 +348,16 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
+                Icon(
                   Icons.lightbulb_outline,
-                  color: Color(0xff075739),
+                  color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     "AI Recommendation\n${prediction.recommendation}",
-                    style: const TextStyle(
-                      color: Color(0xff202525),
+                    style: TextStyle(
+                      color: isDark ? Colors.white70 : const Color(0xff202525),
                       fontSize: 14,
                       height: 1.45,
                       fontWeight: FontWeight.w600,
@@ -355,6 +373,8 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
   }
 
   Widget _confidenceCard(PricePredictionModel prediction) {
+    final isDark = _isDark(context);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -362,10 +382,10 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Prediction Confidence",
             style: TextStyle(
-              color: Color(0xff4f5b56),
+              color: isDark ? Colors.white70 : const Color(0xff4f5b56),
               fontWeight: FontWeight.bold,
               fontSize: 15,
             ),
@@ -375,16 +395,16 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
             children: [
               Text(
                 "${prediction.confidence}%",
-                style: const TextStyle(
-                  color: Color(0xff075739),
+                style: TextStyle(
+                  color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const Spacer(),
-              const Icon(
+              Icon(
                 Icons.settings_outlined,
-                color: Color(0xff075739),
+                color: isDark ? const Color(0xff9ff2c1) : darkGreen,
               ),
             ],
           ),
@@ -393,8 +413,8 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
             value: prediction.confidence / 100,
             minHeight: 7,
             borderRadius: BorderRadius.circular(10),
-            backgroundColor: const Color(0xffd8dedb),
-            color: const Color(0xff075739),
+            backgroundColor: isDark ? Colors.white12 : const Color(0xffd8dedb),
+            color: isDark ? const Color(0xff9ff2c1) : darkGreen,
           ),
         ],
       ),
@@ -402,6 +422,8 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
   }
 
   Widget _highCard(PricePredictionModel prediction) {
+    final isDark = _isDark(context);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(22),
@@ -412,10 +434,10 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "30-Day High",
                   style: TextStyle(
-                    color: Color(0xff6d7471),
+                    color: isDark ? Colors.white60 : const Color(0xff6d7471),
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
@@ -423,8 +445,8 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
                 const SizedBox(height: 10),
                 Text(
                   prediction.thirtyDayHigh,
-                  style: const TextStyle(
-                    color: Color(0xff075739),
+                  style: TextStyle(
+                    color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
@@ -435,8 +457,8 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
           Text(
             "Recorded\n${prediction.recordedDate}",
             textAlign: TextAlign.right,
-            style: const TextStyle(
-              color: Color(0xff6d7471),
+            style: TextStyle(
+              color: isDark ? Colors.white60 : const Color(0xff6d7471),
               fontWeight: FontWeight.bold,
               fontSize: 12,
             ),
@@ -447,17 +469,22 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
   }
 
   Widget _errorCard(String message) {
+    final isDark = _isDark(context);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xffffd8d5),
+        color: isDark ? Colors.red.withOpacity(0.18) : const Color(0xffffd8d5),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? Colors.red.withOpacity(0.35) : Colors.transparent,
+        ),
       ),
       child: Text(
         message,
-        style: const TextStyle(
-          color: Colors.red,
+        style: TextStyle(
+          color: isDark ? Colors.red.shade200 : Colors.red,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -465,30 +492,48 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
   }
 
   InputDecoration _inputDecoration(IconData icon) {
+    final isDark = _isDark(context);
+
     return InputDecoration(
-      prefixIcon: Icon(icon, color: const Color(0xff075739)),
+      prefixIcon: Icon(
+        icon,
+        color: isDark ? Colors.white60 : darkGreen,
+      ),
+      hintStyle: TextStyle(
+        color: isDark ? Colors.white38 : Colors.grey,
+        fontSize: 13,
+      ),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: isDark ? const Color(0xff1E1E1E) : Colors.white,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(9),
-        borderSide: const BorderSide(color: Color(0xffcfd8d3)),
+        borderSide: BorderSide(
+          color: isDark ? Colors.white24 : const Color(0xffcfd8d3),
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(9),
-        borderSide: const BorderSide(color: Color(0xff075739)),
+        borderSide: BorderSide(
+          color: isDark ? const Color(0xff9ff2c1) : darkGreen,
+          width: 1.3,
+        ),
       ),
     );
   }
 
   BoxDecoration _cardDecoration() {
+    final isDark = _isDark(context);
+
     return BoxDecoration(
-      color: Colors.white,
+      color: isDark ? darkCard : Colors.white,
       borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: const Color(0xffbfe8ce)),
+      border: Border.all(
+        color: isDark ? Colors.white10 : const Color(0xffbfe8ce),
+      ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.03),
+          color: Colors.black.withOpacity(isDark ? 0.18 : 0.03),
           blurRadius: 10,
           offset: const Offset(0, 4),
         ),

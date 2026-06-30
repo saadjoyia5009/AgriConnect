@@ -49,6 +49,9 @@ import 'screens/admin/admin_reports_screen.dart';
 import 'screens/admin/admin_profile_screen.dart';
 import 'screens/admin/admin_main_screen.dart';
 import 'screens/auth/forgot_password_screen.dart';
+import 'config/app_theme.dart';
+import 'providers/theme_provider.dart';
+
 class AgriConnectApp extends StatelessWidget {
   const AgriConnectApp({super.key});
 
@@ -157,11 +160,20 @@ class AgriConnectApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AdminReportsProvider(),
         ),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        initialRoute: '/',
-        onGenerateRoute: _generateRoute,
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            initialRoute: '/',
+            onGenerateRoute: _generateRoute,
+
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.themeMode,
+          );
+        },
       ),
     );
   }

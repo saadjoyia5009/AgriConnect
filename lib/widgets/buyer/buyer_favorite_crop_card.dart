@@ -13,14 +13,22 @@ class BuyerFavoriteCropCard extends StatelessWidget {
     required this.onInquireTap,
   });
 
+  static const Color darkGreen = Color(0xff0F5C3A);
+  static const Color darkCard = Color(0xFF15251E);
+  static const Color lightGreen = Color(0xff9ff2c1);
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? darkCard : Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xffDCE7DD)),
+        border: Border.all(
+          color: isDark ? Colors.white10 : const Color(0xffDCE7DD),
+        ),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
@@ -40,10 +48,11 @@ class BuyerFavoriteCropCard extends StatelessWidget {
                   top: 10,
                   child: GestureDetector(
                     onTap: onRemoveTap,
-                    child: const CircleAvatar(
+                    child: CircleAvatar(
                       radius: 18,
-                      backgroundColor: Colors.white,
-                      child: Icon(
+                      backgroundColor:
+                      isDark ? const Color(0xff1E1E1E) : Colors.white,
+                      child: const Icon(
                         Icons.favorite,
                         color: Colors.red,
                         size: 21,
@@ -55,17 +64,22 @@ class BuyerFavoriteCropCard extends StatelessWidget {
                   left: 10,
                   bottom: 8,
                   child: Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.85),
+                      color: isDark
+                          ? Colors.black.withOpacity(0.65)
+                          : Colors.white.withOpacity(0.85),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       crop.isOrganic ? "Organic" : "Bulk Available",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.white : Colors.black87,
                       ),
                     ),
                   ),
@@ -79,26 +93,36 @@ class BuyerFavoriteCropCard extends StatelessWidget {
                 children: [
                   Text(
                     crop.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xff1F2722),
+                      color: isDark ? Colors.white : const Color(0xff1F2722),
                     ),
                   ),
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined, size: 14),
+                      Icon(
+                        Icons.location_on_outlined,
+                        size: 14,
+                        color: isDark ? Colors.white60 : Colors.black54,
+                      ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           crop.location,
-                          style: const TextStyle(fontSize: 12),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? Colors.white70 : Colors.black87,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const Divider(height: 24),
+                  Divider(
+                    height: 24,
+                    color: isDark ? Colors.white12 : Colors.black12,
+                  ),
                   Row(
                     children: [
                       Expanded(
@@ -107,17 +131,18 @@ class BuyerFavoriteCropCard extends StatelessWidget {
                             children: [
                               TextSpan(
                                 text: "Price ${crop.unit}\n",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
-                                  color: Colors.black54,
+                                  color:
+                                  isDark ? Colors.white60 : Colors.black54,
                                 ),
                               ),
                               TextSpan(
                                 text: crop.price,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w900,
-                                  color: Color(0xff0F5C3A),
+                                  color: isDark ? lightGreen : darkGreen,
                                 ),
                               ),
                             ],
@@ -127,7 +152,7 @@ class BuyerFavoriteCropCard extends StatelessWidget {
                       ElevatedButton(
                         onPressed: onInquireTap,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff0F5C3A),
+                          backgroundColor: darkGreen,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(7),
