@@ -21,7 +21,7 @@ class FarmerDashboardScreen extends StatefulWidget {
 class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   static const Color darkGreen = Color(0xff075739);
   static const Color mediumGreen = Color(0xff2d7153);
-  static const Color lightGreen = Color(0xff0F8A3B);
+
 
   bool _isLoading = false;
   String? _errorMessage;

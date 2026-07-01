@@ -482,7 +482,7 @@ class _AttributeChip extends StatelessWidget {
 
   const _AttributeChip({required this.text});
 
-  static const Color darkGreen = Color(0xff0F5C3A);
+
   static const Color lightGreen = Color(0xff9ff2c1);
 
   @override

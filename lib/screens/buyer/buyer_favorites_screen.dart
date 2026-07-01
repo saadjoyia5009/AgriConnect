@@ -115,21 +115,18 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
       child: Row(
         children: [
-          Icon(Icons.menu, color: iconColor),
+
           const Spacer(),
           Text(
-            "AgriConnect",
+            "Favorite",
             style: TextStyle(
               color: accentColor,
               fontWeight: FontWeight.w900,
-              fontSize: 18,
+              fontSize: 22,
             ),
           ),
           const Spacer(),
-          const CircleAvatar(
-            radius: 16,
-            backgroundImage: NetworkImage("https://i.pravatar.cc/100?img=12"),
-          ),
+
         ],
       ),
     );

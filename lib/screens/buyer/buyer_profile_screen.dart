@@ -7,6 +7,7 @@ import '../../widgets/buyer/buyer_bottom_navbar.dart';
 import '../../providers/theme_provider.dart';
 import '../../widgets/buyer/profile/buyer_profile_header.dart';
 import '../../widgets/buyer/profile/buyer_profile_stats.dart';
+import 'buyer_notification_screen.dart';
 import '../../widgets/buyer/profile/buyer_profile_menu_tile.dart';
 
 class BuyerProfileScreen extends StatefulWidget {
@@ -197,7 +198,14 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
                   BuyerProfileMenuTile(
                     icon: Icons.notifications_none,
                     title: "Notifications",
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BuyerNotificationScreen(),
+                        ),
+                      );
+                    },
                   ),
                   BuyerProfileMenuTile(
                     icon: Icons.logout,
@@ -223,10 +231,10 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
   Widget _topBar() {
     return Row(
       children: [
-        Icon(Icons.menu, size: 25, color: iconColor),
+
         const Spacer(),
         Text(
-          "Buyer Profile",
+          "Profile",
           style: TextStyle(
             color: accentColor,
             fontWeight: FontWeight.w900,
@@ -234,7 +242,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
           ),
         ),
         const Spacer(),
-        Icon(Icons.settings_outlined, color: iconColor),
+
       ],
     );
   }

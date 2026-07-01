@@ -118,27 +118,17 @@ class BuyerInquiriesScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.menu,
-            color: _accent(context),
-          ),
-          const SizedBox(width: 22),
-          Expanded(
-            child: Text(
+           Spacer(),
+            Text(
               "My Inquiries",
               style: TextStyle(
                 fontSize: 22,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
                 color: _accent(context),
               ),
             ),
-          ),
-          const CircleAvatar(
-            radius: 20,
-            backgroundImage: NetworkImage(
-              "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300",
-            ),
-          ),
+
+          Spacer(),
         ],
       ),
     );

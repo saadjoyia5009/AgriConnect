@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:animations/animations.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_input_field.dart';
 import '../../widgets/auth/auth_role_dropdown.dart';
 import 'login_screen.dart';
-import 'package:animations/animations.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -50,7 +51,10 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Future<void> _signup(AuthProvider authProvider) async {
+  Future<void> _signup(
+      AuthProvider authProvider,
+      LanguageProvider lang,
+      ) async {
     final name = nameController.text.trim();
     final email = emailController.text.trim();
     final phone = phoneController.text.trim();
@@ -58,8 +62,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
     if (name.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please fill all fields"),
+        SnackBar(
+          content: Text(lang.t("fillAllFields")),
           backgroundColor: Colors.red,
         ),
       );
@@ -78,7 +82,7 @@ class _SignupScreenState extends State<SignupScreen> {
     if (!success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authProvider.errorMessage ?? "Signup failed"),
+          content: Text(authProvider.errorMessage ?? lang.t("signupFailed")),
           backgroundColor: Colors.red,
         ),
       );
@@ -86,8 +90,8 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Account created successfully. Please login."),
+      SnackBar(
+        content: Text(lang.t("accountCreated")),
         backgroundColor: Colors.green,
       ),
     );
@@ -98,6 +102,7 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -132,13 +137,13 @@ class _SignupScreenState extends State<SignupScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _logo(),
+                        _logo(lang),
                         const SizedBox(height: 20),
 
-                        const Center(
+                        Center(
                           child: Text(
-                            "Create Account",
-                            style: TextStyle(
+                            lang.t("createAccount"),
+                            style: const TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.w900,
                               color: Color(0xFF1D1D1D),
@@ -148,11 +153,11 @@ class _SignupScreenState extends State<SignupScreen> {
 
                         const SizedBox(height: 6),
 
-                        const Center(
+                        Center(
                           child: Text(
-                            "Join AgriConnect and start your journey.",
+                            lang.t("signupSubtitle"),
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 13,
                               color: Color(0xFF4A4A4A),
                             ),
@@ -161,17 +166,17 @@ class _SignupScreenState extends State<SignupScreen> {
 
                         const SizedBox(height: 20),
 
-                        _label("Full Name"),
+                        _label(lang.t("fullName")),
                         const SizedBox(height: 8),
                         AuthInputField(
                           controller: nameController,
-                          hintText: "Enter Name",
+                          hintText: lang.t("enterName"),
                           icon: Icons.person_outline,
                         ),
 
                         const SizedBox(height: 14),
 
-                        _label("Email"),
+                        _label(lang.t("email")),
                         const SizedBox(height: 8),
                         AuthInputField(
                           controller: emailController,
@@ -182,7 +187,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
                         const SizedBox(height: 14),
 
-                        _label("Phone Number"),
+                        _label(lang.t("phoneNumber")),
                         const SizedBox(height: 8),
                         AuthInputField(
                           controller: phoneController,
@@ -193,7 +198,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
                         const SizedBox(height: 14),
 
-                        _label("Password"),
+                        _label(lang.t("password")),
                         const SizedBox(height: 8),
                         AuthInputField(
                           controller: passwordController,
@@ -212,7 +217,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
                         const SizedBox(height: 14),
 
-                        _label("Select Role"),
+                        _label(lang.t("selectRole")),
                         const SizedBox(height: 8),
                         AuthRoleDropdown(
                           value: authProvider.selectedRole,
@@ -227,7 +232,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           child: ElevatedButton(
                             onPressed: authProvider.isLoading
                                 ? null
-                                : () => _signup(authProvider),
+                                : () => _signup(authProvider, lang),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: darkGreen,
                               foregroundColor: Colors.white,
@@ -246,9 +251,9 @@ class _SignupScreenState extends State<SignupScreen> {
                                 strokeWidth: 2.4,
                               ),
                             )
-                                : const Text(
-                              "Sign Up",
-                              style: TextStyle(
+                                : Text(
+                              lang.t("signup"),
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
                               ),
@@ -261,17 +266,17 @@ class _SignupScreenState extends State<SignupScreen> {
                         Center(
                           child: GestureDetector(
                             onTap: authProvider.isLoading ? null : _goToLogin,
-                            child: const Text.rich(
+                            child: Text.rich(
                               TextSpan(
-                                text: "Already have an account? ",
-                                style: TextStyle(
+                                text: lang.t("alreadyHaveAccount"),
+                                style: const TextStyle(
                                   color: Colors.black54,
                                   fontSize: 14,
                                 ),
                                 children: [
                                   TextSpan(
-                                    text: "Login",
-                                    style: TextStyle(
+                                    text: lang.t("login"),
+                                    style: const TextStyle(
                                       color: darkGreen,
                                       fontWeight: FontWeight.w900,
                                     ),
@@ -293,7 +298,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _logo() {
+  Widget _logo(LanguageProvider lang) {
     return Center(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -308,9 +313,9 @@ class _SignupScreenState extends State<SignupScreen> {
             child: const Icon(Icons.eco, color: Colors.white, size: 28),
           ),
           const SizedBox(width: 14),
-          const Text(
-            "AgriConnect",
-            style: TextStyle(
+          Text(
+            lang.t("appName"),
+            style: const TextStyle(
               color: darkGreen,
               fontSize: 25,
               fontWeight: FontWeight.w900,

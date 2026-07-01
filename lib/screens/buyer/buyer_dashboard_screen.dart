@@ -8,6 +8,7 @@ import '../../widgets/buyer/buyer_crop_card.dart';
 import '../../widgets/buyer/buyer_search_bar.dart';
 import '../../widgets/buyer/buyer_section_header.dart';
 import '../../providers/buyer_favorite_provider.dart';
+import 'buyer_notification_screen.dart';
 import 'buyer_crop_detail_screen.dart';
 
 class BuyerDashboardScreen extends StatefulWidget {
@@ -122,7 +123,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
   Widget _topBar() {
     return Row(
       children: [
-        Icon(Icons.menu, size: 25, color: iconColor),
+
         const Spacer(),
         Text(
           'AgriConnect',
@@ -134,7 +135,14 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
         ),
         const Spacer(),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const BuyerNotificationScreen(),
+              ),
+            );
+          },
           icon: Icon(
             Icons.notifications_none,
             color: iconColor,
