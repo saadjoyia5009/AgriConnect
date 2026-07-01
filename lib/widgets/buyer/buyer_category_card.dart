@@ -59,6 +59,8 @@ class BuyerCategoryCard extends StatelessWidget {
           children: [
             Text(
               title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
@@ -68,6 +70,8 @@ class BuyerCategoryCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 12,
@@ -87,6 +91,8 @@ class BuyerCategoryCard extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontWeight: FontWeight.w800,
                 color: isDark

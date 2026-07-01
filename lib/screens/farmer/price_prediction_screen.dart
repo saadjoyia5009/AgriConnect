@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/price_prediction_provider.dart';
 import '../../models/price_prediction_model.dart';
+import '../../providers/language_provider.dart';
 
 class PricePredictionScreen extends StatefulWidget {
   const PricePredictionScreen({super.key});
@@ -43,12 +44,14 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
   }
 
   void _predictPrice() {
+    final lang = context.read<LanguageProvider>();
+
     if (selectedCrop == null ||
         quantityController.text.trim().isEmpty ||
         marketController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please fill all prediction parameters"),
+        SnackBar(
+          content: Text(lang.t("fillPredictionParameters")),
           backgroundColor: Colors.red,
         ),
       );
@@ -66,6 +69,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<PricePredictionProvider>();
     final isDark = _isDark(context);
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       backgroundColor: isDark ? darkBg : lightBg,
@@ -78,7 +82,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
               _topBar(context),
               const SizedBox(height: 28),
               Text(
-                "Price Prediction",
+                lang.t("pricePrediction"),
                 style: TextStyle(
                   color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                   fontSize: 17,
@@ -87,7 +91,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                "Forecast market prices to optimize your selling strategy.",
+                lang.t("pricePredictionSubtitle"),
                 style: TextStyle(
                   color: isDark ? Colors.white70 : const Color(0xff202525),
                   fontSize: 15,
@@ -109,12 +113,12 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
               else if (provider.errorMessage != null)
                 _errorCard(provider.errorMessage!)
               else if (provider.prediction != null) ...[
-                  _estimatedValueCard(provider.prediction!),
-                  const SizedBox(height: 22),
-                  _confidenceCard(provider.prediction!),
-                  const SizedBox(height: 22),
-                  _highCard(provider.prediction!),
-                ],
+                _estimatedValueCard(provider.prediction!),
+                const SizedBox(height: 22),
+                _confidenceCard(provider.prediction!),
+                const SizedBox(height: 22),
+                _highCard(provider.prediction!),
+              ],
             ],
           ),
         ),
@@ -138,7 +142,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
         Expanded(
           child: Center(
             child: Text(
-              "AgriConnect",
+              context.watch<LanguageProvider>().t("appName"),
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -157,6 +161,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
 
   Widget _parametersCard(PricePredictionProvider provider) {
     final isDark = _isDark(context);
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       width: double.infinity,
@@ -166,7 +171,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Prediction Parameters",
+            lang.t("predictionParameters"),
             style: TextStyle(
               color: isDark ? const Color(0xff9ff2c1) : darkGreen,
               fontSize: 20,
@@ -174,7 +179,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
             ),
           ),
           const SizedBox(height: 22),
-          _label("Crop Type"),
+          _label(lang.t("cropType")),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
             value: selectedCrop,
@@ -186,17 +191,15 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
               fontSize: 14,
             ),
             hint: Text(
-              "Select a crop",
-              style: TextStyle(
-                color: isDark ? Colors.white38 : Colors.grey,
-              ),
+              lang.t("selectCrop"),
+              style: TextStyle(color: isDark ? Colors.white38 : Colors.grey),
             ),
             decoration: _inputDecoration(Icons.eco_outlined),
             items: cropTypes.map((crop) {
               return DropdownMenuItem(
                 value: crop,
                 child: Text(
-                  crop,
+                  _cropLabel(crop, lang),
                   style: TextStyle(
                     color: isDark ? Colors.white : const Color(0xff26332e),
                   ),
@@ -208,7 +211,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
             },
           ),
           const SizedBox(height: 18),
-          _label("Quantity (Tons)"),
+          _label(lang.t("quantityTons")),
           const SizedBox(height: 8),
           TextField(
             controller: quantityController,
@@ -218,12 +221,12 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
               fontWeight: FontWeight.w600,
             ),
             cursorColor: isDark ? const Color(0xff9ff2c1) : darkGreen,
-            decoration: _inputDecoration(Icons.hourglass_empty).copyWith(
-              hintText: "e.g., 50",
-            ),
+            decoration: _inputDecoration(
+              Icons.hourglass_empty,
+            ).copyWith(hintText: lang.t("quantityHint")),
           ),
           const SizedBox(height: 18),
-          _label("Market Location"),
+          _label(lang.t("marketLocation")),
           const SizedBox(height: 8),
           TextField(
             controller: marketController,
@@ -232,9 +235,9 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
               fontWeight: FontWeight.w600,
             ),
             cursorColor: isDark ? const Color(0xff9ff2c1) : darkGreen,
-            decoration: _inputDecoration(Icons.location_on_outlined).copyWith(
-              hintText: "e.g., Sahiwal Market",
-            ),
+            decoration: _inputDecoration(
+              Icons.location_on_outlined,
+            ).copyWith(hintText: lang.t("marketLocationHint")),
           ),
           const SizedBox(height: 22),
           SizedBox(
@@ -243,9 +246,9 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
             child: ElevatedButton.icon(
               onPressed: provider.isLoading ? null : _predictPrice,
               icon: const Icon(Icons.insert_chart_outlined, size: 18),
-              label: const Text(
-                "Predict Price",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              label: Text(
+                lang.t("predictPrice"),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: darkGreen,
@@ -260,6 +263,10 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
         ],
       ),
     );
+  }
+
+  String _cropLabel(String crop, LanguageProvider lang) {
+    return lang.tDynamic(crop);
   }
 
   Widget _label(String text) {
@@ -277,6 +284,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
 
   Widget _estimatedValueCard(PricePredictionModel prediction) {
     final isDark = _isDark(context);
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       width: double.infinity,
@@ -286,7 +294,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Estimated Market Value",
+            lang.t("estimatedMarketValue"),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -306,7 +314,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                prediction.unit,
+                _predictionText(prediction.unit, prediction, lang),
                 style: TextStyle(
                   color: isDark ? Colors.white70 : const Color(0xff202525),
                   fontSize: 14,
@@ -324,7 +332,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
               borderRadius: BorderRadius.circular(22),
             ),
             child: Text(
-              prediction.changePercent,
+              _predictionText(prediction.changePercent, prediction, lang),
               style: TextStyle(
                 color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                 fontWeight: FontWeight.bold,
@@ -355,7 +363,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    "AI Recommendation\n${prediction.recommendation}",
+                    "${lang.t("aiRecommendation")}\n${_predictionText(prediction.recommendation, prediction, lang)}",
                     style: TextStyle(
                       color: isDark ? Colors.white70 : const Color(0xff202525),
                       fontSize: 14,
@@ -374,6 +382,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
 
   Widget _confidenceCard(PricePredictionModel prediction) {
     final isDark = _isDark(context);
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       width: double.infinity,
@@ -383,7 +392,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Prediction Confidence",
+            lang.t("predictionConfidence"),
             style: TextStyle(
               color: isDark ? Colors.white70 : const Color(0xff4f5b56),
               fontWeight: FontWeight.bold,
@@ -423,6 +432,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
 
   Widget _highCard(PricePredictionModel prediction) {
     final isDark = _isDark(context);
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       width: double.infinity,
@@ -435,7 +445,7 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "30-Day High",
+                  lang.t("thirtyDayHigh"),
                   style: TextStyle(
                     color: isDark ? Colors.white60 : const Color(0xff6d7471),
                     fontWeight: FontWeight.bold,
@@ -455,7 +465,9 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
             ),
           ),
           Text(
-            "Recorded\n${prediction.recordedDate}",
+            lang
+                .t("recordedDate")
+                .replaceAll("{value}", prediction.recordedDate),
             textAlign: TextAlign.right,
             style: TextStyle(
               color: isDark ? Colors.white60 : const Color(0xff6d7471),
@@ -482,7 +494,22 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
         ),
       ),
       child: Text(
-        message,
+        _predictionText(
+          message,
+          PricePredictionModel(
+            cropType: selectedCrop ?? "",
+            quantity: "",
+            marketLocation: marketController.text.trim(),
+            estimatedRange: "",
+            unit: "",
+            changePercent: "",
+            recommendation: "",
+            confidence: 0,
+            thirtyDayHigh: "",
+            recordedDate: "",
+          ),
+          context.watch<LanguageProvider>(),
+        ),
         style: TextStyle(
           color: isDark ? Colors.red.shade200 : Colors.red,
           fontWeight: FontWeight.bold,
@@ -491,14 +518,34 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
     );
   }
 
+  String _predictionText(
+    String text,
+    PricePredictionModel prediction,
+    LanguageProvider lang,
+  ) {
+    switch (text) {
+      case "per Ton":
+        return lang.t("perTon");
+      case "+5.2% vs last month":
+        return lang.t("vsLastMonth");
+      case "Failed to predict price":
+        return lang.t("failedPredictPrice");
+      default:
+        if (text == prediction.recommendation && text.isNotEmpty) {
+          return lang
+              .t("priceRecommendationTemplate")
+              .replaceAll("{crop}", lang.tDynamic(prediction.cropType))
+              .replaceAll("{market}", prediction.marketLocation);
+        }
+        return lang.tDynamic(text);
+    }
+  }
+
   InputDecoration _inputDecoration(IconData icon) {
     final isDark = _isDark(context);
 
     return InputDecoration(
-      prefixIcon: Icon(
-        icon,
-        color: isDark ? Colors.white60 : darkGreen,
-      ),
+      prefixIcon: Icon(icon, color: isDark ? Colors.white60 : darkGreen),
       hintStyle: TextStyle(
         color: isDark ? Colors.white38 : Colors.grey,
         fontSize: 13,

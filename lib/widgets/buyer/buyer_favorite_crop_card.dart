@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/crop_model.dart';
+import '../../providers/language_provider.dart';
 
 class BuyerFavoriteCropCard extends StatelessWidget {
   final CropModel crop;
@@ -20,6 +22,7 @@ class BuyerFavoriteCropCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -75,7 +78,9 @@ class BuyerFavoriteCropCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      crop.isOrganic ? "Organic" : "Bulk Available",
+                      crop.isOrganic
+                          ? lang.t("organic")
+                          : lang.t("bulkAvailable"),
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -130,7 +135,7 @@ class BuyerFavoriteCropCard extends StatelessWidget {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: "Price ${crop.unit}\n",
+                                text: "${lang.t("price")} ${lang.tDynamic(crop.unit)}\n",
                                 style: TextStyle(
                                   fontSize: 11,
                                   color:
@@ -158,9 +163,9 @@ class BuyerFavoriteCropCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(7),
                           ),
                         ),
-                        child: const Text(
-                          "Inquire",
-                          style: TextStyle(fontWeight: FontWeight.w800),
+                        child: Text(
+                          lang.t("inquire"),
+                          style: const TextStyle(fontWeight: FontWeight.w800),
                         ),
                       ),
                     ],

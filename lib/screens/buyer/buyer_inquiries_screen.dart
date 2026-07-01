@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
 import '../../providers/buyer_inquiry_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/inquiry/buyer_inquiry_card.dart';
 import 'buyer_inquiry_detail_screen.dart';
 import 'buyer_farmer_chat_screen.dart';
@@ -35,8 +36,11 @@ class BuyerInquiriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = _isDark(context);
+    final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return Directionality(
+        textDirection: lang.isUrdu ? TextDirection.rtl : TextDirection.ltr,
+        child: Scaffold(
       backgroundColor: isDark ? darkBackground : lightBackground,
       bottomNavigationBar: BuyerBottomNavBar(
         currentIndex: 2,
@@ -55,7 +59,7 @@ class BuyerInquiriesScreen extends StatelessWidget {
                   if (inquiries.isEmpty) {
                     return Center(
                       child: Text(
-                        "No inquiries found",
+                        context.watch<LanguageProvider>().t("noInquiriesFound"),
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           color: _secondaryText(context),
@@ -99,6 +103,7 @@ class BuyerInquiriesScreen extends StatelessWidget {
           ],
         ),
       ),
+        ),
     );
   }
 
@@ -118,27 +123,17 @@ class BuyerInquiriesScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.menu,
-            color: _accent(context),
-          ),
-          const SizedBox(width: 22),
-          Expanded(
-            child: Text(
-              "My Inquiries",
+          const Spacer(),
+            Text(
+              context.watch<LanguageProvider>().t("myInquiries"),
               style: TextStyle(
                 fontSize: 22,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
                 color: _accent(context),
               ),
             ),
-          ),
-          const CircleAvatar(
-            radius: 20,
-            backgroundImage: NetworkImage(
-              "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300",
-            ),
-          ),
+
+          const Spacer(),
         ],
       ),
     );
@@ -197,7 +192,7 @@ class BuyerInquiriesScreen extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            title,
+            context.watch<LanguageProvider>().tDynamic(title),
             style: TextStyle(
               color: isSelected ? _accent(context) : _primaryText(context),
               fontWeight: FontWeight.w800,

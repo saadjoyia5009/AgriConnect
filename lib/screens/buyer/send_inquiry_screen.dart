@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/crop_model.dart';
 import '../../providers/buyer_inquiry_provider.dart';
+import '../../providers/language_provider.dart';
 
 class SendInquiryScreen extends StatefulWidget {
   final CropModel crop;
@@ -63,14 +64,21 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Inquiry sent successfully")),
+        SnackBar(
+          content: Text(
+            context.read<LanguageProvider>().t("inquirySentSuccessfully"),
+          ),
+        ),
       );
 
       Navigator.pushReplacementNamed(context, '/buyer-inquiries');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(provider.errorMessage ?? "Failed to send inquiry"),
+          content: Text(
+            provider.errorMessage ??
+                context.read<LanguageProvider>().t("failedSendInquiry"),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -80,6 +88,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
   @override
   Widget build(BuildContext context) {
     final crop = widget.crop;
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       backgroundColor: isDark ? darkBackground : lightBackground,
@@ -88,7 +97,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          "Send Inquiry",
+          lang.t("sendInquiry"),
           style: TextStyle(
             color: accentColor,
             fontWeight: FontWeight.w900,
@@ -111,22 +120,22 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                   const SizedBox(height: 20),
                   _inputField(
                     controller: _quantityController,
-                    label: "Required Quantity",
-                    hint: "Example: 20 Boxes",
+                    label: lang.t("requiredQuantity"),
+                    hint: lang.t("requiredQuantityHint"),
                     icon: Icons.inventory_2_outlined,
                   ),
                   const SizedBox(height: 14),
                   _inputField(
                     controller: _offerPriceController,
-                    label: "Offered Price",
-                    hint: "Example: PKR 4500 / box",
+                    label: lang.t("offeredPrice"),
+                    hint: lang.t("offeredPriceHint"),
                     icon: Icons.sell_outlined,
                   ),
                   const SizedBox(height: 14),
                   _inputField(
                     controller: _deliveryDateController,
-                    label: "Expected Delivery Date",
-                    hint: "Example: 28/06/2026",
+                    label: lang.t("expectedDeliveryDate"),
+                    hint: lang.t("expectedDeliveryDateHint"),
                     icon: Icons.calendar_month_outlined,
                   ),
                   const SizedBox(height: 14),
@@ -148,9 +157,9 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                       ),
                       child: provider.isSubmitting
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                        "Submit Inquiry",
-                        style: TextStyle(
+                          : Text(
+                        lang.t("submitInquiry"),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
@@ -210,7 +219,9 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  crop.farmerName.isNotEmpty ? crop.farmerName : "Unknown Farmer",
+                  crop.farmerName.isNotEmpty
+                      ? crop.farmerName
+                      : context.watch<LanguageProvider>().t("unknownFarmer"),
                   style: TextStyle(
                     fontSize: 13,
                     color: secondaryText,
@@ -219,7 +230,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  "${crop.price}${crop.unit}",
+                  "${crop.price}${context.watch<LanguageProvider>().tDynamic(crop.unit)}",
                   style: TextStyle(
                     fontSize: 15,
                     color: accentColor,
@@ -249,7 +260,10 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
       cursorColor: accentColor,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return "$label is required";
+          return context
+              .read<LanguageProvider>()
+              .t("fieldRequired")
+              .replaceAll("{field}", label);
         }
         return null;
       },
@@ -272,13 +286,13 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
       cursorColor: accentColor,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return "Message is required";
+          return context.read<LanguageProvider>().t("messageRequired");
         }
         return null;
       },
       decoration: _inputDecoration(
-        label: "Message",
-        hint: "Write your message for farmer...",
+        label: context.read<LanguageProvider>().t("message"),
+        hint: context.read<LanguageProvider>().t("messageFarmerHint"),
         icon: Icons.message_outlined,
       ),
     );

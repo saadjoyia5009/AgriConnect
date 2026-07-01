@@ -11,6 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  flutter_localizations:
+    sdk: flutter
+
   cupertino_icons: ^1.0.8
   provider: ^6.1.5+1
   http: ^1.6.0
@@ -26,6 +29,7 @@ dependencies:
   fl_chart: ^1.0.0
   shimmer: ^3.0.0
   shared_preferences: ^2.5.5
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +38,8 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
 flutter:
+  generate: true
+
   uses-material-design: true
 
   assets:

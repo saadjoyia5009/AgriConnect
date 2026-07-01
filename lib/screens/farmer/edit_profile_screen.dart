@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -45,6 +46,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final lang = context.read<LanguageProvider>();
 
     authProvider.updateProfile(
       name: nameController.text.trim(),
@@ -54,9 +56,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Profile updated successfully"),
-      ),
+      SnackBar(content: Text(lang.t("profileUpdatedSuccessfully"))),
     );
 
     Navigator.pop(context);
@@ -64,14 +64,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: darkGreen,
         foregroundColor: Colors.white,
-        title: const Text(
-          "Edit Profile",
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          lang.t("editProfile"),
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -91,11 +93,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               _inputField(
                 controller: nameController,
-                label: "User Name",
+                label: lang.t("userName"),
                 icon: Icons.person_outline,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "Please enter user name";
+                    return lang.t("pleaseEnterUserName");
                   }
                   return null;
                 },
@@ -105,15 +107,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               _inputField(
                 controller: emailController,
-                label: "Email Address",
+                label: lang.t("emailAddress"),
                 icon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "Please enter email";
+                    return lang.t("pleaseEnterEmail");
                   }
                   if (!value.contains("@")) {
-                    return "Please enter valid email";
+                    return lang.t("pleaseEnterValidEmail");
                   }
                   return null;
                 },
@@ -123,12 +125,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               _inputField(
                 controller: phoneController,
-                label: "Phone Number",
+                label: lang.t("phoneNumber"),
                 icon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "Please enter phone number";
+                    return lang.t("pleaseEnterPhoneNumber");
                   }
                   return null;
                 },
@@ -138,11 +140,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               _inputField(
                 controller: locationController,
-                label: "Location",
+                label: lang.t("location"),
                 icon: Icons.location_on_outlined,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "Please enter location";
+                    return lang.t("pleaseEnterLocation");
                   }
                   return null;
                 },
@@ -162,9 +164,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
-                    "Save Changes",
-                    style: TextStyle(
+                  child: Text(
+                    lang.t("saveChanges"),
+                    style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
                     ),
@@ -191,9 +193,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       controller: controller,
       keyboardType: keyboardType,
       validator: validator,
-      style: TextStyle(
-        color: Theme.of(context).textTheme.bodyLarge?.color,
-      ),
+      style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(

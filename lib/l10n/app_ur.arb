@@ -1,0 +1,18 @@
+{
+  "appName": "ایگری کنیکٹ",
+  "chooseLanguage": "زبان منتخب کریں",
+  "chooseLanguageSubtitle": "آگے بڑھنے کے لیے اپنی پسندیدہ زبان منتخب کریں",
+  "english": "انگریزی",
+  "urdu": "اردو",
+  "continueText": "جاری رکھیں",
+  "login": "لاگ اِن",
+  "signup": "سائن اَپ",
+  "email": "ای میل",
+  "password": "پاس ورڈ",
+  "notifications": "اطلاعات",
+  "profile": "پروفائل",
+  "settings": "سیٹنگز",
+  "language": "زبان",
+  "changeLanguage": "زبان تبدیل کریں",
+  "logout": "لاگ آؤٹ"
+}

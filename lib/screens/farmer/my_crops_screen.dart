@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/crop_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/crop_card.dart';
 import '../../widgets/farmer_bottom_navbar.dart';
 
@@ -13,12 +14,11 @@ class MyCropsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cropProvider = Provider.of<CropProvider>(context);
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      bottomNavigationBar: const FarmerBottomNavbar(
-        currentIndex: 1,
-      ),
+      bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 1),
       floatingActionButton: FloatingActionButton(
         backgroundColor: darkGreen,
         foregroundColor: Colors.white,
@@ -38,7 +38,7 @@ class MyCropsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "My Crops",
+                      lang.t("myCrops"),
                       style: TextStyle(
                         color: Theme.of(context).textTheme.bodyLarge?.color,
                         fontSize: 24,
@@ -51,6 +51,7 @@ class MyCropsScreen extends StatelessWidget {
                         _filterChip(
                           context,
                           title: "All",
+                          displayTitle: lang.t("all"),
                           count: cropProvider.allCount,
                           selected: cropProvider.selectedFilter == "All",
                         ),
@@ -58,6 +59,7 @@ class MyCropsScreen extends StatelessWidget {
                         _filterChip(
                           context,
                           title: "Active",
+                          displayTitle: lang.t("active"),
                           count: cropProvider.activeCount,
                           selected: cropProvider.selectedFilter == "Active",
                         ),
@@ -65,6 +67,7 @@ class MyCropsScreen extends StatelessWidget {
                         _filterChip(
                           context,
                           title: "Sold Out",
+                          displayTitle: lang.t("soldOut"),
                           count: cropProvider.soldOutCount,
                           selected: cropProvider.selectedFilter == "Sold Out",
                         ),
@@ -101,6 +104,7 @@ class MyCropsScreen extends StatelessWidget {
 
   Widget _topBar(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
     return Container(
       height: 58,
       padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -122,7 +126,7 @@ class MyCropsScreen extends StatelessWidget {
           Expanded(
             child: Center(
               child: Text(
-                "AgriConnect",
+                lang.t("appName"),
                 style: TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
@@ -137,11 +141,12 @@ class MyCropsScreen extends StatelessWidget {
   }
 
   Widget _filterChip(
-      BuildContext context, {
-        required String title,
-        required int count,
-        required bool selected,
-      }) {
+    BuildContext context, {
+    required String title,
+    required String displayTitle,
+    required int count,
+    required bool selected,
+  }) {
     final cropProvider = Provider.of<CropProvider>(context, listen: false);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -163,7 +168,7 @@ class MyCropsScreen extends StatelessWidget {
           ),
         ),
         child: Text(
-          "$title ($count)",
+          "$displayTitle ($count)",
           style: TextStyle(
             color: selected
                 ? Colors.white

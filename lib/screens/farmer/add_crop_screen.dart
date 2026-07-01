@@ -6,10 +6,10 @@ import 'package:provider/provider.dart';
 
 import '../../models/crop_model.dart';
 import '../../providers/crop_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/crop_form/add_crop_form_card.dart';
 import '../../widgets/crop_form/crop_image_picker_box.dart';
 import '../../widgets/crop_form/crop_submit_button.dart';
-
 
 class AddCropScreen extends StatefulWidget {
   const AddCropScreen({super.key});
@@ -71,7 +71,7 @@ class _AddCropScreenState extends State<AddCropScreen> {
     if (pickedDate != null) {
       setState(() {
         harvestDate =
-        "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
       });
     }
   }
@@ -104,23 +104,25 @@ class _AddCropScreenState extends State<AddCropScreen> {
   }
 
   Future<void> _submitCrop() async {
+    final lang = context.read<LanguageProvider>();
+
     if (!_validateForm()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill required fields")),
+        SnackBar(content: Text(lang.t("pleaseFillRequiredFields"))),
       );
       return;
     }
 
-    final success = await context.read<CropProvider>().addCrop(_buildCropModel());
+    final success = await context.read<CropProvider>().addCrop(
+      _buildCropModel(),
+    );
 
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          success
-              ? "Crop listed successfully"
-              : "Failed to list crop. Please try again.",
+          success ? lang.t("cropListedSuccessfully") : lang.t("failedListCrop"),
         ),
         backgroundColor: success ? darkGreen : Colors.red,
       ),
@@ -134,9 +136,10 @@ class _AddCropScreenState extends State<AddCropScreen> {
   @override
   Widget build(BuildContext context) {
     final isSubmitting = context.watch<CropProvider>().isSubmitting;
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -190,8 +193,8 @@ class _AddCropScreenState extends State<AddCropScreen> {
                     const SizedBox(height: 25),
                     CropSubmitButton(
                       isSubmitting: isSubmitting,
-                      title: "List Crop to Marketplace",
-                      loadingTitle: "Listing Crop...",
+                      title: lang.t("listCropMarketplace"),
+                      loadingTitle: lang.t("listingCrop"),
                       onPressed: _submitCrop,
                     ),
                   ],
@@ -206,6 +209,7 @@ class _AddCropScreenState extends State<AddCropScreen> {
 
   Widget _topBar(bool isSubmitting) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       height: 58,
@@ -233,7 +237,7 @@ class _AddCropScreenState extends State<AddCropScreen> {
           Expanded(
             child: Center(
               child: Text(
-                "List New Crop",
+                lang.t("listNewCrop"),
                 style: TextStyle(
                   color: isDark ? Colors.white : darkGreen,
                   fontSize: 17,

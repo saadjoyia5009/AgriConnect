@@ -3,14 +3,12 @@ import 'package:provider/provider.dart';
 
 import '../../models/inquiry_model.dart';
 import '../../providers/inquiry_provider.dart';
+import '../../providers/language_provider.dart';
 
 class FarmerInquiryDetailScreen extends StatelessWidget {
   final String inquiryId;
 
-  const FarmerInquiryDetailScreen({
-    super.key,
-    required this.inquiryId,
-  });
+  const FarmerInquiryDetailScreen({super.key, required this.inquiryId});
 
   static const Color darkGreen = Color(0xff075739);
   static const Color lightGreen = Color(0xffe9f7ef);
@@ -18,6 +16,7 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<InquiryProvider>(context);
+    final lang = context.watch<LanguageProvider>();
     final InquiryModel? inquiry = provider.getInquiryById(inquiryId);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -27,7 +26,7 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
         appBar: _appBar(context),
         body: Center(
           child: Text(
-            "Inquiry not found",
+            lang.t("inquiryNotFound"),
             style: TextStyle(
               color: isDark ? Colors.white : darkGreen,
               fontSize: 18,
@@ -53,7 +52,7 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
             _cropCard(context, inquiry),
             const SizedBox(height: 28),
             Text(
-              "Message",
+              lang.t("message"),
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyLarge?.color,
                 fontSize: 20,
@@ -63,34 +62,33 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
             const SizedBox(height: 12),
             _messageBox(context, inquiry.message),
             const SizedBox(height: 28),
-            Divider(
-              color: isDark ? Colors.white12 : Colors.grey.shade300,
-            ),
+            Divider(color: isDark ? Colors.white12 : Colors.grey.shade300),
             const SizedBox(height: 14),
 
             if (isPending) ...[
               _fullButton(
-                title: "Accept Inquiry",
+                title: lang.t("acceptInquiry"),
                 icon: Icons.check_circle_outline,
                 backgroundColor: darkGreen,
                 textColor: Colors.white,
                 onTap: () async {
                   await provider.acceptInquiry(inquiry.id);
-                  _showSnack(context, "Inquiry accepted successfully");
+                  _showSnack(context, lang.t("inquiryAcceptedSuccessfully"));
                   Navigator.pop(context);
                 },
               ),
               const SizedBox(height: 12),
               _fullButton(
-                title: "Decline",
+                title: lang.t("decline"),
                 icon: Icons.cancel_outlined,
-                backgroundColor:
-                isDark ? Theme.of(context).cardColor : Colors.white,
+                backgroundColor: isDark
+                    ? Theme.of(context).cardColor
+                    : Colors.white,
                 textColor: isDark ? Colors.white : darkGreen,
                 borderColor: isDark ? Colors.white24 : const Color(0xff49c982),
                 onTap: () async {
                   await provider.rejectInquiry(inquiry.id);
-                  _showSnack(context, "Inquiry declined");
+                  _showSnack(context, lang.t("inquiryDeclined"));
                   Navigator.pop(context);
                 },
               ),
@@ -98,14 +96,15 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
             ],
 
             _fullButton(
-              title: "Message Buyer",
+              title: lang.t("messageBuyer"),
               icon: Icons.message_outlined,
-              backgroundColor:
-              isDark ? Theme.of(context).cardColor : const Color(0xffe7e8e5),
+              backgroundColor: isDark
+                  ? Theme.of(context).cardColor
+                  : const Color(0xffe7e8e5),
               textColor: isDark ? Colors.white : const Color(0xff222222),
               borderColor: isDark ? Colors.white12 : null,
               onTap: () {
-                _showSnack(context, "Chat screen will be connected later");
+                _showSnack(context, lang.t("chatConnectedLater"));
               },
             ),
           ],
@@ -116,16 +115,15 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
 
   PreferredSizeWidget _appBar(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return AppBar(
       backgroundColor: Theme.of(context).cardColor,
       elevation: 0,
       centerTitle: false,
-      iconTheme: IconThemeData(
-        color: isDark ? Colors.white : darkGreen,
-      ),
+      iconTheme: IconThemeData(color: isDark ? Colors.white : darkGreen),
       title: Text(
-        "Inquiry Details",
+        lang.t("inquiryDetails"),
         style: TextStyle(
           color: isDark ? Colors.white : darkGreen,
           fontSize: 22,
@@ -137,6 +135,7 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
 
   Widget _buyerCard(BuildContext context, InquiryModel inquiry) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -161,16 +160,17 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
           CircleAvatar(
             radius: 30,
             backgroundColor: isDark ? Colors.white12 : lightGreen,
-            backgroundImage:
-            inquiry.buyerImage.isNotEmpty ? NetworkImage(inquiry.buyerImage) : null,
+            backgroundImage: inquiry.buyerImage.isNotEmpty
+                ? NetworkImage(inquiry.buyerImage)
+                : null,
             child: inquiry.buyerImage.isEmpty
                 ? Text(
-              inquiry.buyerInitials,
-              style: const TextStyle(
-                color: darkGreen,
-                fontWeight: FontWeight.w900,
-              ),
-            )
+                    inquiry.buyerInitials,
+                    style: const TextStyle(
+                      color: darkGreen,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  )
                 : null,
           ),
           const SizedBox(width: 14),
@@ -201,8 +201,9 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color:
-                          isDark ? Colors.white60 : const Color(0xff444444),
+                          color: isDark
+                              ? Colors.white60
+                              : const Color(0xff444444),
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
@@ -217,13 +218,16 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 7,
+                ),
                 decoration: BoxDecoration(
                   color: isDark ? Colors.white12 : const Color(0xffd9f3df),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
-                  "New Buyer",
+                  lang.t("newBuyer"),
                   style: TextStyle(
                     color: isDark ? Colors.white : darkGreen,
                     fontSize: 12,
@@ -249,6 +253,7 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
 
   Widget _cropCard(BuildContext context, InquiryModel inquiry) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       decoration: BoxDecoration(
@@ -272,8 +277,9 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
           Stack(
             children: [
               ClipRRect(
-                borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(14)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(14),
+                ),
                 child: Image.network(
                   inquiry.cropImage,
                   width: double.infinity,
@@ -297,8 +303,9 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
               Container(
                 height: 135,
                 decoration: BoxDecoration(
-                  borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(14)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(14),
+                  ),
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
@@ -328,7 +335,12 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      "Requested ${inquiry.requestedQuantity}",
+                      lang
+                          .t("requestedValue")
+                          .replaceAll(
+                            "{value}",
+                            lang.tDynamic(inquiry.requestedQuantity),
+                          ),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 15,
@@ -347,13 +359,15 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
                 Expanded(
                   child: _infoText(
                     context: context,
-                    title: "PROPOSED PRICE",
+                    title: lang.t("proposedPriceCaps"),
                     value: inquiry.proposedPrice,
                   ),
                 ),
                 Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: isDark ? Colors.white12 : const Color(0xfff1f3f1),
                     borderRadius: BorderRadius.circular(10),
@@ -367,7 +381,7 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        "View Listing",
+                        lang.t("viewListing"),
                         style: TextStyle(
                           color: isDark ? Colors.white : darkGreen,
                           fontWeight: FontWeight.w900,
@@ -466,10 +480,7 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
         icon: Icon(icon, size: 21),
         label: Text(
           title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 15,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
@@ -477,10 +488,7 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(9),
-            side: BorderSide(
-              color: borderColor ?? backgroundColor,
-              width: 1.5,
-            ),
+            side: BorderSide(color: borderColor ?? backgroundColor, width: 1.5),
           ),
         ),
       ),
@@ -489,10 +497,7 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
 
   void _showSnack(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: darkGreen,
-      ),
+      SnackBar(content: Text(message), backgroundColor: darkGreen),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/buyer_favorite_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
 import '../buyer/send_inquiry_screen.dart';
 import '../../widgets/buyer/buyer_favorite_crop_card.dart';
@@ -60,7 +61,11 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final lang = context.watch<LanguageProvider>();
+
+    return Directionality(
+        textDirection: lang.isUrdu ? TextDirection.rtl : TextDirection.ltr,
+        child:Scaffold(
       backgroundColor: isDark ? darkBackground : lightBackground,
       bottomNavigationBar: BuyerBottomNavBar(
         currentIndex: _selectedIndex,
@@ -79,7 +84,7 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Favorite Crops",
+                          lang.t("favoriteCrops"),
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w900,
@@ -88,7 +93,7 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          "Your saved items from local growers.",
+                          lang.t("favoriteCropsSubtitle"),
                           style: TextStyle(
                             fontSize: 13,
                             color: secondaryText,
@@ -107,6 +112,7 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
           },
         ),
       ),
+        ),
     );
   }
 
@@ -115,21 +121,18 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
       child: Row(
         children: [
-          Icon(Icons.menu, color: iconColor),
+
           const Spacer(),
           Text(
-            "AgriConnect",
+            context.watch<LanguageProvider>().t("favorites"),
             style: TextStyle(
               color: accentColor,
               fontWeight: FontWeight.w900,
-              fontSize: 18,
+              fontSize: 22,
             ),
           ),
           const Spacer(),
-          const CircleAvatar(
-            radius: 16,
-            backgroundImage: NetworkImage("https://i.pravatar.cc/100?img=12"),
-          ),
+
         ],
       ),
     );
@@ -140,6 +143,7 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
       height: 35,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
+        reverse: context.watch<LanguageProvider>().isUrdu,
         itemCount: categories.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
@@ -147,7 +151,12 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
           final selected = provider.selectedCategory == category;
 
           return ChoiceChip(
-            label: Text(category),
+            label: Text(
+              category == "All Favorites"
+                  ? context.watch<LanguageProvider>().t("allFavorites")
+                  : context.watch<LanguageProvider>().tDynamic(category),
+              overflow: TextOverflow.ellipsis,
+            ),
             selected: selected,
             onSelected: (_) => provider.changeCategory(category),
             selectedColor:
@@ -187,7 +196,7 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
         height: 300,
         child: Center(
           child: Text(
-            "No favorite crops found",
+            context.watch<LanguageProvider>().t("noFavoriteCropsFound"),
             style: TextStyle(
               color: secondaryText,
               fontWeight: FontWeight.w600,

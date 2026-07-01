@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/buyer_profile_model.dart';
 import '../../providers/buyer_profile_provider.dart';
+import '../../providers/language_provider.dart';
 import '../common/profile_image_picker.dart';
 
 class EditBuyerProfileScreen extends StatefulWidget {
@@ -100,7 +101,9 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text("Profile updated successfully"),
+          content: Text(
+            context.read<LanguageProvider>().t("profileUpdatedSuccessfully"),
+          ),
           backgroundColor: darkGreen,
         ),
       );
@@ -116,7 +119,7 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
         backgroundColor: isDark ? darkBackground : lightBackground,
         elevation: 0,
         title: Text(
-          "Edit Profile",
+          context.watch<LanguageProvider>().t("editProfile"),
           style: TextStyle(
             color: accentColor,
             fontWeight: FontWeight.w900,
@@ -140,25 +143,25 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
                   const SizedBox(height: 24),
                   _textField(
                     controller: _nameController,
-                    label: "Full Name",
+                    label: context.watch<LanguageProvider>().t("fullName"),
                     icon: Icons.person_outline,
                   ),
                   const SizedBox(height: 14),
                   _textField(
                     controller: _emailController,
-                    label: "Email",
+                    label: context.watch<LanguageProvider>().t("email"),
                     icon: Icons.email_outlined,
                   ),
                   const SizedBox(height: 14),
                   _textField(
                     controller: _phoneController,
-                    label: "Phone",
+                    label: context.watch<LanguageProvider>().t("phone"),
                     icon: Icons.phone_outlined,
                   ),
                   const SizedBox(height: 14),
                   _textField(
                     controller: _locationController,
-                    label: "Location",
+                    label: context.watch<LanguageProvider>().t("location"),
                     icon: Icons.location_on_outlined,
                   ),
                   const SizedBox(height: 28),
@@ -177,9 +180,9 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
                       ),
                       child: provider.isUpdating
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                        "Update Profile",
-                        style: TextStyle(
+                          : Text(
+                        context.watch<LanguageProvider>().t("updateProfile"),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
                           fontSize: 16,
@@ -208,7 +211,7 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
             ),
             const SizedBox(height: 10),
             Text(
-              "Tap image to change profile photo",
+              context.watch<LanguageProvider>().t("tapImageChangeProfilePhoto"),
               style: TextStyle(
                 fontSize: 12,
                 color: secondaryText,
@@ -234,7 +237,10 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
       cursorColor: accentColor,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return "$label is required";
+          return context
+              .read<LanguageProvider>()
+              .t("fieldRequired")
+              .replaceAll("{field}", label);
         }
         return null;
       },

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/language_provider.dart';
 import 'crop_dropdown.dart';
 import 'crop_text_field.dart';
 
@@ -35,6 +38,7 @@ class EditCropFormCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return AbsorbPointer(
       absorbing: isSubmitting,
@@ -55,7 +59,7 @@ class EditCropFormCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CropTextField(
-              label: "Crop Name",
+              label: lang.t("cropName"),
               controller: cropNameController,
               hint: "",
               icon: Icons.local_florist_outlined,
@@ -63,7 +67,7 @@ class EditCropFormCard extends StatelessWidget {
             const SizedBox(height: 22),
 
             CropDropdown(
-              label: "Category",
+              label: lang.t("category"),
               value: selectedCategory,
               items: const ["Vegetables", "Fruits", "Wheat", "Rice"],
               icon: Icons.category_outlined,
@@ -72,7 +76,7 @@ class EditCropFormCard extends StatelessWidget {
             const SizedBox(height: 22),
 
             CropDropdown(
-              label: "Crop Status",
+              label: lang.t("cropStatus"),
               value: selectedStatus,
               items: const ["Active", "Sold Out"],
               icon: Icons.inventory_outlined,
@@ -84,7 +88,7 @@ class EditCropFormCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: CropTextField(
-                    label: "Quantity",
+                    label: lang.t("quantity"),
                     controller: quantityController,
                     hint: "",
                     icon: Icons.inventory_2_outlined,
@@ -93,7 +97,7 @@ class EditCropFormCard extends StatelessWidget {
                 const SizedBox(width: 14),
                 Expanded(
                   child: CropTextField(
-                    label: "Price",
+                    label: lang.t("price"),
                     controller: priceController,
                     hint: "",
                     icon: Icons.payments_outlined,
@@ -108,7 +112,7 @@ class EditCropFormCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: CropTextField(
-                    label: "Location",
+                    label: lang.t("location"),
                     controller: locationController,
                     hint: "",
                     icon: Icons.location_on_outlined,
@@ -137,7 +141,7 @@ class EditCropFormCard extends StatelessWidget {
             const SizedBox(height: 22),
 
             CropTextField(
-              label: "Description",
+              label: lang.t("description"),
               controller: descriptionController,
               hint: "",
               icon: Icons.description_outlined,
@@ -145,15 +149,13 @@ class EditCropFormCard extends StatelessWidget {
             ),
             const SizedBox(height: 28),
 
-            Divider(
-              color: isDark ? Colors.white12 : const Color(0xffeef2ef),
-            ),
+            Divider(color: isDark ? Colors.white12 : const Color(0xffeef2ef)),
             const SizedBox(height: 8),
 
             Row(
               children: [
                 Text(
-                  "Visibility Settings",
+                  lang.t("visibilitySettings"),
                   style: TextStyle(
                     color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                     fontSize: 15,

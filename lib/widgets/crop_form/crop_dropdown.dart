@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/language_provider.dart';
 import 'crop_text_field.dart';
 
 class CropDropdown extends StatelessWidget {
@@ -24,6 +27,7 @@ class CropDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,23 +47,24 @@ class CropDropdown extends StatelessWidget {
             fontSize: 14,
           ),
 
-          decoration: CropTextField.inputDecoration(
-            context: context,
-            hint: hint,
-            icon: icon,
-          ).copyWith(
-            filled: true,
-            fillColor: isDark
-                ? const Color(0xff1E1E1E)
-                : const Color(0xfffbfcfb),
-          ),
+          decoration:
+              CropTextField.inputDecoration(
+                context: context,
+                hint: hint,
+                icon: icon,
+              ).copyWith(
+                filled: true,
+                fillColor: isDark
+                    ? const Color(0xff1E1E1E)
+                    : const Color(0xfffbfcfb),
+              ),
 
           selectedItemBuilder: (context) {
             return items.map((item) {
               return Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  item,
+                  _displayItem(item, lang),
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: isDark ? Colors.white : const Color(0xff26332e),
@@ -75,7 +80,8 @@ class CropDropdown extends StatelessWidget {
             return DropdownMenuItem<String>(
               value: item,
               child: Text(
-                item,
+                _displayItem(item, lang),
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: isDark ? Colors.white : const Color(0xff26332e),
                   fontWeight: FontWeight.w600,
@@ -89,5 +95,9 @@ class CropDropdown extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _displayItem(String item, LanguageProvider lang) {
+    return lang.tDynamic(item);
   }
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/language_provider.dart';
 import '../auth/login_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -13,25 +16,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   int currentIndex = 0;
 
-  final List<_OnboardingItem> items = const [
-    _OnboardingItem(
-      image: 'assets/images/onboarding.jpeg',
-      title: 'Empowering Farmers',
-      subtitle: 'List your crops and connect directly with\nbuyers across the region.',
-    ),
-    _OnboardingItem(
-      image: 'assets/images/onboarding2.jpeg',
-      title: 'Smart Insights',
-      subtitle: 'Access AI-powered price predictions\nand disease detection to maximize\nyour crop yield.',
-    ),
-    _OnboardingItem(
-      image: 'assets/images/img.png',
-      title: 'Direct Marketplace',
-      subtitle: 'Skip the middleman. Connect directly\nwith buyers and get the best value\nfor your hard work.',
-    ),
-  ];
+  List<_OnboardingItem> _items(LanguageProvider lang) {
+    return [
+      _OnboardingItem(
+        image: 'assets/images/onboarding.jpeg',
+        title: lang.t('onboardingEmpoweringFarmersTitle'),
+        subtitle: lang.t('onboardingEmpoweringFarmersSubtitle'),
+      ),
+      _OnboardingItem(
+        image: 'assets/images/onboarding2.jpeg',
+        title: lang.t('onboardingSmartInsightsTitle'),
+        subtitle: lang.t('onboardingSmartInsightsSubtitle'),
+      ),
+      _OnboardingItem(
+        image: 'assets/images/img.png',
+        title: lang.t('onboardingDirectMarketplaceTitle'),
+        subtitle: lang.t('onboardingDirectMarketplaceSubtitle'),
+      ),
+    ];
+  }
 
-  void _next() {
+  void _next(List<_OnboardingItem> items) {
     if (currentIndex == items.length - 1) {
       Navigator.pushReplacement(
         context,
@@ -79,6 +84,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+    final items = _items(lang);
     final item = items[currentIndex];
 
     return Scaffold(
@@ -116,7 +123,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
           ),
-
           Align(
             alignment: Alignment.bottomCenter,
             child: AnimatedSwitcher(
@@ -144,8 +150,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Container(
                 key: ValueKey(item.title),
                 width: double.infinity,
-                height: 245,
-                padding: const EdgeInsets.fromLTRB(22, 34, 22, 28),
+                height: 255,
+                padding: const EdgeInsets.fromLTRB(22, 32, 22, 26),
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -158,6 +164,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     Text(
                       item.title,
                       textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: darkGreen,
                         fontSize: 24,
@@ -168,6 +176,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     Text(
                       item.subtitle,
                       textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Color(0xFF333333),
                         fontSize: 15.5,
@@ -200,9 +210,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeOutCubic,
                           height: 52,
-                          width: currentIndex == items.length - 1 ? 140 : 112,
+                          width: currentIndex == items.length - 1 ? 145 : 112,
                           child: ElevatedButton(
-                            onPressed: _next,
+                            onPressed: () => _next(items),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: darkGreen,
                               foregroundColor: Colors.white,
@@ -216,26 +226,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               duration: const Duration(milliseconds: 250),
                               layoutBuilder: _centerLayout,
                               child: currentIndex == items.length - 1
-                                  ? const Text(
-                                "Get Started",
-                                key: ValueKey("start"),
-                                style: TextStyle(
+                                  ? Text(
+                                lang.t("getStarted"),
+                                key: const ValueKey("start"),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
                                   fontWeight: FontWeight.w900,
                                 ),
                               )
-                                  : const Row(
-                                key: ValueKey("next"),
+                                  : Row(
+                                key: const ValueKey("next"),
                                 mainAxisAlignment:
                                 MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    "Next",
-                                    style: TextStyle(
+                                    lang.t("next"),
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
-                                  SizedBox(width: 10),
-                                  Icon(Icons.arrow_forward_rounded),
+                                  const SizedBox(width: 10),
+                                  const Icon(
+                                    Icons.arrow_forward_rounded,
+                                  ),
                                 ],
                               ),
                             ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/language_provider.dart';
 import 'chat_detail_screen.dart';
 import '../../widgets/farmer_bottom_navbar.dart';
 
@@ -71,7 +73,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
     return chats.where((chat) {
       final matchesSearch =
           chat["buyerName"].toString().toLowerCase().contains(query) ||
-              chat["cropName"].toString().toLowerCase().contains(query);
+          chat["cropName"].toString().toLowerCase().contains(query);
 
       final matchesFilter = selectedFilter == "All"
           ? true
@@ -86,6 +88,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
   @override
   Widget build(BuildContext context) {
     final list = filteredChats;
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 2),
@@ -94,9 +97,9 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
         backgroundColor: darkGreen,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          "Chats",
-          style: TextStyle(
+        title: Text(
+          lang.t("chats"),
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w900,
             fontSize: 22,
@@ -117,13 +120,13 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
             child: list.isEmpty
                 ? _emptyState()
                 : ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              itemCount: list.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 14),
-              itemBuilder: (context, index) {
-                return _chatCard(list[index]);
-              },
-            ),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    itemCount: list.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 14),
+                    itemBuilder: (context, index) {
+                      return _chatCard(list[index]);
+                    },
+                  ),
           ),
         ],
       ),
@@ -132,17 +135,16 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
 
   Widget _searchBox() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
       child: TextField(
         controller: _searchController,
         onChanged: (_) => setState(() {}),
-        style: TextStyle(
-          color: Theme.of(context).textTheme.bodyLarge?.color,
-        ),
+        style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
         decoration: InputDecoration(
-          hintText: "Search buyer or crop...",
+          hintText: lang.t("searchBuyerCrop"),
           hintStyle: TextStyle(
             color: isDark ? Colors.white54 : Colors.grey.shade500,
           ),
@@ -181,6 +183,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
   Widget _filterChips() {
     final filters = ["All", "Unread", "Active", "Closed"];
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return SizedBox(
       height: 54,
@@ -195,7 +198,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
 
           return ChoiceChip(
             label: Text(
-              filter,
+              _filterLabel(filter, lang),
               style: TextStyle(
                 color: isSelected
                     ? Colors.white
@@ -230,6 +233,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
   Widget _chatCard(Map<String, dynamic> chat) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final initials = _getInitials(chat["buyerName"]);
+    final lang = context.watch<LanguageProvider>();
 
     return InkWell(
       borderRadius: BorderRadius.circular(22),
@@ -265,8 +269,9 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundColor:
-              isDark ? Colors.white12 : const Color(0xffDFF4E4),
+              backgroundColor: isDark
+                  ? Colors.white12
+                  : const Color(0xffDFF4E4),
               child: Text(
                 initials,
                 style: const TextStyle(
@@ -310,7 +315,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
                   ),
                   const SizedBox(height: 7),
                   Text(
-                    chat["lastMessage"],
+                    _chatPreview(chat["lastMessage"], lang),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -326,7 +331,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  chat["time"],
+                  _chatTime(chat["time"], lang),
                   style: TextStyle(
                     color: isDark ? Colors.white60 : Colors.grey.shade600,
                     fontSize: 12,
@@ -357,10 +362,11 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
 
   Widget _emptyState() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Center(
       child: Text(
-        "No chats found",
+        lang.t("noChatsFound"),
         style: TextStyle(
           color: isDark ? Colors.white60 : Colors.grey.shade600,
           fontWeight: FontWeight.w700,
@@ -368,6 +374,40 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
         ),
       ),
     );
+  }
+
+  String _filterLabel(String filter, LanguageProvider lang) {
+    switch (filter) {
+      case "All":
+        return lang.t("all");
+      case "Unread":
+        return lang.t("unread");
+      case "Active":
+        return lang.t("active");
+      case "Closed":
+        return lang.t("closed");
+      default:
+        return filter;
+    }
+  }
+
+  String _chatTime(String value, LanguageProvider lang) {
+    return value == "Yesterday" ? lang.t("yesterday") : value;
+  }
+
+  String _chatPreview(String value, LanguageProvider lang) {
+    switch (value) {
+      case "Hello, is this crop available?":
+        return lang.t("chatSampleAvailable");
+      case "Price final kar len?":
+        return lang.t("chatSamplePriceFinal");
+      case "Kitni quantity available hai?":
+        return lang.t("chatSampleQuantity");
+      case "Delivery kab tak ho sakti hai?":
+        return lang.t("chatSampleDelivery");
+      default:
+        return value;
+    }
   }
 
   String _getInitials(String name) {
