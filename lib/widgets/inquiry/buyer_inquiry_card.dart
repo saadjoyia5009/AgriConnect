@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/buyer_inquiry_model.dart';
+import '../../providers/language_provider.dart';
 
 class BuyerInquiryCard extends StatelessWidget {
   final BuyerInquiryModel inquiry;
@@ -48,6 +50,7 @@ class BuyerInquiryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
 
     return Container(
       margin: const EdgeInsets.only(bottom: 22),
@@ -153,6 +156,8 @@ class BuyerInquiryCard extends StatelessWidget {
   }
 
   Widget _infoSection(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
       child: Row(
@@ -160,8 +165,8 @@ class BuyerInquiryCard extends StatelessWidget {
           Expanded(
             child: _infoItem(
               context: context,
-              title: "PROPOSED QUANTITY",
-              value: inquiry.quantity,
+              title: lang.t("proposedQuantityCaps"),
+              value: lang.tDynamic(inquiry.quantity),
             ),
           ),
           _statusChip(context),
@@ -176,6 +181,7 @@ class BuyerInquiryCard extends StatelessWidget {
     required String value,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,12 +210,13 @@ class BuyerInquiryCard extends StatelessWidget {
 
   Widget _statusChip(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          "STATUS",
+          lang.t("statusCaps"),
           style: TextStyle(
             fontSize: 11,
             letterSpacing: 0.8,
@@ -225,7 +232,7 @@ class BuyerInquiryCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            inquiry.status,
+            lang.tDynamic(inquiry.status),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w800,
@@ -239,6 +246,7 @@ class BuyerInquiryCard extends StatelessWidget {
 
   Widget _actionButton(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
@@ -259,7 +267,7 @@ class BuyerInquiryCard extends StatelessWidget {
             ),
           ),
           child: Text(
-            isAccepted ? "Message Farmer" : "View Details",
+            isAccepted ? lang.t("messageFarmer") : lang.t("viewDetails"),
             style: TextStyle(
               fontWeight: FontWeight.w800,
               color: isAccepted

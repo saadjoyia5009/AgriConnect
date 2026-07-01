@@ -2,21 +2,23 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../screens/farmer/edit_profile_screen.dart';
 
 class ProfileHeaderCard extends StatelessWidget {
   final AuthProvider authProvider;
 
-  const ProfileHeaderCard({
-    super.key,
-    required this.authProvider,
-  });
+  const ProfileHeaderCard({super.key, required this.authProvider});
 
   static const Color darkGreen = Color(0xff075739);
 
   Future<void> _pickProfileImage(BuildContext context) async {
+    final lang = context.read<LanguageProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+
     try {
       final picker = ImagePicker();
 
@@ -29,14 +31,16 @@ class ProfileHeaderCard extends StatelessWidget {
 
       authProvider.updateProfileImage(pickedImage.path);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Profile picture updated successfully"),
-        ),
+      messenger.showSnackBar(
+        SnackBar(content: Text(lang.t("profilePictureUpdated"))),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Image picker error: $e")),
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            lang.t("imagePickerError").replaceAll("{value}", e.toString()),
+          ),
+        ),
       );
     }
   }
@@ -55,15 +59,19 @@ class ProfileHeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     final cardColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
     final titleColor = isDark ? Colors.white : const Color(0xff202525);
-    final subtitleColor =
-    isDark ? Colors.grey.shade400 : const Color(0xff4f5955);
-    final avatarBgColor =
-    isDark ? const Color(0xFF2A3A33) : const Color(0xffe4efe9);
-    final badgeBgColor =
-    isDark ? darkGreen.withOpacity(0.18) : const Color(0xffdff3e8);
+    final subtitleColor = isDark
+        ? Colors.grey.shade400
+        : const Color(0xff4f5955);
+    final avatarBgColor = isDark
+        ? const Color(0xFF2A3A33)
+        : const Color(0xffe4efe9);
+    final badgeBgColor = isDark
+        ? darkGreen.withOpacity(0.18)
+        : const Color(0xffdff3e8);
     final borderColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
 
     return Container(
@@ -89,19 +97,14 @@ class ProfileHeaderCard extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const EditProfileScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const EditProfileScreen()),
                 );
               },
               icon: const Icon(Icons.edit_outlined, size: 18),
-              label: const Text("Edit Profile"),
+              label: Text(lang.t("editProfile")),
               style: TextButton.styleFrom(
-                foregroundColor:
-                isDark ? const Color(0xFF6FD59D) : darkGreen,
-                textStyle: const TextStyle(
-                  fontWeight: FontWeight.w800,
-                ),
+                foregroundColor: isDark ? const Color(0xFF6FD59D) : darkGreen,
+                textStyle: const TextStyle(fontWeight: FontWeight.w800),
               ),
             ),
           ),
@@ -126,10 +129,7 @@ class ProfileHeaderCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: darkGreen,
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: borderColor,
-                        width: 3,
-                      ),
+                      border: Border.all(color: borderColor, width: 3),
                     ),
                     child: const Icon(
                       Icons.camera_alt,
@@ -144,7 +144,7 @@ class ProfileHeaderCard extends StatelessWidget {
           const SizedBox(height: 18),
           Text(
             authProvider.userName.isEmpty
-                ? "Farmer User"
+                ? lang.t("farmerUser")
                 : authProvider.userName,
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -161,7 +161,7 @@ class ProfileHeaderCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              "Certified Organic Farmer",
+              lang.t("certifiedOrganicFarmer"),
               style: TextStyle(
                 color: isDark ? const Color(0xFF6FD59D) : darkGreen,
                 fontSize: 14,
@@ -173,11 +173,7 @@ class ProfileHeaderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.location_on_outlined,
-                size: 20,
-                color: subtitleColor,
-              ),
+              Icon(Icons.location_on_outlined, size: 20, color: subtitleColor),
               const SizedBox(width: 5),
               Flexible(
                 child: Text(

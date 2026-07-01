@@ -1,5 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/language_provider.dart';
 
 class CropImagePickerBox extends StatelessWidget {
   final File? selectedImage;
@@ -20,6 +23,7 @@ class CropImagePickerBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return GestureDetector(
       onTap: onTap,
@@ -36,32 +40,37 @@ class CropImagePickerBox extends StatelessWidget {
         ),
         child: _hasImage()
             ? Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(isDark ? 0.38 : 0.25),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.camera_alt, color: Colors.white, size: 30),
-                  SizedBox(height: 8),
-                  Text(
-                    "Tap to Change Image",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 16,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(isDark ? 0.38 : 0.25),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          lang.t("tapChangeImage"),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
-              ),
-            ),
-          ],
-        )
+              )
             : _emptyView(context),
       ),
     );
@@ -76,10 +85,7 @@ class CropImagePickerBox extends StatelessWidget {
     }
 
     if (imageUrl != null && imageUrl!.isNotEmpty) {
-      return DecorationImage(
-        image: NetworkImage(imageUrl!),
-        fit: BoxFit.cover,
-      );
+      return DecorationImage(image: NetworkImage(imageUrl!), fit: BoxFit.cover);
     }
 
     return null;
@@ -91,6 +97,7 @@ class CropImagePickerBox extends StatelessWidget {
 
   Widget _emptyView(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -108,7 +115,7 @@ class CropImagePickerBox extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         Text(
-          "Upload Crop Image",
+          lang.t("uploadCropImage"),
           style: TextStyle(
             color: isDark ? const Color(0xff9ff2c1) : darkGreen,
             fontSize: 17,
@@ -117,7 +124,7 @@ class CropImagePickerBox extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          "High-quality, well-lit photos attract more\nbuyers. Tap to upload.",
+          lang.t("cropImageHelp"),
           textAlign: TextAlign.center,
           style: TextStyle(
             color: isDark ? Colors.white70 : const Color(0xff4f5955),
@@ -127,7 +134,7 @@ class CropImagePickerBox extends StatelessWidget {
         ),
         const SizedBox(height: 5),
         Text(
-          "JPEG, PNG up to 5MB",
+          lang.t("cropImageFormat"),
           style: TextStyle(
             color: isDark ? Colors.white54 : const Color(0xff4f5955),
             fontSize: 11,

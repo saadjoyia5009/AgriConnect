@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/notification_model.dart';
+import '../../providers/language_provider.dart';
 import '../../providers/notification_provider.dart';
 
 class NotificationScreen extends StatelessWidget {
   final String userRole;
 
-  const NotificationScreen({
-    super.key,
-    required this.userRole,
-  });
+  const NotificationScreen({super.key, required this.userRole});
 
   static const Color darkGreen = Color(0xFF0E5A3C);
   static const Color lightGreen = Color(0xFFEAF7F0);
@@ -18,6 +16,7 @@ class NotificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<NotificationProvider>();
+    final lang = context.watch<LanguageProvider>();
     final notifications = provider.getNotifications(userRole);
     final unreadCount = provider.unreadCount(userRole);
 
@@ -29,7 +28,9 @@ class NotificationScreen extends StatelessWidget {
         backgroundColor: darkGreen,
         foregroundColor: Colors.white,
         title: Text(
-          userRole == "farmer" ? "Farmer Notifications" : "Buyer Notifications",
+          userRole == "farmer"
+              ? lang.t("farmerNotifications")
+              : lang.t("buyerNotifications"),
           style: const TextStyle(
             fontWeight: FontWeight.w900,
             letterSpacing: 0.2,
@@ -39,9 +40,9 @@ class NotificationScreen extends StatelessWidget {
           if (unreadCount > 0)
             TextButton(
               onPressed: () => provider.markAllAsRead(userRole),
-              child: const Text(
-                "Mark all read",
-                style: TextStyle(
+              child: Text(
+                lang.t("markAllRead"),
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
                 ),
@@ -51,10 +52,7 @@ class NotificationScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          _HeaderCard(
-            unreadCount: unreadCount,
-            userRole: userRole,
-          ),
+          _HeaderCard(unreadCount: unreadCount, userRole: userRole),
           _FilterChips(
             selectedFilter: provider.selectedFilter,
             onChanged: provider.changeFilter,
@@ -63,32 +61,48 @@ class NotificationScreen extends StatelessWidget {
             child: notifications.isEmpty
                 ? _EmptyNotificationView(userRole: userRole)
                 : ListView.separated(
-              padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
-              itemCount: notifications.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 14),
-              itemBuilder: (context, index) {
-                final notification = notifications[index];
+                    padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
+                    itemCount: notifications.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 14),
+                    itemBuilder: (context, index) {
+                      final notification = notifications[index];
 
-                return _NotificationCard(
-                  notification: notification,
-                  onTap: () {
-                    provider.markAsRead(notification.id);
+                      return _NotificationCard(
+                        notification: notification,
+                        onTap: () {
+                          provider.markAsRead(notification.id);
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(notification.title),
-                        behavior: SnackBarBehavior.floating,
-                        backgroundColor: darkGreen,
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                _notificationTitle(notification, lang),
+                              ),
+                              behavior: SnackBarBehavior.floating,
+                              backgroundColor: darkGreen,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
           ),
         ],
       ),
     );
+  }
+
+  String _notificationTitle(
+    NotificationModel notification,
+    LanguageProvider lang,
+  ) {
+    switch (notification.title) {
+      case "New Inquiry Received":
+        return lang.t("newInquiryReceived");
+      case "New Chat Message":
+        return lang.t("newChatMessage");
+      default:
+        return notification.title;
+    }
   }
 }
 
@@ -96,17 +110,23 @@ class _HeaderCard extends StatelessWidget {
   final int unreadCount;
   final String userRole;
 
-  const _HeaderCard({
-    required this.unreadCount,
-    required this.userRole,
-  });
+  const _HeaderCard({required this.unreadCount, required this.userRole});
 
   @override
   Widget build(BuildContext context) {
-    final title = userRole == "farmer" ? "Farmer Alerts" : "Buyer Alerts";
+    final lang = context.watch<LanguageProvider>();
+    final title = userRole == "farmer"
+        ? lang.t("farmerAlerts")
+        : lang.t("buyerAlerts");
     final subtitle = unreadCount == 0
-        ? "No unread notifications"
-        : "$unreadCount unread notification${unreadCount > 1 ? "s" : ""}";
+        ? lang.t("noUnreadNotifications")
+        : lang
+              .t(
+                unreadCount > 1
+                    ? "unreadNotificationsCount"
+                    : "unreadNotificationCount",
+              )
+              .replaceAll("{count}", unreadCount.toString());
 
     return Container(
       width: double.infinity,
@@ -114,10 +134,7 @@ class _HeaderCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFF0E5A3C),
-            Color(0xFF178A5B),
-          ],
+          colors: [Color(0xFF0E5A3C), Color(0xFF178A5B)],
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
@@ -179,16 +196,14 @@ class _FilterChips extends StatelessWidget {
   final String selectedFilter;
   final ValueChanged<String> onChanged;
 
-  const _FilterChips({
-    required this.selectedFilter,
-    required this.onChanged,
-  });
+  const _FilterChips({required this.selectedFilter, required this.onChanged});
 
   static const filters = ["All", "Unread", "Inquiry", "Chat"];
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return SizedBox(
       height: 48,
@@ -202,7 +217,7 @@ class _FilterChips extends StatelessWidget {
           final isSelected = selectedFilter == filter;
 
           return ChoiceChip(
-            label: Text(filter),
+            label: Text(_filterLabel(filter, lang)),
             selected: isSelected,
             onSelected: (_) => onChanged(filter),
             selectedColor: NotificationScreen.darkGreen,
@@ -230,16 +245,28 @@ class _FilterChips extends StatelessWidget {
       ),
     );
   }
+
+  String _filterLabel(String filter, LanguageProvider lang) {
+    switch (filter) {
+      case "All":
+        return lang.t("all");
+      case "Unread":
+        return lang.t("unread");
+      case "Inquiry":
+        return lang.t("inquiry");
+      case "Chat":
+        return lang.t("chat");
+      default:
+        return filter;
+    }
+  }
 }
 
 class _NotificationCard extends StatelessWidget {
   final NotificationModel notification;
   final VoidCallback onTap;
 
-  const _NotificationCard({
-    required this.notification,
-    required this.onTap,
-  });
+  const _NotificationCard({required this.notification, required this.onTap});
 
   IconData get icon {
     switch (notification.type) {
@@ -268,6 +295,7 @@ class _NotificationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return InkWell(
       borderRadius: BorderRadius.circular(22),
@@ -285,11 +313,11 @@ class _NotificationCard extends StatelessWidget {
           border: Border.all(
             color: notification.isRead
                 ? isDark
-                ? Colors.white12
-                : Colors.grey.shade200
+                      ? Colors.white12
+                      : Colors.grey.shade200
                 : NotificationScreen.darkGreen.withOpacity(
-              isDark ? 0.45 : 0.22,
-            ),
+                    isDark ? 0.45 : 0.22,
+                  ),
           ),
           boxShadow: [
             BoxShadow(
@@ -313,11 +341,7 @@ class _NotificationCard extends StatelessWidget {
                     color: iconColor.withOpacity(isDark ? 0.20 : 0.12),
                     borderRadius: BorderRadius.circular(17),
                   ),
-                  child: Icon(
-                    icon,
-                    color: iconColor,
-                    size: 26,
-                  ),
+                  child: Icon(icon, color: iconColor, size: 26),
                 ),
                 if (!notification.isRead)
                   Positioned(
@@ -340,7 +364,7 @@ class _NotificationCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    notification.title,
+                    _title(notification, lang),
                     style: TextStyle(
                       color: Theme.of(context).textTheme.bodyLarge?.color,
                       fontSize: 15.5,
@@ -349,7 +373,7 @@ class _NotificationCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    notification.message,
+                    _message(notification, lang),
                     style: TextStyle(
                       color: isDark ? Colors.white60 : Colors.grey.shade700,
                       fontSize: 13.5,
@@ -367,10 +391,9 @@ class _NotificationCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 5),
                       Text(
-                        notification.time,
+                        _time(notification.time, lang),
                         style: TextStyle(
-                          color:
-                          isDark ? Colors.white60 : Colors.grey.shade600,
+                          color: isDark ? Colors.white60 : Colors.grey.shade600,
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
                         ),
@@ -390,22 +413,56 @@ class _NotificationCard extends StatelessWidget {
       ),
     );
   }
+
+  String _title(NotificationModel notification, LanguageProvider lang) {
+    switch (notification.title) {
+      case "New Inquiry Received":
+        return lang.t("newInquiryReceived");
+      case "New Chat Message":
+        return lang.t("newChatMessage");
+      default:
+        return notification.title;
+    }
+  }
+
+  String _message(NotificationModel notification, LanguageProvider lang) {
+    switch (notification.message) {
+      case "Ahmed wants to buy your Organic Wheat crop.":
+        return lang.t("notificationFarmerInquiry");
+      case "Buyer sent: Can you supply 100kg this week?":
+        return lang.t("notificationBuyerChat");
+      default:
+        return notification.message;
+    }
+  }
+
+  String _time(String value, LanguageProvider lang) {
+    switch (value) {
+      case "2 min ago":
+        return lang.t("twoMinAgo");
+      case "10 min ago":
+        return lang.t("tenMinAgo");
+      case "Yesterday":
+        return lang.t("yesterday");
+      default:
+        return value;
+    }
+  }
 }
 
 class _EmptyNotificationView extends StatelessWidget {
   final String userRole;
 
-  const _EmptyNotificationView({
-    required this.userRole,
-  });
+  const _EmptyNotificationView({required this.userRole});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     final message = userRole == "farmer"
-        ? "New inquiries and buyer chat alerts will appear here."
-        : "Inquiry updates and farmer chat alerts will appear here.";
+        ? lang.t("farmerNotificationEmpty")
+        : lang.t("buyerNotificationEmpty");
 
     return Center(
       child: Padding(
@@ -420,7 +477,7 @@ class _EmptyNotificationView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              "No notifications found",
+              lang.t("noNotificationsFound"),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w900,

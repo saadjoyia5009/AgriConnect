@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/language_provider.dart';
 
 class FarmerBottomNavbar extends StatelessWidget {
   final int currentIndex;
 
-  const FarmerBottomNavbar({
-    super.key,
-    required this.currentIndex,
-  });
+  const FarmerBottomNavbar({super.key, required this.currentIndex});
 
   static const Color darkGreen = Color(0xff075739);
 
@@ -22,15 +22,13 @@ class FarmerBottomNavbar extends StatelessWidget {
       '/profile',
     ];
 
-    Navigator.pushReplacementNamed(
-      context,
-      routes[index],
-    );
+    Navigator.pushReplacementNamed(context, routes[index]);
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return ConvexAppBar(
       initialActiveIndex: currentIndex,
@@ -43,12 +41,12 @@ class FarmerBottomNavbar extends StatelessWidget {
       top: -22,
       elevation: isDark ? 0 : 8,
       onTap: (index) => _navigate(context, index),
-      items: const [
-        TabItem(icon: Icons.home_rounded, title: 'Home'),
-        TabItem(icon: Icons.local_florist_rounded, title: 'Crops'),
-        TabItem(icon: Icons.chat_bubble_rounded, title: 'Chats'),
-        TabItem(icon: Icons.assignment_rounded, title: 'Inquiry'),
-        TabItem(icon: Icons.person_rounded, title: 'Profile'),
+      items: [
+        TabItem(icon: Icons.home_rounded, title: lang.t("home")),
+        TabItem(icon: Icons.local_florist_rounded, title: lang.t("crops")),
+        TabItem(icon: Icons.chat_bubble_rounded, title: lang.t("chats")),
+        TabItem(icon: Icons.assignment_rounded, title: lang.t("inquiry")),
+        TabItem(icon: Icons.person_rounded, title: lang.t("profile")),
       ],
     );
   }

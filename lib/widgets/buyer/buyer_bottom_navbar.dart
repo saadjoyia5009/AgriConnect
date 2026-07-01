@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/language_provider.dart';
 
 class BuyerBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -17,6 +20,7 @@ class BuyerBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       decoration: BoxDecoration(
@@ -62,22 +66,22 @@ class BuyerBottomNavBar extends StatelessWidget {
               vertical: 14,
             ),
 
-            tabs: const [
+            tabs: [
               GButton(
                 icon: Icons.home_outlined,
-                text: 'Home',
+                text: lang.t("home"),
               ),
               GButton(
                 icon: Icons.favorite_border,
-                text: 'Favorites',
+                text: lang.t("favorites"),
               ),
               GButton(
                 icon: Icons.chat_bubble_outline,
-                text: 'Inquiries',
+                text: lang.t("inquiries"),
               ),
               GButton(
                 icon: Icons.person_outline,
-                text: 'Profile',
+                text: lang.t("profile"),
               ),
             ],
           ),

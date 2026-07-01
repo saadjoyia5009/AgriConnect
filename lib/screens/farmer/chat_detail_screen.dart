@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/chat_provider.dart';
+import '../../providers/language_provider.dart';
 
 class ChatDetailScreen extends StatefulWidget {
   final String chatId;
@@ -70,8 +71,9 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundColor:
-              isDark ? Colors.white12 : const Color(0xffDFF4E4),
+              backgroundColor: isDark
+                  ? Colors.white12
+                  : const Color(0xffDFF4E4),
               child: Text(
                 _getInitials(widget.receiverName),
                 style: const TextStyle(
@@ -109,76 +111,76 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           Expanded(
             child: provider.isLoading
                 ? const Center(
-              child: CircularProgressIndicator(color: darkGreen),
-            )
+                    child: CircularProgressIndicator(color: darkGreen),
+                  )
                 : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: provider.messages.length,
-              itemBuilder: (context, index) {
-                final message = provider.messages[index];
-                final isMe = message.senderId == widget.currentUserId;
+                    padding: const EdgeInsets.all(16),
+                    itemCount: provider.messages.length,
+                    itemBuilder: (context, index) {
+                      final message = provider.messages[index];
+                      final isMe = message.senderId == widget.currentUserId;
 
-                return Align(
-                  alignment:
-                  isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.75,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isMe
-                          ? isDark
-                          ? const Color(0xff214A36)
-                          : const Color(0xffDDF8D8)
-                          : Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: isDark
-                              ? Colors.black.withOpacity(0.18)
-                              : Colors.black.withOpacity(0.05),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          message.message,
-                          style: TextStyle(
-                            color: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.color,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            height: 1.35,
+                      return Align(
+                        alignment: isMe
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
+                          ),
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.75,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isMe
+                                ? isDark
+                                      ? const Color(0xff214A36)
+                                      : const Color(0xffDDF8D8)
+                                : Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(18),
+                            boxShadow: [
+                              BoxShadow(
+                                color: isDark
+                                    ? Colors.black.withOpacity(0.18)
+                                    : Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                message.message,
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).textTheme.bodyLarge?.color,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.35,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                _formatTime(message.createdAt),
+                                style: TextStyle(
+                                  color: isDark
+                                      ? Colors.white60
+                                      : Colors.grey.shade600,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          _formatTime(message.createdAt),
-                          style: TextStyle(
-                            color: isDark
-                                ? Colors.white60
-                                : Colors.grey.shade600,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
           _messageInput(),
         ],
@@ -188,6 +190,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 
   Widget _messageInput() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
@@ -212,7 +215,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                   color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
                 decoration: InputDecoration(
-                  hintText: "Type a message...",
+                  hintText: lang.t("typeMessage"),
                   hintStyle: TextStyle(
                     color: isDark ? Colors.white54 : Colors.grey.shade500,
                   ),
@@ -232,11 +235,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               backgroundColor: darkGreen,
               child: IconButton(
                 onPressed: _sendMessage,
-                icon: const Icon(
-                  Icons.send,
-                  color: Colors.white,
-                  size: 21,
-                ),
+                icon: const Icon(Icons.send, color: Colors.white, size: 21),
               ),
             ),
           ],

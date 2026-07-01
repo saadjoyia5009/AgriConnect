@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/buyer_inquiry_model.dart';
 import '../../providers/chat_provider.dart';
+import '../../providers/language_provider.dart';
 
 class BuyerFarmerChatScreen extends StatefulWidget {
   final BuyerInquiryModel inquiry;
@@ -219,7 +220,10 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Qty: ${inquiry.quantity} • Offer: ${inquiry.offerPrice}",
+                  "${context.watch<LanguageProvider>().t("qtyShort")}: "
+                  "${context.watch<LanguageProvider>().tDynamic(inquiry.quantity)} • "
+                  "${context.watch<LanguageProvider>().t("offer")}: "
+                  "${inquiry.offerPrice}",
                   style: TextStyle(
                     fontSize: 12,
                     color: secondaryText,
@@ -313,7 +317,7 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
               ),
               cursorColor: accentColor,
               decoration: InputDecoration(
-                hintText: "Type your message...",
+                hintText: context.watch<LanguageProvider>().t("typeMessage"),
                 hintStyle: TextStyle(
                   color: isDark ? Colors.white38 : Colors.grey,
                 ),

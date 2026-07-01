@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/crop_model.dart';
+import '../../providers/language_provider.dart';
 
 class BuyerCropCard extends StatelessWidget {
   final CropModel crop;
@@ -24,6 +26,7 @@ class BuyerCropCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return GestureDetector(
       onTap: onTap,
@@ -115,7 +118,7 @@ class BuyerCropCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              'Organic',
+                              lang.t("organic"),
                               style: TextStyle(
                                 fontSize: 10,
                                 color: isDark ? lightGreen : darkGreen,
@@ -163,7 +166,7 @@ class BuyerCropCard extends StatelessWidget {
                                   ),
                                 ),
                                 TextSpan(
-                                  text: crop.unit,
+                                  text: lang.tDynamic(crop.unit),
                                   style: TextStyle(
                                     color: isDark ? Colors.white70 : const Color(0xff5F675F),
                                     fontSize: 13,

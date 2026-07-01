@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/crop_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../providers/buyer_favorite_provider.dart';
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
 import '../../widgets/buyer/buyer_category_card.dart';
 import '../../widgets/buyer/buyer_crop_card.dart';
 import '../../widgets/buyer/buyer_search_bar.dart';
 import '../../widgets/buyer/buyer_section_header.dart';
-import '../../providers/buyer_favorite_provider.dart';
 import 'buyer_notification_screen.dart';
 import 'buyer_crop_detail_screen.dart';
 
@@ -45,14 +46,17 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
   void _onNavTap(int index) {
     if (index == 1) {
       Navigator.pushReplacementNamed(context, '/buyerFavorites');
+      return;
     }
 
     if (index == 2) {
       Navigator.pushReplacementNamed(context, '/buyer-inquiries');
+      return;
     }
 
     if (index == 3) {
       Navigator.pushReplacementNamed(context, '/buyerProfile');
+      return;
     }
 
     setState(() => _selectedIndex = index);
@@ -60,81 +64,106 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: isDark ? darkBackground : lightBackground,
-      bottomNavigationBar: BuyerBottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavTap,
-      ),
-      body: SafeArea(
-        child: Consumer<CropProvider>(
-          builder: (context, provider, _) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(18, 14, 18, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _topBar(),
-                  const SizedBox(height: 34),
-                  Text(
-                    'Good morning, Buyer.',
-                    style: TextStyle(
-                      fontSize: 23,
-                      fontWeight: FontWeight.w900,
-                      color: primaryText,
+    final lang = context.watch<LanguageProvider>();
+
+    return Directionality(
+      textDirection: lang.isUrdu ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+        backgroundColor: isDark ? darkBackground : lightBackground,
+        bottomNavigationBar: BuyerBottomNavBar(
+          currentIndex: _selectedIndex,
+          onTap: _onNavTap,
+        ),
+        body: SafeArea(
+          child: Consumer<CropProvider>(
+            builder: (context, provider, _) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(18, 14, 18, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _topBar(lang),
+                    const SizedBox(height: 34),
+
+                    Text(
+                      lang.t("buyerGreeting"),
+                      textAlign: lang.isUrdu ? TextAlign.right : TextAlign.left,
+                      style: TextStyle(
+                        fontSize: 23,
+                        fontWeight: FontWeight.w900,
+                        color: primaryText,
+                        fontFamily: lang.isUrdu ? 'NotoNastaliqUrdu' : null,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Find the freshest produce today.',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: secondaryText,
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      lang.t("buyerDashboardSubtitle"),
+                      textAlign: lang.isUrdu ? TextAlign.right : TextAlign.left,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: secondaryText,
+                        height: 1.5,
+                        fontFamily: lang.isUrdu ? 'NotoNastaliqUrdu' : null,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  BuyerSearchBar(
-                    hintText: 'Search for crops or sellers...',
-                    onChanged: (value) {
-                      provider.searchCrops(value);
-                    },
-                  ),
-                  const SizedBox(height: 34),
-                  BuyerSectionHeader(title: 'Browse Categories'),
-                  const SizedBox(height: 14),
-                  _categoryGrid(provider),
-                  const SizedBox(height: 34),
-                  BuyerSectionHeader(
-                    title: 'Recommended for You',
-                    actionText: 'See more',
-                    onActionTap: () {},
-                  ),
-                  const SizedBox(height: 14),
-                  _recommendedCrops(provider),
-                ],
-              ),
-            );
-          },
+
+                    const SizedBox(height: 16),
+
+                    BuyerSearchBar(
+                      hintText: lang.t("searchCropsSellers"),
+                      onChanged: provider.searchCrops,
+                    ),
+
+                    const SizedBox(height: 34),
+
+                    BuyerSectionHeader(title: lang.t("browseCategories")),
+
+                    const SizedBox(height: 14),
+
+                    _categoryGrid(provider, lang),
+
+                    const SizedBox(height: 34),
+
+                    BuyerSectionHeader(
+                      title: lang.t("recommendedForYou"),
+                      actionText: lang.t("seeMore"),
+                      onActionTap: () {},
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    _recommendedCrops(provider, lang),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  Widget _topBar() {
+  Widget _topBar(LanguageProvider lang) {
     return Row(
       children: [
-
         const Spacer(),
+
         Text(
-          'AgriConnect',
+          lang.t("appName"),
           style: TextStyle(
             color: accentColor,
             fontWeight: FontWeight.w900,
             fontSize: 21,
+            fontFamily: lang.isUrdu ? 'NotoNastaliqUrdu' : null,
           ),
         ),
+
         const Spacer(),
+
         IconButton(
+          tooltip: lang.t("notifications"),
           onPressed: () {
             Navigator.push(
               context,
@@ -152,7 +181,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
     );
   }
 
-  Widget _categoryGrid(CropProvider provider) {
+  Widget _categoryGrid(CropProvider provider, LanguageProvider lang) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -162,28 +191,31 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
       childAspectRatio: 1.35,
       children: [
         BuyerCategoryCard(
-          title: 'Grains',
-          subtitle: '120 Listings',
+          title: lang.t("grains"),
+          subtitle: lang.t("listingsCount").replaceAll("{count}", "120"),
           imageUrl:
           'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600',
           onTap: () => provider.filterByCategory('Grains'),
         ),
+
         BuyerCategoryCard(
-          title: 'Vegetables',
-          subtitle: '85 Listings',
+          title: lang.t("vegetables"),
+          subtitle: lang.t("listingsCount").replaceAll("{count}", "85"),
           imageUrl:
           'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600',
           onTap: () => provider.filterByCategory('Vegetables'),
         ),
+
         BuyerCategoryCard(
-          title: 'Fruits',
-          subtitle: '64 Listings',
+          title: lang.t("fruits"),
+          subtitle: lang.t("listingsCount").replaceAll("{count}", "64"),
           imageUrl:
           'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=600',
           onTap: () => provider.filterByCategory('Fruits'),
         ),
+
         BuyerCategoryCard(
-          title: 'View All',
+          title: lang.t("viewAll"),
           subtitle: '',
           icon: Icons.category_outlined,
           onTap: provider.clearFilters,
@@ -192,7 +224,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
     );
   }
 
-  Widget _recommendedCrops(CropProvider provider) {
+  Widget _recommendedCrops(CropProvider provider, LanguageProvider lang) {
     if (provider.isLoading) {
       return SizedBox(
         height: 220,
@@ -207,10 +239,12 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
         height: 180,
         child: Center(
           child: Text(
-            provider.errorMessage!,
+            lang.tDynamic(provider.errorMessage!),
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: isDark ? Colors.red.shade200 : Colors.red,
               fontWeight: FontWeight.w600,
+              fontFamily: lang.isUrdu ? 'NotoNastaliqUrdu' : null,
             ),
           ),
         ),
@@ -222,10 +256,12 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
         height: 180,
         child: Center(
           child: Text(
-            'No crops found',
+            lang.t("noCropsFound"),
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: secondaryText,
               fontWeight: FontWeight.w600,
+              fontFamily: lang.isUrdu ? 'NotoNastaliqUrdu' : null,
             ),
           ),
         ),
@@ -236,6 +272,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
       height: 245,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        reverse: lang.isUrdu,
         itemCount: provider.recommendedCrops.length,
         itemBuilder: (context, index) {
           final crop = provider.recommendedCrops[index];

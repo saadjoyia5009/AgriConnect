@@ -51,10 +51,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Future<void> _signup(
-      AuthProvider authProvider,
-      LanguageProvider lang,
-      ) async {
+  Future<void> _signup(AuthProvider authProvider, LanguageProvider lang) async {
     final name = nameController.text.trim();
     final email = emailController.text.trim();
     final phone = phoneController.text.trim();
@@ -121,14 +118,14 @@ class _SignupScreenState extends State<SignupScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.fromLTRB(24, 26, 24, 26),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.78),
+                      color: Colors.white.withValues(alpha: 0.78),
                       borderRadius: BorderRadius.circular(28),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.50),
+                        color: Colors.white.withValues(alpha: 0.50),
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.14),
+                          color: Colors.black.withValues(alpha: 0.14),
                           blurRadius: 16,
                           offset: const Offset(0, 8),
                         ),
@@ -180,7 +177,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         const SizedBox(height: 8),
                         AuthInputField(
                           controller: emailController,
-                          hintText: "example@gmail.com",
+                          hintText: lang.t("signupEmailHint"),
                           icon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
                         ),
@@ -191,7 +188,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         const SizedBox(height: 8),
                         AuthInputField(
                           controller: phoneController,
-                          hintText: "03XX XXXXXXX",
+                          hintText: lang.t("phoneHint"),
                           icon: Icons.phone_outlined,
                           keyboardType: TextInputType.phone,
                         ),
@@ -202,7 +199,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         const SizedBox(height: 8),
                         AuthInputField(
                           controller: passwordController,
-                          hintText: "••••••••",
+                          hintText: lang.t("passwordHint"),
                           icon: Icons.lock_outline,
                           obscureText: authProvider.isPasswordHidden,
                           suffixIcon: IconButton(
@@ -237,27 +234,27 @@ class _SignupScreenState extends State<SignupScreen> {
                               backgroundColor: darkGreen,
                               foregroundColor: Colors.white,
                               elevation: 4,
-                              shadowColor: darkGreen.withOpacity(0.18),
+                              shadowColor: darkGreen.withValues(alpha: 0.18),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
                             ),
                             child: authProvider.isLoading
                                 ? const SizedBox(
-                              height: 22,
-                              width: 22,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2.4,
-                              ),
-                            )
+                                    height: 22,
+                                    width: 22,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.4,
+                                    ),
+                                  )
                                 : Text(
-                              lang.t("signup"),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
+                                    lang.t("signup"),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
                           ),
                         ),
 
@@ -313,12 +310,16 @@ class _SignupScreenState extends State<SignupScreen> {
             child: const Icon(Icons.eco, color: Colors.white, size: 28),
           ),
           const SizedBox(width: 14),
-          Text(
-            lang.t("appName"),
-            style: const TextStyle(
-              color: darkGreen,
-              fontSize: 25,
-              fontWeight: FontWeight.w900,
+          Flexible(
+            child: Text(
+              lang.t("appName"),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: darkGreen,
+                fontSize: 25,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
         ],

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/disease_detection_provider.dart';
 import '../../models/disease_detection_model.dart';
+import '../../providers/language_provider.dart';
 
 class DiseaseDetectionScreen extends StatelessWidget {
   const DiseaseDetectionScreen({super.key});
@@ -25,6 +26,7 @@ class DiseaseDetectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<DiseaseDetectionProvider>();
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       backgroundColor: const Color(0xfff9fbfa),
@@ -37,18 +39,18 @@ class DiseaseDetectionScreen extends StatelessWidget {
               _topBar(context),
               const SizedBox(height: 22),
 
-              const Text(
-                "Disease Detection",
-                style: TextStyle(
+              Text(
+                lang.t("diseaseDetection"),
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Color(0xff075739),
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                "Upload or take a clear photo of an affected plant leaf for instant AI analysis.",
-                style: TextStyle(
+              Text(
+                lang.t("diseaseDetectionSubtitle"),
+                style: const TextStyle(
                   fontSize: 15,
                   height: 1.4,
                   color: Color(0xff3e4542),
@@ -71,17 +73,17 @@ class DiseaseDetectionScreen extends StatelessWidget {
                   onPressed: provider.isLoading
                       ? null
                       : () {
-                    if (provider.selectedImage == null) {
-                      _pickImage(context);
-                    } else {
-                      provider.analyzeImage();
-                    }
-                  },
+                          if (provider.selectedImage == null) {
+                            _pickImage(context);
+                          } else {
+                            provider.analyzeImage();
+                          }
+                        },
                   icon: const Icon(Icons.document_scanner_outlined),
                   label: Text(
                     provider.selectedImage == null
-                        ? "Upload Image"
-                        : "Analyze Image",
+                        ? lang.t("uploadImage")
+                        : lang.t("analyzeImage"),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -100,17 +102,15 @@ class DiseaseDetectionScreen extends StatelessWidget {
                 const Center(
                   child: Padding(
                     padding: EdgeInsets.all(30),
-                    child: CircularProgressIndicator(
-                      color: Color(0xff075739),
-                    ),
+                    child: CircularProgressIndicator(color: Color(0xff075739)),
                   ),
                 ),
 
               if (provider.errorMessage != null)
-                _errorCard(provider.errorMessage!),
+                _errorCard(context, provider.errorMessage!),
 
               if (provider.result != null)
-                _resultCard(provider.result!),
+                _resultCard(context, provider.result!),
             ],
           ),
         ),
@@ -119,6 +119,8 @@ class DiseaseDetectionScreen extends StatelessWidget {
   }
 
   Widget _topBar(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+
     return Row(
       children: [
         GestureDetector(
@@ -129,11 +131,11 @@ class DiseaseDetectionScreen extends StatelessWidget {
             size: 27,
           ),
         ),
-        const Expanded(
+        Expanded(
           child: Center(
             child: Text(
-              "AgriConnect",
-              style: TextStyle(
+              lang.t("appName"),
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Color(0xff075739),
@@ -157,21 +159,20 @@ class DiseaseDetectionScreen extends StatelessWidget {
         color: const Color(0xffe9efec),
         borderRadius: BorderRadius.circular(14),
         image: image != null
-            ? DecorationImage(
-          image: FileImage(image),
-          fit: BoxFit.cover,
-        )
+            ? DecorationImage(image: FileImage(image), fit: BoxFit.cover)
             : const DecorationImage(
-          image: NetworkImage(
-            "https://images.unsplash.com/photo-1515150144380-bca9f1650ed9?w=900",
-          ),
-          fit: BoxFit.cover,
-        ),
+                image: NetworkImage(
+                  "https://images.unsplash.com/photo-1515150144380-bca9f1650ed9?w=900",
+                ),
+                fit: BoxFit.cover,
+              ),
       ),
     );
   }
 
-  Widget _resultCard(DiseaseDetectionModel result) {
+  Widget _resultCard(BuildContext context, DiseaseDetectionModel result) {
+    final lang = context.watch<LanguageProvider>();
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -183,11 +184,11 @@ class DiseaseDetectionScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _statusAndConfidence(result),
+          _statusAndConfidence(context, result),
           const SizedBox(height: 14),
 
           Text(
-            result.diseaseName,
+            _translateDiseaseText(result.diseaseName, lang),
             style: const TextStyle(
               fontSize: 25,
               fontWeight: FontWeight.bold,
@@ -197,26 +198,23 @@ class DiseaseDetectionScreen extends StatelessWidget {
           const SizedBox(height: 3),
           Text(
             result.scientificName,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xff6d7471),
-            ),
+            style: const TextStyle(fontSize: 14, color: Color(0xff6d7471)),
           ),
 
           const SizedBox(height: 22),
           const Divider(),
 
-          const Row(
+          Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.medical_services_outlined,
                 color: Color(0xff075739),
                 size: 18,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
-                "Recommended Treatment Plan",
-                style: TextStyle(
+                lang.t("recommendedTreatmentPlan"),
+                style: const TextStyle(
                   color: Color(0xff075739),
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
@@ -227,9 +225,7 @@ class DiseaseDetectionScreen extends StatelessWidget {
 
           const SizedBox(height: 14),
 
-          ...result.treatmentPlan.map(
-                (step) => _treatmentTile(step),
-          ),
+          ...result.treatmentPlan.map((step) => _treatmentTile(context, step)),
 
           const SizedBox(height: 18),
 
@@ -239,7 +235,7 @@ class DiseaseDetectionScreen extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.save_outlined),
-                  label: const Text("Save Report"),
+                  label: Text(lang.t("saveReport")),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xff075739),
                     side: const BorderSide(color: Color(0xff075739)),
@@ -254,7 +250,7 @@ class DiseaseDetectionScreen extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.share),
-                  label: const Text("Share"),
+                  label: Text(lang.t("share")),
                   style: ElevatedButton.styleFrom(
                     elevation: 0,
                     backgroundColor: const Color(0xffe5e8e6),
@@ -272,7 +268,10 @@ class DiseaseDetectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _statusAndConfidence(DiseaseDetectionModel result) {
+  Widget _statusAndConfidence(
+    BuildContext context,
+    DiseaseDetectionModel result,
+  ) {
     return Row(
       children: [
         Container(
@@ -282,7 +281,10 @@ class DiseaseDetectionScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            result.status,
+            _translateDiseaseText(
+              result.status,
+              context.watch<LanguageProvider>(),
+            ),
             style: const TextStyle(
               color: Colors.red,
               fontSize: 12,
@@ -296,10 +298,7 @@ class DiseaseDetectionScreen extends StatelessWidget {
           width: 58,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(
-              color: const Color(0xff075739),
-              width: 4,
-            ),
+            border: Border.all(color: const Color(0xff075739), width: 4),
           ),
           child: Center(
             child: Text(
@@ -315,7 +314,9 @@ class DiseaseDetectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _treatmentTile(TreatmentStepModel step) {
+  Widget _treatmentTile(BuildContext context, TreatmentStepModel step) {
+    final lang = context.watch<LanguageProvider>();
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
@@ -341,7 +342,7 @@ class DiseaseDetectionScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  step.title,
+                  _translateDiseaseText(step.title, lang),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -350,7 +351,7 @@ class DiseaseDetectionScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  step.description,
+                  _translateDiseaseText(step.description, lang),
                   style: const TextStyle(
                     fontSize: 13,
                     height: 1.35,
@@ -365,7 +366,9 @@ class DiseaseDetectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _errorCard(String message) {
+  Widget _errorCard(BuildContext context, String message) {
+    final lang = context.watch<LanguageProvider>();
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -374,12 +377,36 @@ class DiseaseDetectionScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        message,
-        style: const TextStyle(
-          color: Colors.red,
-          fontWeight: FontWeight.bold,
-        ),
+        _translateDiseaseText(message, lang),
+        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
       ),
     );
+  }
+
+  String _translateDiseaseText(String text, LanguageProvider lang) {
+    switch (text) {
+      case "Please select an image first":
+        return lang.t("pleaseSelectImage");
+      case "Failed to analyze image":
+        return lang.t("failedAnalyzeImage");
+      case "Detection Complete":
+        return lang.t("detectionComplete");
+      case "Early Blight":
+        return lang.t("earlyBlight");
+      case "Prune Affected Foliage":
+        return lang.t("pruneAffectedFoliage");
+      case "Immediately remove and destroy spotted leaves. Do not compost them to prevent spore spread.":
+        return lang.t("pruneAffectedFoliageDesc");
+      case "Adjust Watering Practices":
+        return lang.t("adjustWateringPractices");
+      case "Water at the base of the plant early in the day. Avoid overhead irrigation to keep leaves dry.":
+        return lang.t("adjustWateringPracticesDesc");
+      case "Apply Fungicide":
+        return lang.t("applyFungicide");
+      case "Use a copper-based organic fungicide or chlorothalonil. Apply every 7–10 days per label instructions.":
+        return lang.t("applyFungicideDesc");
+      default:
+        return text;
+    }
   }
 }

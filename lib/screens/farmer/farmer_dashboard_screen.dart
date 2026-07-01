@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:animations/animations.dart';
 
 import '../../providers/crop_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/farmer_bottom_navbar.dart';
 import 'add_crop_screen.dart';
 import 'price_prediction_screen.dart';
@@ -21,7 +22,6 @@ class FarmerDashboardScreen extends StatefulWidget {
 class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   static const Color darkGreen = Color(0xff075739);
   static const Color mediumGreen = Color(0xff2d7153);
-
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -48,7 +48,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = "Failed to load dashboard data";
+        _errorMessage = "failedLoadDashboard";
       });
     }
   }
@@ -56,16 +56,15 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final cropProvider = context.watch<CropProvider>();
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       appBar: FarmerTopBar(
-        title: "Dashboard",
+        title: lang.t("dashboard"),
         onNotificationTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const FarmerNotificationScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const FarmerNotificationScreen()),
           );
         },
       ),
@@ -76,85 +75,83 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
           color: darkGreen,
           onRefresh: _loadDashboardData,
           child: _isLoading
-              ? const Center(
-            child: CircularProgressIndicator(color: darkGreen),
-          )
+              ? const Center(child: CircularProgressIndicator(color: darkGreen))
               : _errorMessage != null
               ? _errorView()
               : SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _statsCard(
-                        icon: Icons.local_florist,
-                        title: "Active Crops",
-                        value: cropProvider.activeCrops.toString(),
-                        subtitle: "Updated",
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _statsCard(
+                              icon: Icons.local_florist,
+                              title: lang.t("activeCrops"),
+                              value: cropProvider.activeCrops.toString(),
+                              subtitle: lang.t("updated"),
+                            ),
+                          ),
+                          const SizedBox(width: 18),
+                          Expanded(
+                            child: _statsCard(
+                              icon: Icons.chat_bubble,
+                              title: lang.t("newInquiries"),
+                              value: cropProvider.newInquiries.toString(),
+                              subtitle: lang.t("actionRequired"),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 18),
-                    Expanded(
-                      child: _statsCard(
-                        icon: Icons.chat_bubble,
-                        title: "New Inquiries",
-                        value: cropProvider.newInquiries.toString(),
-                        subtitle: "Action required",
+                      const SizedBox(height: 20),
+                      if (cropProvider.weatherAlert != null)
+                        _weatherAlertCard(cropProvider.weatherAlert!)
+                      else
+                        _emptyWeatherCard(),
+                      const SizedBox(height: 35),
+                      _sectionTitle(lang.t("quickActions")),
+                      const SizedBox(height: 14),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _quickAction(
+                            context,
+                            icon: Icons.add,
+                            title: lang.t("addCrop"),
+                            active: true,
+                            screen: const AddCropScreen(),
+                          ),
+                          _quickAction(
+                            context,
+                            icon: Icons.trending_up,
+                            title: lang.t("pricePrediction"),
+                            screen: const PricePredictionScreen(),
+                          ),
+                          _quickAction(
+                            context,
+                            icon: Icons.medical_services_outlined,
+                            title: lang.t("diseaseDetection"),
+                            screen: const DiseaseDetectionScreen(),
+                          ),
+                          _quickAction(
+                            context,
+                            icon: Icons.cloud_outlined,
+                            title: lang.t("weather"),
+                            blueIcon: true,
+                            screen: const WeatherForecastScreen(),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 45),
+                      _sectionTitle(lang.t("dailyFarmingTip")),
+                      const SizedBox(height: 14),
+                      _dailyTipCard(),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 20),
-                if (cropProvider.weatherAlert != null)
-                  _weatherAlertCard(cropProvider.weatherAlert!)
-                else
-                  _emptyWeatherCard(),
-                const SizedBox(height: 35),
-                _sectionTitle("Quick Actions"),
-                const SizedBox(height: 14),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _quickAction(
-                      context,
-                      icon: Icons.add,
-                      title: "Add Crop",
-                      active: true,
-                      screen: const AddCropScreen(),
-                    ),
-                    _quickAction(
-                      context,
-                      icon: Icons.trending_up,
-                      title: "Price\nPrediction",
-                      screen: const PricePredictionScreen(),
-                    ),
-                    _quickAction(
-                      context,
-                      icon: Icons.medical_services_outlined,
-                      title: "Disease\nDetection",
-                      screen: const DiseaseDetectionScreen(),
-                    ),
-                    _quickAction(
-                      context,
-                      icon: Icons.cloud_outlined,
-                      title: "Weather",
-                      blueIcon: true,
-                      screen: const WeatherForecastScreen(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 45),
-                _sectionTitle("Daily Farming Tip"),
-                const SizedBox(height: 14),
-                _dailyTipCard(),
-                const SizedBox(height: 12),
-              ],
-            ),
-          ),
         ),
       ),
     );
@@ -172,19 +169,17 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   }
 
   Widget _errorView() {
+    final lang = context.watch<LanguageProvider>();
+
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
         const SizedBox(height: 220),
-        const Icon(
-          Icons.error_outline,
-          size: 55,
-          color: Colors.red,
-        ),
+        const Icon(Icons.error_outline, size: 55, color: Colors.red),
         const SizedBox(height: 15),
         Center(
           child: Text(
-            _errorMessage!,
+            lang.t(_errorMessage!),
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
@@ -200,7 +195,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
               backgroundColor: darkGreen,
               foregroundColor: Colors.white,
             ),
-            child: const Text("Retry"),
+            child: Text(lang.t("retry")),
           ),
         ),
       ],
@@ -279,36 +274,32 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
 
   Widget _dailyTipCard() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     final tips = [
       {
-        "title": "Water Early Morning",
-        "tip":
-        "Water your crops early in the morning to reduce evaporation and help roots absorb moisture better.",
+        "title": lang.t("tipWaterTitle"),
+        "tip": lang.t("tipWaterBody"),
         "icon": Icons.water_drop_outlined,
       },
       {
-        "title": "Check Leaves Regularly",
-        "tip":
-        "Inspect crop leaves twice a week. Early disease signs can save your whole field from damage.",
+        "title": lang.t("tipLeavesTitle"),
+        "tip": lang.t("tipLeavesBody"),
         "icon": Icons.health_and_safety_outlined,
       },
       {
-        "title": "Use Balanced Fertilizer",
-        "tip":
-        "Avoid overusing fertilizer. Balanced nutrients improve crop growth and protect soil quality.",
+        "title": lang.t("tipFertilizerTitle"),
+        "tip": lang.t("tipFertilizerBody"),
         "icon": Icons.eco_outlined,
       },
       {
-        "title": "Monitor Market Price",
-        "tip":
-        "Before selling, compare crop prices and use price prediction to choose a better selling time.",
+        "title": lang.t("tipMarketTitle"),
+        "tip": lang.t("tipMarketBody"),
         "icon": Icons.trending_up_rounded,
       },
       {
-        "title": "Remove Weeds Early",
-        "tip":
-        "Remove weeds before they grow large because they compete with crops for water and nutrients.",
+        "title": lang.t("tipWeedsTitle"),
+        "tip": lang.t("tipWeedsBody"),
         "icon": Icons.grass_outlined,
       },
     ];
@@ -385,7 +376,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    "Tip updates daily",
+                    lang.t("tipUpdatesDaily"),
                     style: TextStyle(
                       color: isDark ? Colors.white : darkGreen,
                       fontSize: 12,
@@ -403,6 +394,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
 
   Widget _weatherAlertCard(dynamic weather) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return GestureDetector(
       onTap: () {
@@ -450,18 +442,20 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                     ),
                     const SizedBox(width: 15),
                     Text(
-                      "Weather Alert",
+                      lang.t("weatherAlert"),
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white70 : const Color(0xff3d4643),
+                        color: isDark
+                            ? Colors.white70
+                            : const Color(0xff3d4643),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  weather.title ?? "Weather Update",
+                  weather.title ?? lang.t("weatherUpdate"),
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -486,6 +480,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
 
   Widget _emptyWeatherCard() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       height: 120,
@@ -508,15 +503,11 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.cloud_done_outlined,
-            color: darkGreen,
-            size: 32,
-          ),
+          const Icon(Icons.cloud_done_outlined, color: darkGreen, size: 32),
           const SizedBox(width: 15),
           Expanded(
             child: Text(
-              "No weather alert available right now",
+              lang.t("noWeatherAlert"),
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
@@ -530,13 +521,13 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   }
 
   Widget _quickAction(
-      BuildContext context, {
-        required IconData icon,
-        required String title,
-        required Widget screen,
-        bool active = false,
-        bool blueIcon = false,
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required Widget screen,
+    bool active = false,
+    bool blueIcon = false,
+  }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return OpenContainer(
@@ -548,44 +539,49 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       closedBuilder: (context, openContainer) {
         return GestureDetector(
           onTap: openContainer,
-          child: Column(
-            children: [
-              Container(
-                height: 66,
-                width: 66,
-                decoration: BoxDecoration(
-                  color: active
-                      ? mediumGreen
-                      : isDark
-                      ? Theme.of(context).cardColor
-                      : const Color(0xffe5e8e6),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isDark ? Colors.white12 : Colors.transparent,
+          child: SizedBox(
+            width: 78,
+            child: Column(
+              children: [
+                Container(
+                  height: 66,
+                  width: 66,
+                  decoration: BoxDecoration(
+                    color: active
+                        ? mediumGreen
+                        : isDark
+                        ? Theme.of(context).cardColor
+                        : const Color(0xffe5e8e6),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isDark ? Colors.white12 : Colors.transparent,
+                    ),
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 28,
+                    color: active
+                        ? Colors.white
+                        : blueIcon
+                        ? const Color(0xff008fe2)
+                        : mediumGreen,
                   ),
                 ),
-                child: Icon(
-                  icon,
-                  size: 28,
-                  color: active
-                      ? Colors.white
-                      : blueIcon
-                      ? const Color(0xff008fe2)
-                      : mediumGreen,
+                const SizedBox(height: 9),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.2,
+                    color: isDark ? Colors.white70 : const Color(0xff3f4845),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 9),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  height: 1.2,
-                  color: isDark ? Colors.white70 : const Color(0xff3f4845),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

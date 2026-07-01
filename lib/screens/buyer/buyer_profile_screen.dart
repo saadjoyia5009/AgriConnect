@@ -5,6 +5,7 @@ import 'edit_buyer_profile_screen.dart';
 import '../../providers/buyer_profile_provider.dart';
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
 import '../../providers/theme_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/buyer/profile/buyer_profile_header.dart';
 import '../../widgets/buyer/profile/buyer_profile_stats.dart';
 import 'buyer_notification_screen.dart';
@@ -65,6 +66,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
 
   void _openThemeSheet() {
     final themeProvider = context.read<ThemeProvider>();
+    final lang = context.read<LanguageProvider>();
 
     showModalBottomSheet(
       context: context,
@@ -79,7 +81,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "Choose Theme",
+                lang.t("chooseTheme"),
                 style: TextStyle(
                   color: primaryText,
                   fontSize: 18,
@@ -91,7 +93,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
               ListTile(
                 leading: Icon(Icons.light_mode_outlined, color: accentColor),
                 title: Text(
-                  "Light Mode",
+                  lang.t("lightMode"),
                   style: TextStyle(color: primaryText),
                 ),
                 onTap: () {
@@ -103,7 +105,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
               ListTile(
                 leading: Icon(Icons.dark_mode_outlined, color: accentColor),
                 title: Text(
-                  "Dark Mode",
+                  lang.t("darkMode"),
                   style: TextStyle(color: primaryText),
                 ),
                 onTap: () {
@@ -115,7 +117,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
               ListTile(
                 leading: Icon(Icons.phone_iphone, color: accentColor),
                 title: Text(
-                  "System Default",
+                  lang.t("systemDefault"),
                   style: TextStyle(color: primaryText),
                 ),
                 onTap: () {
@@ -159,7 +161,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
             if (profile == null) {
               return Center(
                 child: Text(
-                  "No profile found",
+                  context.watch<LanguageProvider>().t("noProfileFound"),
                   style: TextStyle(color: primaryText, fontWeight: FontWeight.w600),
                 ),
               );
@@ -177,27 +179,29 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
                   const SizedBox(height: 24),
                   BuyerProfileMenuTile(
                     icon: Icons.edit_outlined,
-                    title: "Edit Profile",
+                    title: context.watch<LanguageProvider>().t("editProfile"),
                     onTap: () => _openEditProfile(profile),
                   ),
                   BuyerProfileMenuTile(
                     icon: isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
-                    title: isDark ? "Dark Mode" : "Light Mode",
+                    title: isDark
+                        ? context.watch<LanguageProvider>().t("darkMode")
+                        : context.watch<LanguageProvider>().t("lightMode"),
                     onTap: _openThemeSheet,
                   ),
                   BuyerProfileMenuTile(
                     icon: Icons.chat_bubble_outline,
-                    title: "My Inquiries",
+                    title: context.watch<LanguageProvider>().t("myInquiries"),
                     onTap: () => Navigator.pushNamed(context, '/buyer-inquiries'),
                   ),
                   BuyerProfileMenuTile(
                     icon: Icons.favorite_border,
-                    title: "Favorite Crops",
+                    title: context.watch<LanguageProvider>().t("favoriteCrops"),
                     onTap: () => Navigator.pushNamed(context, '/buyerFavorites'),
                   ),
                   BuyerProfileMenuTile(
                     icon: Icons.notifications_none,
-                    title: "Notifications",
+                    title: context.watch<LanguageProvider>().t("notifications"),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -209,7 +213,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
                   ),
                   BuyerProfileMenuTile(
                     icon: Icons.logout,
-                    title: "Logout",
+                    title: context.watch<LanguageProvider>().t("logout"),
                     iconColor: Colors.red,
                     onTap: () {
                       Navigator.pushNamedAndRemoveUntil(
@@ -234,7 +238,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
 
         const Spacer(),
         Text(
-          "Profile",
+          context.watch<LanguageProvider>().t("profile"),
           style: TextStyle(
             color: accentColor,
             fontWeight: FontWeight.w900,

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/inquiry_model.dart';
 import '../../providers/inquiry_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/farmer_bottom_navbar.dart';
 import 'farmer_inquiry_detail_screen.dart';
 
@@ -27,6 +28,8 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 3),
@@ -52,7 +55,8 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
                     );
                   }
 
-                  final isDark = Theme.of(context).brightness == Brightness.dark;
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
 
                   return RefreshIndicator(
                     color: darkGreen,
@@ -66,19 +70,18 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Received Inquiries",
+                            lang.t("receivedInquiries"),
                             style: TextStyle(
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.color,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodyLarge?.color,
                               fontSize: 25,
                               fontWeight: FontWeight.w900,
                             ),
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            "Manage and respond to buyer requests for\nyour harvest.",
+                            lang.t("receivedInquiriesSubtitle"),
                             style: TextStyle(
                               color: isDark
                                   ? Colors.white60
@@ -94,22 +97,25 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
                               _filterChip(
                                 context,
                                 title: "Pending",
+                                displayTitle: lang.t("pending"),
                                 selected:
-                                inquiryProvider.selectedFilter == "Pending",
+                                    inquiryProvider.selectedFilter == "Pending",
                               ),
                               const SizedBox(width: 10),
                               _filterChip(
                                 context,
                                 title: "Active",
+                                displayTitle: lang.t("active"),
                                 selected:
-                                inquiryProvider.selectedFilter == "Active",
+                                    inquiryProvider.selectedFilter == "Active",
                               ),
                               const SizedBox(width: 10),
                               _filterChip(
                                 context,
                                 title: "History",
+                                displayTitle: lang.t("history"),
                                 selected:
-                                inquiryProvider.selectedFilter == "History",
+                                    inquiryProvider.selectedFilter == "History",
                               ),
                             ],
                           ),
@@ -119,12 +125,12 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
                           else
                             ListView.builder(
                               itemCount:
-                              inquiryProvider.filteredInquiries.length,
+                                  inquiryProvider.filteredInquiries.length,
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemBuilder: (context, index) {
                                 final inquiry =
-                                inquiryProvider.filteredInquiries[index];
+                                    inquiryProvider.filteredInquiries[index];
 
                                 return _InquiryCard(
                                   inquiry: inquiry,
@@ -140,12 +146,14 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
                                     );
                                   },
                                   onReject: () async {
-                                    await inquiryProvider
-                                        .rejectInquiry(inquiry.id);
+                                    await inquiryProvider.rejectInquiry(
+                                      inquiry.id,
+                                    );
                                   },
                                   onAccept: () async {
-                                    await inquiryProvider
-                                        .acceptInquiry(inquiry.id);
+                                    await inquiryProvider.acceptInquiry(
+                                      inquiry.id,
+                                    );
                                   },
                                 );
                               },
@@ -165,6 +173,7 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
 
   Widget _topBar() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       height: 58,
@@ -187,7 +196,7 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
           Expanded(
             child: Center(
               child: Text(
-                "AgriConnect",
+                lang.t("appName"),
                 style: TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
@@ -202,10 +211,11 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
   }
 
   Widget _filterChip(
-      BuildContext context, {
-        required String title,
-        required bool selected,
-      }) {
+    BuildContext context, {
+    required String title,
+    required String displayTitle,
+    required bool selected,
+  }) {
     final provider = Provider.of<InquiryProvider>(context, listen: false);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -227,7 +237,7 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
           ),
         ),
         child: Text(
-          title,
+          displayTitle,
           style: TextStyle(
             color: selected
                 ? Colors.white
@@ -285,7 +295,7 @@ class _InquiryCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            _imageHeader(),
+            _imageHeader(context),
             _buyerDetails(context),
             Divider(
               color: isDark ? Colors.white12 : Colors.grey.shade300,
@@ -298,13 +308,13 @@ class _InquiryCard extends StatelessWidget {
     );
   }
 
-  Widget _imageHeader() {
+  Widget _imageHeader(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+
     return Stack(
       children: [
         ClipRRect(
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(12),
-          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
           child: Image.network(
             inquiry.cropImage,
             width: double.infinity,
@@ -327,16 +337,11 @@ class _InquiryCard extends StatelessWidget {
         Container(
           height: 125,
           decoration: BoxDecoration(
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(12),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
-              colors: [
-                Colors.black.withOpacity(0.60),
-                Colors.transparent,
-              ],
+              colors: [Colors.black.withOpacity(0.60), Colors.transparent],
             ),
           ),
         ),
@@ -375,7 +380,7 @@ class _InquiryCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              inquiry.status,
+              _statusLabel(inquiry.status, lang),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 12,
@@ -389,6 +394,8 @@ class _InquiryCard extends StatelessWidget {
   }
 
   Widget _buyerDetails(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
       child: Row(
@@ -396,7 +403,7 @@ class _InquiryCard extends StatelessWidget {
           Expanded(
             child: _detailBlock(
               context: context,
-              title: "Buyer",
+              title: lang.t("buyer"),
               child: Row(
                 children: [
                   CircleAvatar(
@@ -429,11 +436,11 @@ class _InquiryCard extends StatelessWidget {
           ),
           _detailBlock(
             context: context,
-            title: "Requested",
+            title: lang.t("requested"),
             crossAxisAlignment: CrossAxisAlignment.end,
-            child: const Text(
-              "5kg",
-              style: TextStyle(
+            child: Text(
+              lang.tDynamic(inquiry.requestedQuantity),
+              style: const TextStyle(
                 color: darkGreen,
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
@@ -447,6 +454,7 @@ class _InquiryCard extends StatelessWidget {
 
   Widget _priceAndActions(BuildContext context) {
     final bool isPending = inquiry.status.toLowerCase() == "pending";
+    final lang = context.watch<LanguageProvider>();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
@@ -455,7 +463,7 @@ class _InquiryCard extends StatelessWidget {
           Expanded(
             child: _detailBlock(
               context: context,
-              title: "Proposed Price",
+              title: lang.t("proposedPrice"),
               child: Text(
                 inquiry.proposedPrice,
                 style: const TextStyle(
@@ -473,7 +481,7 @@ class _InquiryCard extends StatelessWidget {
               filled: false,
               onTap: () async {
                 await onReject();
-                _showMessage(context, "Inquiry rejected");
+                _showMessage(context, lang.t("inquiryRejected"));
               },
             ),
             const SizedBox(width: 12),
@@ -483,13 +491,28 @@ class _InquiryCard extends StatelessWidget {
               filled: true,
               onTap: () async {
                 await onAccept();
-                _showMessage(context, "Inquiry accepted");
+                _showMessage(context, lang.t("inquiryAccepted"));
               },
             ),
           ],
         ],
       ),
     );
+  }
+
+  String _statusLabel(String status, LanguageProvider lang) {
+    switch (status.toLowerCase()) {
+      case "pending":
+        return lang.t("pending");
+      case "active":
+      case "accepted":
+        return lang.t("active");
+      case "history":
+      case "completed":
+        return lang.t("history");
+      default:
+        return lang.tDynamic(status);
+    }
   }
 
   Widget _detailBlock({
@@ -540,11 +563,7 @@ class _InquiryCard extends StatelessWidget {
           shape: BoxShape.circle,
           border: Border.all(color: darkGreen),
         ),
-        child: Icon(
-          icon,
-          color: filled ? Colors.white : darkGreen,
-          size: 25,
-        ),
+        child: Icon(icon, color: filled ? Colors.white : darkGreen, size: 25),
       ),
     );
   }
@@ -567,10 +586,7 @@ class _InquiryCard extends StatelessWidget {
 
   void _showMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: darkGreen,
-      ),
+      SnackBar(content: Text(message), backgroundColor: darkGreen),
     );
   }
 }
@@ -583,6 +599,7 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       width: double.infinity,
@@ -603,7 +620,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            "No inquiries found",
+            lang.t("noInquiriesFound"),
             style: TextStyle(
               color: Theme.of(context).textTheme.bodyLarge?.color,
               fontSize: 18,
@@ -612,7 +629,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            "Buyer requests will appear here when they send inquiries.",
+            lang.t("noInquiriesSubtitle"),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: isDark ? Colors.white60 : const Color(0xff555555),
@@ -630,16 +647,14 @@ class _ErrorState extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const _ErrorState({
-    required this.message,
-    required this.onRetry,
-  });
+  const _ErrorState({required this.message, required this.onRetry});
 
   static const Color darkGreen = Color(0xff075739);
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Center(
       child: Padding(
@@ -647,14 +662,10 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.wifi_off_rounded,
-              color: Colors.red,
-              size: 46,
-            ),
+            const Icon(Icons.wifi_off_rounded, color: Colors.red, size: 46),
             const SizedBox(height: 14),
             Text(
-              "Something went wrong",
+              lang.t("somethingWentWrong"),
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyLarge?.color,
                 fontSize: 18,
@@ -677,7 +688,7 @@ class _ErrorState extends StatelessWidget {
                 backgroundColor: darkGreen,
                 foregroundColor: Colors.white,
               ),
-              child: const Text("Retry"),
+              child: Text(lang.t("retry")),
             ),
           ],
         ),

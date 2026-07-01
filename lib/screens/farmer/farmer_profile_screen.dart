@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/farmer_bottom_navbar.dart';
 import '../../widgets/profile/profile_header_card.dart';
 import '../../widgets/profile/profile_info_tile.dart';
@@ -17,6 +18,7 @@ class FarmerProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -24,7 +26,7 @@ class FarmerProfileScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            _topBar(),
+            _topBar(context),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(22, 26, 22, 30),
@@ -33,37 +35,37 @@ class FarmerProfileScreen extends StatelessWidget {
                   children: [
                     ProfileHeaderCard(authProvider: authProvider),
                     const SizedBox(height: 34),
-                    const ProfileSectionTitle(title: "ACCOUNT INFORMATION"),
+                    ProfileSectionTitle(title: lang.t("accountInformation")),
                     const SizedBox(height: 14),
                     ProfileSettingsCard(
                       children: [
                         ProfileInfoTile(
                           icon: Icons.email_outlined,
-                          title: "Email Address",
+                          title: lang.t("emailAddress"),
                           value: authProvider.email.isEmpty
-                              ? "No email found"
+                              ? lang.t("noEmailFound")
                               : authProvider.email,
                         ),
                         _divider(),
                         ProfileInfoTile(
                           icon: Icons.phone_outlined,
-                          title: "Phone Number",
+                          title: lang.t("phoneNumber"),
                           value: authProvider.phone.isEmpty
-                              ? "No phone found"
+                              ? lang.t("noPhoneFound")
                               : authProvider.phone,
                         ),
                         _divider(),
                         ProfileInfoTile(
                           icon: Icons.location_on_outlined,
-                          title: "Farm Location",
+                          title: lang.t("farmLocation"),
                           value: authProvider.location,
                         ),
                         _divider(),
                         ProfileInfoTile(
                           icon: Icons.lock_reset,
-                          title: "Change Password",
+                          title: lang.t("changePassword"),
                           value: "",
-                          subtitle: "Update your account password",
+                          subtitle: lang.t("updateAccountPassword"),
                           showArrow: true,
                           onTap: () {
                             _showChangePasswordDialog(context, authProvider);
@@ -77,9 +79,11 @@ class FarmerProfileScreen extends StatelessWidget {
                               icon: themeProvider.isDarkMode
                                   ? Icons.dark_mode_outlined
                                   : Icons.light_mode_outlined,
-                              title: "Appearance",
-                              value: themeProvider.isDarkMode ? "Dark Mode" : "Light Mode",
-                              subtitle: "Tap to switch app theme",
+                              title: lang.t("appearance"),
+                              value: themeProvider.isDarkMode
+                                  ? lang.t("darkMode")
+                                  : lang.t("lightMode"),
+                              subtitle: lang.t("switchTheme"),
                               showArrow: true,
                               onTap: () {
                                 themeProvider.toggleTheme();
@@ -101,36 +105,42 @@ class FarmerProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _topBar() {
+  Widget _topBar(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+
     return Container(
       height: 66,
       padding: const EdgeInsets.symmetric(horizontal: 22),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: Color(0xffd8e6de)),
-        ),
+        border: Border(bottom: BorderSide(color: Color(0xffd8e6de))),
       ),
       child: Row(
-        children: const [
-          Icon(Icons.agriculture_outlined, color: darkGreen, size: 26),
-          SizedBox(width: 12),
+        children: [
+          const Icon(Icons.agriculture_outlined, color: darkGreen, size: 26),
+          const SizedBox(width: 12),
           Text(
-            "AgriConnect",
-            style: TextStyle(
+            lang.t("appName"),
+            style: const TextStyle(
               color: darkGreen,
               fontSize: 30,
               fontWeight: FontWeight.w900,
             ),
           ),
-          Spacer(),
-          Icon(Icons.notifications_none, color: Color(0xff333333), size: 27),
+          const Spacer(),
+          const Icon(
+            Icons.notifications_none,
+            color: Color(0xff333333),
+            size: 27,
+          ),
         ],
       ),
     );
   }
 
   Widget _logoutButton(BuildContext context, AuthProvider authProvider) {
+    final lang = context.watch<LanguageProvider>();
+
     return Center(
       child: TextButton.icon(
         onPressed: () {
@@ -138,9 +148,9 @@ class FarmerProfileScreen extends StatelessWidget {
           Navigator.pushReplacementNamed(context, '/login');
         },
         icon: const Icon(Icons.logout, color: Colors.red),
-        label: const Text(
-          "Logout",
-          style: TextStyle(
+        label: Text(
+          lang.t("logout"),
+          style: const TextStyle(
             color: Colors.red,
             fontWeight: FontWeight.w800,
           ),
@@ -150,12 +160,13 @@ class FarmerProfileScreen extends StatelessWidget {
   }
 
   void _showChangePasswordDialog(
-      BuildContext context,
-      AuthProvider authProvider,
-      ) {
+    BuildContext context,
+    AuthProvider authProvider,
+  ) {
     final currentController = TextEditingController();
     final newController = TextEditingController();
     final confirmController = TextEditingController();
+    final lang = context.read<LanguageProvider>();
 
     showDialog(
       context: context,
@@ -163,9 +174,9 @@ class FarmerProfileScreen extends StatelessWidget {
         return AlertDialog(
           scrollable: true,
           insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-          title: const Text(
-            "Change Password",
-            style: TextStyle(
+          title: Text(
+            lang.t("changePassword"),
+            style: const TextStyle(
               fontWeight: FontWeight.w900,
               color: darkGreen,
             ),
@@ -176,27 +187,27 @@ class FarmerProfileScreen extends StatelessWidget {
               TextField(
                 controller: currentController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Current Password",
-                  prefixIcon: Icon(Icons.lock_outline),
+                decoration: InputDecoration(
+                  labelText: lang.t("currentPassword"),
+                  prefixIcon: const Icon(Icons.lock_outline),
                 ),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: newController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "New Password",
-                  prefixIcon: Icon(Icons.lock_reset),
+                decoration: InputDecoration(
+                  labelText: lang.t("newPassword"),
+                  prefixIcon: const Icon(Icons.lock_reset),
                 ),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: confirmController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Confirm Password",
-                  prefixIcon: Icon(Icons.verified_outlined),
+                decoration: InputDecoration(
+                  labelText: lang.t("confirmPassword"),
+                  prefixIcon: const Icon(Icons.verified_outlined),
                 ),
               ),
             ],
@@ -206,7 +217,7 @@ class FarmerProfileScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(dialogContext);
               },
-              child: const Text("Cancel"),
+              child: Text(lang.t("cancel")),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -216,16 +227,13 @@ class FarmerProfileScreen extends StatelessWidget {
               onPressed: () {
                 if (newController.text.trim().isEmpty ||
                     confirmController.text.trim().isEmpty) {
-                  _showSnackBar(context, "Please enter new password");
+                  _showSnackBar(context, lang.t("pleaseEnterNewPassword"));
                   return;
                 }
 
                 if (newController.text.trim() !=
                     confirmController.text.trim()) {
-                  _showSnackBar(
-                    context,
-                    "New password and confirm password do not match",
-                  );
+                  _showSnackBar(context, lang.t("passwordsDoNotMatch"));
                   return;
                 }
 
@@ -235,14 +243,14 @@ class FarmerProfileScreen extends StatelessWidget {
                 );
 
                 if (!success) {
-                  _showSnackBar(context, "Current password is incorrect");
+                  _showSnackBar(context, lang.t("currentPasswordIncorrect"));
                   return;
                 }
 
                 Navigator.pop(dialogContext);
-                _showSnackBar(context, "Password updated successfully");
+                _showSnackBar(context, lang.t("passwordUpdatedSuccessfully"));
               },
-              child: const Text("Update"),
+              child: Text(lang.t("update")),
             ),
           ],
         );
@@ -251,16 +259,12 @@ class FarmerProfileScreen extends StatelessWidget {
   }
 
   void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Widget _divider() {
-    return Divider(
-      height: 1,
-      thickness: 1,
-      color: Colors.grey.shade300,
-    );
+    return Divider(height: 1, thickness: 1, color: Colors.grey.shade300);
   }
 }

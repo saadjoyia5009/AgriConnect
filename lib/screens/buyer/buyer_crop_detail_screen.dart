@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/crop_model.dart';
+import '../../providers/language_provider.dart';
 import 'send_inquiry_screen.dart';
 
 class BuyerCropDetailScreen extends StatelessWidget {
@@ -138,7 +140,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          crop.category,
+          context.watch<LanguageProvider>().tDynamic(crop.category),
           style: TextStyle(
             fontSize: 14,
             color: _secondaryText(context),
@@ -190,7 +192,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  "Farmer uploaded crop",
+                  context.watch<LanguageProvider>().t("farmerUploadedCrop"),
                   style: TextStyle(
                     fontSize: 13,
                     color: _secondaryText(context),
@@ -213,8 +215,8 @@ class BuyerCropDetailScreen extends StatelessWidget {
             Expanded(
               child: _detailBox(
                 context: context,
-                title: "Quantity",
-                value: crop.quantity,
+                title: context.watch<LanguageProvider>().t("quantity"),
+                value: context.watch<LanguageProvider>().tDynamic(crop.quantity),
                 icon: Icons.inventory_2_outlined,
               ),
             ),
@@ -222,8 +224,9 @@ class BuyerCropDetailScreen extends StatelessWidget {
             Expanded(
               child: _detailBox(
                 context: context,
-                title: "Price",
-                value: "${crop.price}${crop.unit}",
+                title: context.watch<LanguageProvider>().t("price"),
+                value:
+                "${crop.price} ${context.watch<LanguageProvider>().tDynamic(crop.unit)}",
                 icon: Icons.sell_outlined,
               ),
             ),
@@ -235,7 +238,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
             Expanded(
               child: _detailBox(
                 context: context,
-                title: "Harvest Date",
+                title: context.watch<LanguageProvider>().t("harvestDate"),
                 value: crop.harvestDate,
                 icon: Icons.calendar_month_outlined,
               ),
@@ -244,8 +247,8 @@ class BuyerCropDetailScreen extends StatelessWidget {
             Expanded(
               child: _detailBox(
                 context: context,
-                title: "Status",
-                value: crop.status,
+                title: context.watch<LanguageProvider>().t("status"),
+                value: context.watch<LanguageProvider>().tDynamic(crop.status),
                 icon: Icons.info_outline,
               ),
             ),
@@ -301,7 +304,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Description",
+            context.watch<LanguageProvider>().t("description"),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
@@ -332,7 +335,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Crop Attributes",
+            context.watch<LanguageProvider>().t("cropAttributes"),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
@@ -406,9 +409,9 @@ class BuyerCropDetailScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: const Text(
-                  "Send Inquiry",
-                  style: TextStyle(
+                child: Text(
+                  context.watch<LanguageProvider>().t("sendInquiry"),
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
@@ -453,6 +456,7 @@ class _SmallChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -466,7 +470,7 @@ class _SmallChip extends StatelessWidget {
         ),
       ),
       child: Text(
-        text,
+        lang.tDynamic(text),
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w800,
@@ -488,6 +492,7 @@ class _AttributeChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
@@ -510,7 +515,7 @@ class _AttributeChip extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            text,
+            lang.tDynamic(text),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,

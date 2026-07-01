@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/buyer_inquiry_model.dart';
+import '../../providers/language_provider.dart';
 
 class BuyerInquiryDetailScreen extends StatelessWidget {
   final BuyerInquiryModel inquiry;
@@ -31,15 +33,20 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = _isDark(context);
     final isAccepted = inquiry.status.toLowerCase() == "accepted";
+    final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return Directionality(
+      textDirection: lang.isUrdu
+          ? TextDirection.rtl
+          : TextDirection.ltr,
+      child: Scaffold(
       backgroundColor: isDark ? darkBackground : lightBackground,
       appBar: AppBar(
         backgroundColor: isDark ? darkBackground : lightBackground,
         elevation: 0,
         centerTitle: true,
         title: Text(
-          "Inquiry Details",
+          lang.t("inquiryDetails"),
           style: TextStyle(
             color: _accent(context),
             fontWeight: FontWeight.w900,
@@ -66,6 +73,7 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
             const SizedBox(height: 90),
           ],
         ),
+      ),
       ),
     );
   }
@@ -122,10 +130,26 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
       decoration: _cardDecoration(context),
       child: Column(
         children: [
-          _detailRow(context, "Quantity", inquiry.quantity),
-          _detailRow(context, "Offer Price", inquiry.offerPrice),
-          _detailRow(context, "Delivery Date", inquiry.deliveryDate),
-          _detailRow(context, "Inquiry Date", inquiry.date),
+          _detailRow(
+            context,
+            context.watch<LanguageProvider>().t("quantity"),
+            context.watch<LanguageProvider>().tDynamic(inquiry.quantity),
+          ),
+          _detailRow(
+            context,
+            context.watch<LanguageProvider>().t("offerPrice"),
+            inquiry.offerPrice,
+          ),
+          _detailRow(
+            context,
+            context.watch<LanguageProvider>().t("deliveryDate"),
+            inquiry.deliveryDate,
+          ),
+          _detailRow(
+            context,
+            context.watch<LanguageProvider>().t("inquiryDate"),
+            inquiry.date,
+          ),
         ],
       ),
     );
@@ -140,7 +164,7 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Buyer Message",
+            context.watch<LanguageProvider>().t("buyerMessage"),
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w900,
@@ -171,7 +195,7 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Inquiry Timeline",
+            context.watch<LanguageProvider>().t("inquiryTimeline"),
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w900,
@@ -179,10 +203,10 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _timelineItem(context, "Inquiry Sent", true),
+          _timelineItem(context, context.watch<LanguageProvider>().t("inquirySent"), true),
           _timelineItem(
             context,
-            "Farmer Response",
+            context.watch<LanguageProvider>().t("farmerResponse"),
             status == "accepted" ||
                 status == "declined" ||
                 status == "rejected" ||
@@ -190,7 +214,7 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
           ),
           _timelineItem(
             context,
-            "Deal Completed",
+            context.watch<LanguageProvider>().t("dealCompleted"),
             status == "completed",
             isLast: true,
           ),
@@ -303,7 +327,7 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
       ),
       child: Text(
-        status,
+        context.watch<LanguageProvider>().tDynamic(status),
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w900,
@@ -344,7 +368,9 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
             ),
           ),
           child: Text(
-            isAccepted ? "Message Farmer" : "Back to Inquiries",
+            isAccepted
+                ? context.watch<LanguageProvider>().t("messageFarmer")
+                : context.watch<LanguageProvider>().t("backToInquiries"),
             style: TextStyle(
               color: isAccepted ? Colors.white : _accent(context),
               fontWeight: FontWeight.w900,

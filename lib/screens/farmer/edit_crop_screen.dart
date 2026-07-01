@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/crop_model.dart';
 import '../../providers/crop_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/crop_form/crop_submit_button.dart';
 import '../../widgets/crop_form/edit_crop_form_card.dart';
 
@@ -25,7 +26,7 @@ class _EditCropScreenState extends State<EditCropScreen> {
   final locationController = TextEditingController(text: "Faisalabad, Punjab");
   final descriptionController = TextEditingController(
     text:
-    "Organic, pesticide-free tomatoes harvested directly from our family farm. Sweet and juicy.",
+        "Organic, pesticide-free tomatoes harvested directly from our family farm. Sweet and juicy.",
   );
 
   final ImagePicker _picker = ImagePicker();
@@ -60,12 +61,14 @@ class _EditCropScreenState extends State<EditCropScreen> {
   }
 
   Future<void> _saveChanges() async {
+    final lang = context.read<LanguageProvider>();
+
     if (cropNameController.text.trim().isEmpty ||
         quantityController.text.trim().isEmpty ||
         priceController.text.trim().isEmpty ||
         locationController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill required fields")),
+        SnackBar(content: Text(lang.t("pleaseFillRequiredFields"))),
       );
       return;
     }
@@ -97,8 +100,8 @@ class _EditCropScreenState extends State<EditCropScreen> {
       SnackBar(
         content: Text(
           success
-              ? "Crop listing updated successfully"
-              : "Failed to update crop. Please try again.",
+              ? lang.t("cropUpdatedSuccessfully")
+              : lang.t("failedUpdateCrop"),
         ),
         backgroundColor: success ? darkGreen : Colors.red,
       ),
@@ -157,6 +160,7 @@ class _EditCropScreenState extends State<EditCropScreen> {
 
   Widget _topBar(bool isSubmitting) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       height: 58,
@@ -174,7 +178,7 @@ class _EditCropScreenState extends State<EditCropScreen> {
           Expanded(
             child: Center(
               child: Text(
-                "Edit Crop Listing",
+                lang.t("editCropListing"),
                 style: TextStyle(
                   color: isDark ? Colors.white : darkGreen,
                   fontSize: 18,
@@ -190,30 +194,29 @@ class _EditCropScreenState extends State<EditCropScreen> {
   }
 
   Widget _imageHeader() {
+    final lang = context.watch<LanguageProvider>();
+
     return Stack(
       alignment: Alignment.center,
       children: [
         selectedImage != null
             ? Image.file(
-          selectedImage!,
-          height: 250,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        )
+                selectedImage!,
+                height: 250,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              )
             : Image.network(
-          currentImageUrl,
-          height: 250,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        ),
-        Container(
-          height: 250,
-          color: Colors.black.withOpacity(0.15),
-        ),
+                currentImageUrl,
+                height: 250,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+        Container(height: 250, color: Colors.black.withOpacity(0.15)),
         ElevatedButton.icon(
           onPressed: _pickImage,
           icon: const Icon(Icons.camera_alt, size: 18),
-          label: const Text("Change Photo"),
+          label: Text(lang.t("changePhoto")),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.white,
             foregroundColor: darkGreen,
@@ -230,6 +233,7 @@ class _EditCropScreenState extends State<EditCropScreen> {
 
   Widget _bottomSaveSection(bool isSubmitting) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = context.watch<LanguageProvider>();
 
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
@@ -238,15 +242,15 @@ class _EditCropScreenState extends State<EditCropScreen> {
         children: [
           CropSubmitButton(
             isSubmitting: isSubmitting,
-            title: "Save Changes",
-            loadingTitle: "Saving Changes...",
+            title: lang.t("saveChanges"),
+            loadingTitle: lang.t("savingChanges"),
             icon: Icons.save_outlined,
             borderRadius: 28,
             onPressed: _saveChanges,
           ),
           const SizedBox(height: 8),
           Text(
-            "By saving, you agree to update your listing\nterms in the marketplace.",
+            lang.t("saveListingTerms"),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 11,

@@ -12,8 +12,8 @@ class LanguageSelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = context.watch<LanguageProvider>();
-    final selectedCode = languageProvider.locale.languageCode;
+    final lang = context.watch<LanguageProvider>();
+    final selectedCode = lang.locale.languageCode;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F8F5),
@@ -30,7 +30,7 @@ class LanguageSelectionScreen extends StatelessWidget {
                   height: 86,
                   width: 86,
                   decoration: BoxDecoration(
-                    color: darkGreen.withOpacity(0.12),
+                    color: darkGreen.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -43,10 +43,11 @@ class LanguageSelectionScreen extends StatelessWidget {
 
               const SizedBox(height: 28),
 
-              const Center(
+              Center(
                 child: Text(
-                  "Choose Language",
-                  style: TextStyle(
+                  lang.t("chooseLanguage"),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
                     color: darkGreen,
@@ -58,7 +59,7 @@ class LanguageSelectionScreen extends StatelessWidget {
 
               Center(
                 child: Text(
-                  "Select your preferred language to continue",
+                  lang.t("chooseLanguageSubtitle"),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 15,
@@ -71,8 +72,8 @@ class LanguageSelectionScreen extends StatelessWidget {
               const SizedBox(height: 36),
 
               LanguageCard(
-                title: "English",
-                subtitle: "Use app in English",
+                title: lang.t("languageEnglish"),
+                subtitle: lang.t("languageEnglishSubtitle"),
                 icon: Icons.translate_rounded,
                 isSelected: selectedCode == 'en',
                 onTap: () {
@@ -83,8 +84,8 @@ class LanguageSelectionScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               LanguageCard(
-                title: "اردو",
-                subtitle: "ایپ اردو میں استعمال کریں",
+                title: lang.t("languageUrdu"),
+                subtitle: lang.t("languageUrduSubtitle"),
                 icon: Icons.language_rounded,
                 isSelected: selectedCode == 'ur',
                 onTap: () {
@@ -114,9 +115,10 @@ class LanguageSelectionScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text(
-                    "Continue",
-                    style: TextStyle(
+                  child: Text(
+                    lang.t("continue"),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),

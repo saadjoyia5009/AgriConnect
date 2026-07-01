@@ -105,10 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final success = await authProvider.login(
-      email: email,
-      password: password,
-    );
+    final success = await authProvider.login(email: email, password: password);
 
     if (!mounted) return;
 
@@ -149,14 +146,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.74),
+                      color: Colors.white.withValues(alpha: 0.74),
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.55),
+                        color: Colors.white.withValues(alpha: 0.55),
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.18),
+                          color: Colors.black.withValues(alpha: 0.18),
                           blurRadius: 18,
                           offset: const Offset(0, 10),
                         ),
@@ -198,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 8),
                         AuthInputField(
                           controller: emailController,
-                          hintText: "farmer@example.com",
+                          hintText: lang.t("emailHint"),
                           icon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
                         ),
@@ -209,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 8),
                         AuthInputField(
                           controller: passwordController,
-                          hintText: "••••••••",
+                          hintText: lang.t("passwordHint"),
                           icon: Icons.lock_outline,
                           obscureText: authProvider.isPasswordHidden,
                           suffixIcon: IconButton(
@@ -264,27 +261,27 @@ class _LoginScreenState extends State<LoginScreen> {
                               backgroundColor: darkGreen,
                               foregroundColor: Colors.white,
                               elevation: 4,
-                              shadowColor: darkGreen.withOpacity(0.20),
+                              shadowColor: darkGreen.withValues(alpha: 0.20),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
                             ),
                             child: authProvider.isLoading
                                 ? const SizedBox(
-                              height: 22,
-                              width: 22,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2.4,
-                              ),
-                            )
+                                    height: 22,
+                                    width: 22,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.4,
+                                    ),
+                                  )
                                 : Text(
-                              lang.t("login"),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
+                                    lang.t("login"),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
                           ),
                         ),
 
@@ -337,19 +334,19 @@ class _LoginScreenState extends State<LoginScreen> {
               color: darkGreen,
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(
-              Icons.eco,
-              color: Colors.white,
-              size: 30,
-            ),
+            child: const Icon(Icons.eco, color: Colors.white, size: 30),
           ),
           const SizedBox(width: 14),
-          Text(
-            lang.t("appName"),
-            style: const TextStyle(
-              color: darkGreen,
-              fontSize: 28,
-              fontWeight: FontWeight.w900,
+          Flexible(
+            child: Text(
+              lang.t("appName"),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: darkGreen,
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
         ],

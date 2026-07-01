@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../models/buyer_profile_model.dart';
+import '../../../providers/language_provider.dart';
 
 class BuyerProfileStats extends StatelessWidget {
   final BuyerProfileModel profile;
@@ -15,23 +17,25 @@ class BuyerProfileStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+
     return Row(
       children: [
         _statBox(
           context,
-          "Inquiries",
+          lang.t("inquiries"),
           profile.totalInquiries.toString(),
         ),
         const SizedBox(width: 10),
         _statBox(
           context,
-          "Deals",
+          lang.t("deals"),
           profile.acceptedDeals.toString(),
         ),
         const SizedBox(width: 10),
         _statBox(
           context,
-          "Favorites",
+          lang.t("favorites"),
           profile.favoriteCrops.toString(),
         ),
       ],
