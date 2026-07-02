@@ -1,141 +1,97 @@
-import 'dart:convert';
+import '../utils/token_storage.dart';
+import 'api_service.dart';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
+class AuthResponse {
+  final bool success;
+  final String message;
+  final String? username;
+  final String? email;
+  final String? role;
 
-import '../config/api_config.dart';
-import '../models/auth_response_model.dart';
+  AuthResponse({
+    required this.success,
+    required this.message,
+    this.username,
+    this.email,
+    this.role,
+  });
+}
 
 class AuthService {
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
-
-  Future<AuthResponseModel> login({
+  Future<AuthResponse> login({
     required String email,
     required String password,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse(ApiConfig.login),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode({
-          "username": email,
+      final response = await ApiService.post(
+        "/login/",
+        {
+          "email": email,
           "password": password,
-        }),
+        },
       );
 
-      final Map<String, dynamic> data = jsonDecode(response.body);
-
-      if (response.statusCode == 200) {
-        final authResponse = AuthResponseModel.fromJson(data);
-
-        await _storage.write(
-          key: "access_token",
-          value: authResponse.accessToken,
+      if (response["access"] != null && response["refresh"] != null) {
+        await TokenStorage.saveTokens(
+          response["access"],
+          response["refresh"],
         );
-
-        await _storage.write(
-          key: "refresh_token",
-          value: authResponse.refreshToken,
-        );
-
-        await _storage.write(
-          key: "user_role",
-          value: authResponse.role,
-        );
-
-        await _storage.write(
-          key: "username",
-          value: authResponse.username,
-        );
-
-        await _storage.write(
-          key: "email",
-          value: authResponse.email,
-        );
-
-        return authResponse;
       }
 
-      return AuthResponseModel.error(
-        data["error"] ??
-            data["message"] ??
-            "Login failed",
+      return AuthResponse(
+        success: true,
+        message: "Login successful",
+        username: response["username"]?.toString(),
+        email: response["email"]?.toString() ?? email,
+        role: response["role"]?.toString(),
       );
     } catch (e) {
-      return AuthResponseModel.error(
-        "Server connection failed. Please check backend server.",
+      return AuthResponse(
+        success: false,
+        message: e.toString().replaceAll("Exception:", "").trim(),
       );
     }
   }
 
-  Future<AuthResponseModel> register({
+  Future<AuthResponse> register({
     required String username,
     required String email,
     required String password,
     required String password2,
     required String role,
-    String? phone,
-    String? address,
+    required String phone,
+    required String address,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse(ApiConfig.register),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode({
+      final response = await ApiService.post(
+        "/register/",
+        {
           "username": username,
           "email": email,
           "password": password,
           "password2": password2,
           "role": role,
-          "phone": phone ?? "",
-          "address": address ?? "",
-        }),
+          "phone": phone,
+          "address": address,
+        },
       );
 
-      final Map<String, dynamic> data = jsonDecode(response.body);
-
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        return AuthResponseModel(
-          success: true,
-          message: data["message"] ?? "Registration successful",
-          role: data["data"]?["role"],
-          username: data["data"]?["username"],
-          email: data["data"]?["email"],
-        );
-      }
-
-      return AuthResponseModel.error(
-        data["error"] ??
-            data["email"]?.toString() ??
-            data["username"]?.toString() ??
-            data["message"] ??
-            "Registration failed",
+      return AuthResponse(
+        success: true,
+        message: "Account created successfully",
+        username: response["username"]?.toString() ?? username,
+        email: response["email"]?.toString() ?? email,
+        role: response["role"]?.toString() ?? role,
       );
     } catch (e) {
-      return AuthResponseModel.error(
-        "Server connection failed. Please check backend server.",
+      return AuthResponse(
+        success: false,
+        message: e.toString().replaceAll("Exception:", "").trim(),
       );
     }
   }
 
-  Future<String?> getAccessToken() async {
-    return await _storage.read(key: "access_token");
-  }
-
-  Future<String?> getUserRole() async {
-    return await _storage.read(key: "user_role");
-  }
-
-  Future<bool> isLoggedIn() async {
-    final token = await getAccessToken();
-    return token != null && token.isNotEmpty;
-  }
-
   Future<void> logout() async {
-    await _storage.deleteAll();
+    await TokenStorage.clearTokens();
   }
 }

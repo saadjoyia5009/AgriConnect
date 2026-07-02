@@ -121,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    _navigateByRole(authProvider.selectedRole);
+    _navigateByRole(authProvider.role);
   }
 
   @override
