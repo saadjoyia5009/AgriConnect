@@ -375,6 +375,7 @@ class LanguageProvider extends ChangeNotifier {
         'accepted': 'Accepted',
         'declined': 'Declined',
         'rejected': 'Rejected',
+        "language": "Language",
 
 
 
@@ -730,6 +731,7 @@ class LanguageProvider extends ChangeNotifier {
         'accepted': 'قبول شدہ',
         'declined': 'مسترد',
         'rejected': 'رد شدہ',
+        "language": "زبان",
 
       },
     };

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
+import 'otp_verification_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -197,7 +198,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                         ),
                       );
 
-                      navigator.pop();
+                      navigator.push(
+                        MaterialPageRoute(
+                          builder: (_) => OtpVerificationScreen(email: email),
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: darkGreen,
@@ -209,7 +214,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                       ),
                     ),
                     child: Text(
-                      lang.t("sendResetLink"),
+                      lang.t("Sent OTP"),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 16,

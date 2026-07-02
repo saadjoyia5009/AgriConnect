@@ -62,6 +62,17 @@ class FarmerProfileScreen extends StatelessWidget {
                         ),
                         _divider(),
                         ProfileInfoTile(
+                          icon: Icons.language_outlined,
+                          title: lang.t("language"),
+                          value: lang.isUrdu ? "اردو" : "English",
+                          subtitle: lang.t("chooseLanguage"),
+                          showArrow: true,
+                          onTap: () {
+                            _showLanguageDialog(context);
+                          },
+                        ),
+                        _divider(),
+                        ProfileInfoTile(
                           icon: Icons.lock_reset,
                           title: lang.t("changePassword"),
                           value: "",
@@ -262,6 +273,50 @@ class FarmerProfileScreen extends StatelessWidget {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+  void _showLanguageDialog(BuildContext context) {
+    final languageProvider = context.read<LanguageProvider>();
+    final lang = context.read<LanguageProvider>();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(
+            lang.t("chooseLanguage"),
+            style: const TextStyle(
+              fontWeight: FontWeight.w900,
+              color: darkGreen,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.language),
+                title: const Text("English"),
+                onTap: () async {
+                  await languageProvider.changeLanguage('en');
+                  if (dialogContext.mounted) {
+                    Navigator.pop(dialogContext);
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.language),
+                title: const Text("اردو"),
+                onTap: () async {
+                  await languageProvider.changeLanguage('ur');
+                  if (dialogContext.mounted) {
+                    Navigator.pop(dialogContext);
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _divider() {

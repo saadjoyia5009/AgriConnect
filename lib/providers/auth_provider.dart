@@ -18,6 +18,8 @@ class AuthProvider extends ChangeNotifier {
   String _password = "";
   String _role = "";
   String _location = "";
+  String _resetEmail = "";
+  String _resetOtp = "";
   String? _profileImagePath;
 
   String get userName => _userName;
@@ -26,6 +28,8 @@ class AuthProvider extends ChangeNotifier {
   String get password => _password;
   String get role => _role;
   String get location => _location;
+  String get resetEmail => _resetEmail;
+  String get resetOtp => _resetOtp;
   String? get profileImagePath => _profileImagePath;
 
   void togglePasswordVisibility() {
@@ -130,9 +134,73 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> forgotPassword({
     required String email,
   }) async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
     debugPrint("===== FORGOT PASSWORD API CALL =====");
     debugPrint("Email: $email");
 
+    await Future.delayed(const Duration(seconds: 1));
+
+    _resetEmail = email;
+    isLoading = false;
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> verifyOtp({
+    required String otp,
+  }) async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    isLoading = false;
+
+    if (otp.length != 6) {
+      errorMessage = "Please enter valid 6 digit OTP";
+      notifyListeners();
+      return false;
+    }
+
+    _resetOtp = otp;
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> resetPassword({
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    isLoading = false;
+
+    if (newPassword.length < 8) {
+      errorMessage = "Password must be at least 8 characters";
+      notifyListeners();
+      return false;
+    }
+
+    if (newPassword != confirmPassword) {
+      errorMessage = "Passwords do not match";
+      notifyListeners();
+      return false;
+    }
+
+    _password = newPassword;
+    _resetOtp = "";
+    _resetEmail = "";
+
+    notifyListeners();
     return true;
   }
 
@@ -145,6 +213,8 @@ class AuthProvider extends ChangeNotifier {
     _password = "";
     _role = "";
     _location = "";
+    _resetEmail = "";
+    _resetOtp = "";
     _profileImagePath = null;
     rememberMe = false;
     selectedRole = "Farmer";
