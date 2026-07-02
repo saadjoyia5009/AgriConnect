@@ -31,19 +31,25 @@ class AuthService {
         },
       );
 
-      if (response["access"] != null && response["refresh"] != null) {
+      final tokens = response["tokens"];
+
+      if (tokens != null &&
+          tokens["access"] != null &&
+          tokens["refresh"] != null) {
         await TokenStorage.saveTokens(
-          response["access"],
-          response["refresh"],
+          tokens["access"].toString(),
+          tokens["refresh"].toString(),
         );
       }
 
+      final user = response["user"];
+
       return AuthResponse(
         success: true,
-        message: "Login successful",
-        username: response["username"]?.toString(),
-        email: response["email"]?.toString() ?? email,
-        role: response["role"]?.toString(),
+        message: response["message"]?.toString() ?? "Login successful",
+        username: user?["username"]?.toString(),
+        email: user?["email"]?.toString() ?? email,
+        role: user?["role"]?.toString(),
       );
     } catch (e) {
       return AuthResponse(

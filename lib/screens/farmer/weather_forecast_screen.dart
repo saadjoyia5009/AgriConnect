@@ -30,7 +30,10 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      context.read<WeatherProvider>().fetchWeatherForecast();
+      context.read<WeatherProvider>().fetchWeatherForecast(
+        latitude: 30.67,
+        longitude: 73.10,
+      );
     });
   }
 
@@ -62,7 +65,10 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
             : RefreshIndicator(
                 color: accentColor,
                 backgroundColor: isDark ? darkCard : Colors.white,
-                onRefresh: () => provider.fetchWeatherForecast(),
+          onRefresh: () => provider.fetchWeatherForecast(
+            latitude: 30.67,
+            longitude: 73.10,
+          ),
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(20, 18, 20, 25),
@@ -163,8 +169,11 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
       controller: _searchController,
       style: TextStyle(color: primaryText, fontWeight: FontWeight.w600),
       cursorColor: accentColor,
-      onSubmitted: (value) {
-        provider.fetchWeatherForecast(city: value.trim());
+      onSubmitted: (_) {
+        provider.fetchWeatherForecast(
+          latitude: 30.67,
+          longitude: 73.10,
+        );
       },
       decoration: InputDecoration(
         hintText: lang.t("searchCity"),
@@ -387,7 +396,7 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
             ),
           ),
           Text(item.icon, style: const TextStyle(fontSize: 24)),
-          const Spacer(),
+          const SizedBox(width: 18),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -403,6 +412,14 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
                 item.lowTemp,
                 style: TextStyle(fontSize: 14, color: secondaryText),
               ),
+              Text(
+                "Rain: ${item.rainChance}",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: accentColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
         ],
@@ -415,7 +432,10 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
 
     return Center(
       child: ElevatedButton(
-        onPressed: () => provider.fetchWeatherForecast(),
+        onPressed: () => provider.fetchWeatherForecast(
+          latitude: 30.67,
+          longitude: 73.10,
+        ),
         style: ElevatedButton.styleFrom(
           backgroundColor: darkGreen,
           foregroundColor: Colors.white,
