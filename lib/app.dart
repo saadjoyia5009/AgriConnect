@@ -52,7 +52,7 @@ import 'screens/admin/admin_crops_screen.dart';
 import 'screens/admin/admin_analytics_screen.dart';
 import 'screens/admin/admin_reports_screen.dart';
 import 'screens/admin/admin_profile_screen.dart';
-
+import 'screens/farmer/edit_profile_screen.dart';
 import 'screens/language/language_selection_screen.dart';
 import 'config/app_theme.dart';
 
@@ -110,6 +110,7 @@ class AgriConnectApp extends StatelessWidget {
       '/adminAnalytics': const AdminAnalyticsScreen(),
       '/adminReports': const AdminReportsScreen(),
       '/adminProfile': const AdminProfileScreen(),
+      '/editProfile': const EditProfileScreen(),
     };
 
     return _animatedRoute(

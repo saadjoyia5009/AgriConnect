@@ -141,12 +141,12 @@ class MyCropsScreen extends StatelessWidget {
   }
 
   Widget _filterChip(
-    BuildContext context, {
-    required String title,
-    required String displayTitle,
-    required int count,
-    required bool selected,
-  }) {
+      BuildContext context, {
+        required String title,
+        required String displayTitle,
+        required int count,
+        required bool selected,
+      }) {
     final cropProvider = Provider.of<CropProvider>(context, listen: false);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -154,18 +154,31 @@ class MyCropsScreen extends StatelessWidget {
       onTap: () {
         cropProvider.changeFilter(title);
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? darkGreen : Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(20),
+          color: selected
+              ? darkGreen
+              : isDark
+              ? Theme.of(context).cardColor
+              : Colors.white,
+          borderRadius: BorderRadius.circular(22),
           border: Border.all(
             color: selected
                 ? darkGreen
                 : isDark
                 ? Colors.white12
-                : const Color(0xffd8e6de),
+                : const Color(0xffcfe5d8),
           ),
+          boxShadow: [
+            if (!isDark)
+              BoxShadow(
+                color: Colors.black.withOpacity(0.035),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+          ],
         ),
         child: Text(
           "$displayTitle ($count)",
@@ -174,9 +187,9 @@ class MyCropsScreen extends StatelessWidget {
                 ? Colors.white
                 : isDark
                 ? Colors.white
-                : const Color(0xff333333),
+                : darkGreen,
             fontSize: 13,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ),
