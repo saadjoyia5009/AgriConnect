@@ -97,6 +97,84 @@ class AuthService {
     }
   }
 
+  Future<AuthResponse> forgotPassword({required String email}) async {
+    try {
+      final response = await ApiService.post(
+        "/forgot-password/",
+        {"email": email},
+      );
+
+      return AuthResponse(
+        success: true,
+        message: response["otp"] != null
+            ? "OTP: ${response["otp"]}"
+            : "OTP sent successfully",
+        email: email,
+      );
+    } catch (e) {
+      return AuthResponse(
+        success: false,
+        message: e.toString().replaceAll("Exception:", "").trim(),
+      );
+    }
+  }
+
+  Future<AuthResponse> verifyResetOtp({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      await ApiService.post(
+        "/verify-reset-otp/",
+        {
+          "email": email,
+          "otp": otp,
+        },
+      );
+
+      return AuthResponse(
+        success: true,
+        message: "OTP verified successfully",
+        email: email,
+      );
+    } catch (e) {
+      return AuthResponse(
+        success: false,
+        message: e.toString().replaceAll("Exception:", "").trim(),
+      );
+    }
+  }
+
+  Future<AuthResponse> resetPassword({
+    required String email,
+    required String otp,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    try {
+      await ApiService.post(
+        "/reset-password/",
+        {
+          "email": email,
+          "otp": otp,
+          "new_password": newPassword,
+          "confirm_password": confirmPassword,
+        },
+      );
+
+      return AuthResponse(
+        success: true,
+        message: "Password reset successfully",
+        email: email,
+      );
+    } catch (e) {
+      return AuthResponse(
+        success: false,
+        message: e.toString().replaceAll("Exception:", "").trim(),
+      );
+    }
+  }
+
   Future<void> logout() async {
     await TokenStorage.clearTokens();
   }

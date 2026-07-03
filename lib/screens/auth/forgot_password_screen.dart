@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import 'otp_verification_screen.dart';
@@ -38,6 +39,50 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
     super.dispose();
   }
 
+  Future<void> _sendOtp(AuthProvider authProvider, LanguageProvider lang) async {
+    final email = emailController.text.trim();
+
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(lang.t("pleaseEnterEmail")),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final success = await authProvider.forgotPassword(email: email);
+
+    if (!mounted) return;
+
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            authProvider.errorMessage ?? lang.t("resetRequestFailed"),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(lang.t("resetInstructionsSent")),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OtpVerificationScreen(email: email),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
@@ -54,7 +99,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 InkWell(
-                  onTap: () => Navigator.pop(context),
+                  onTap: authProvider.isLoading ? null : () => Navigator.pop(context),
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
                     padding: const EdgeInsets.all(10),
@@ -130,6 +175,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
 
                 TextField(
                   controller: emailController,
+                  enabled: !authProvider.isLoading,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     hintText: lang.t("signupEmailHint"),
@@ -141,6 +187,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                     fillColor: const Color(0xFFF8FAF9),
                     contentPadding: const EdgeInsets.symmetric(vertical: 18),
                     enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFD8E6DE)),
+                    ),
+                    disabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Color(0xFFD8E6DE)),
                     ),
@@ -160,50 +210,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                   width: double.infinity,
                   height: 54,
                   child: ElevatedButton(
-                    onPressed: () async {
-                      final email = emailController.text.trim();
-                      final messenger = ScaffoldMessenger.of(context);
-                      final navigator = Navigator.of(context);
-
-                      if (email.isEmpty) {
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text(lang.t("pleaseEnterEmail")),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                        return;
-                      }
-
-                      final bool success = await authProvider.forgotPassword(
-                        email: email,
-                      );
-
-                      if (!mounted) return;
-
-                      if (!success) {
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text(lang.t("resetRequestFailed")),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                        return;
-                      }
-
-                      messenger.showSnackBar(
-                        SnackBar(
-                          content: Text(lang.t("resetInstructionsSent")),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-
-                      navigator.push(
-                        MaterialPageRoute(
-                          builder: (_) => OtpVerificationScreen(email: email),
-                        ),
-                      );
-                    },
+                    onPressed: authProvider.isLoading
+                        ? null
+                        : () => _sendOtp(authProvider, lang),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: darkGreen,
                       foregroundColor: Colors.white,
@@ -213,10 +222,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: Text(
-                      lang.t("Sent OTP"),
+                    child: authProvider.isLoading
+                        ? const SizedBox(
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.4,
+                      ),
+                    )
+                        : const Text(
+                      "Send OTP",
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
                       ),

@@ -134,74 +134,133 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> forgotPassword({
     required String email,
   }) async {
+    if (email.trim().isEmpty) {
+      errorMessage = "Please enter your email";
+      notifyListeners();
+      return false;
+    }
+
     isLoading = true;
     errorMessage = null;
     notifyListeners();
 
-    debugPrint("===== FORGOT PASSWORD API CALL =====");
-    debugPrint("Email: $email");
+    final response = await _authService.forgotPassword(email: email.trim());
 
-    await Future.delayed(const Duration(seconds: 1));
-
-    _resetEmail = email;
     isLoading = false;
 
+    if (response.success) {
+      _resetEmail = email.trim();
+      _resetOtp = "";
+      errorMessage = response.message;
+      notifyListeners();
+      return true;
+    }
+
+    errorMessage = response.message;
     notifyListeners();
-    return true;
+    return false;
   }
 
   Future<bool> verifyOtp({
     required String otp,
   }) async {
-    isLoading = true;
-    errorMessage = null;
-    notifyListeners();
+    final cleanOtp = otp.trim();
 
-    await Future.delayed(const Duration(seconds: 1));
+    if (_resetEmail.trim().isEmpty) {
+      errorMessage = "Email not found. Please request OTP again.";
+      notifyListeners();
+      return false;
+    }
 
-    isLoading = false;
-
-    if (otp.length != 6) {
+    if (cleanOtp.length != 6) {
       errorMessage = "Please enter valid 6 digit OTP";
       notifyListeners();
       return false;
     }
 
-    _resetOtp = otp;
+    isLoading = true;
+    errorMessage = null;
     notifyListeners();
-    return true;
+
+    final response = await _authService.verifyResetOtp(
+      email: _resetEmail,
+      otp: cleanOtp,
+    );
+
+    isLoading = false;
+
+    if (response.success) {
+      _resetOtp = cleanOtp;
+      notifyListeners();
+      return true;
+    }
+
+    errorMessage = response.message;
+    notifyListeners();
+    return false;
   }
 
   Future<bool> resetPassword({
     required String newPassword,
     required String confirmPassword,
   }) async {
-    isLoading = true;
-    errorMessage = null;
-    notifyListeners();
+    final password = newPassword.trim();
+    final confirm = confirmPassword.trim();
 
-    await Future.delayed(const Duration(seconds: 1));
+    if (_resetEmail.trim().isEmpty) {
+      errorMessage = "Email not found. Please request OTP again.";
+      notifyListeners();
+      return false;
+    }
 
-    isLoading = false;
+    if (_resetOtp.trim().isEmpty) {
+      errorMessage = "OTP not found. Please verify OTP first.";
+      notifyListeners();
+      return false;
+    }
 
-    if (newPassword.length < 8) {
+    if (password.isEmpty || confirm.isEmpty) {
+      errorMessage = "Please fill all fields";
+      notifyListeners();
+      return false;
+    }
+
+    if (password.length < 8) {
       errorMessage = "Password must be at least 8 characters";
       notifyListeners();
       return false;
     }
 
-    if (newPassword != confirmPassword) {
+    if (password != confirm) {
       errorMessage = "Passwords do not match";
       notifyListeners();
       return false;
     }
 
-    _password = newPassword;
-    _resetOtp = "";
-    _resetEmail = "";
-
+    isLoading = true;
+    errorMessage = null;
     notifyListeners();
-    return true;
+
+    final response = await _authService.resetPassword(
+      email: _resetEmail,
+      otp: _resetOtp,
+      newPassword: password,
+      confirmPassword: confirm,
+    );
+
+    isLoading = false;
+
+    if (response.success) {
+      _password = password;
+      _resetEmail = "";
+      _resetOtp = "";
+      notifyListeners();
+      return true;
+    }
+
+    errorMessage = response.message;
+    notifyListeners();
+    return false;
   }
 
   Future<void> logout() async {
