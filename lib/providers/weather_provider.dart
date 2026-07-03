@@ -33,14 +33,48 @@ class WeatherProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> fetchWeatherByCity(String city) async {
+    final trimmedCity = city.trim();
+
+    if (trimmedCity.isEmpty) {
+      errorMessage = "Please enter a city name";
+      notifyListeners();
+      return;
+    }
+
+    try {
+      isLoading = true;
+      errorMessage = null;
+      notifyListeners();
+
+      weather = await WeatherService.getWeather(
+        city: trimmedCity,
+      );
+
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      debugPrint("WEATHER CITY ERROR: $e");
+
+      isLoading = false;
+      errorMessage = e.toString().replaceAll("Exception: ", "");
+      notifyListeners();
+    }
+  }
+
   Future<void> refreshWeather({
+    String? city,
     double latitude = 30.67,
     double longitude = 73.10,
   }) async {
-    await fetchWeatherForecast(
-      latitude: latitude,
-      longitude: longitude,
-    );
+    if (city != null && city.trim().isNotEmpty) {
+      await fetchWeatherByCity(city);
+    } else {
+      await fetchWeatherForecast(
+        latitude: latitude,
+        longitude: longitude,
+      );
+    }
   }
 
   void clearWeather() {

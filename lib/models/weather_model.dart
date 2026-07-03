@@ -60,7 +60,7 @@ class WeatherModel {
     List.from(daily['precipitation_probability_max'] ?? []);
 
     return WeatherModel(
-      location: 'Current Location',
+      location: json['location']?.toString() ?? 'Current Location',
       temperature: '${temp.toStringAsFixed(1)}°C',
       condition: _weatherCondition(weatherCode),
       humidity: '$humidity%',

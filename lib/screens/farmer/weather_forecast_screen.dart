@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/weather_provider.dart';
+
 import '../../models/weather_model.dart';
 import '../../providers/language_provider.dart';
+import '../../providers/weather_provider.dart';
 
 class WeatherForecastScreen extends StatefulWidget {
   const WeatherForecastScreen({super.key});
@@ -13,6 +14,8 @@ class WeatherForecastScreen extends StatefulWidget {
 
 class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
   final TextEditingController _searchController = TextEditingController();
+
+  String? _lastSearchedCity;
 
   static const Color darkGreen = Color(0xff075739);
   static const Color darkBackground = Color(0xFF0B1410);
@@ -43,6 +46,26 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
     super.dispose();
   }
 
+  Future<void> _refreshWeather(WeatherProvider provider) async {
+    if (_lastSearchedCity != null && _lastSearchedCity!.trim().isNotEmpty) {
+      await provider.fetchWeatherByCity(_lastSearchedCity!);
+    } else {
+      await provider.fetchWeatherForecast(
+        latitude: 30.67,
+        longitude: 73.10,
+      );
+    }
+  }
+
+  void _searchCity(WeatherProvider provider, String value) {
+    final city = value.trim();
+
+    if (city.isEmpty) return;
+
+    _lastSearchedCity = city;
+    provider.fetchWeatherByCity(city);
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<WeatherProvider>();
@@ -57,50 +80,47 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
             ? _errorView(provider)
             : provider.weather == null
             ? Center(
-                child: Text(
-                  lang.t("noWeatherData"),
-                  style: TextStyle(color: primaryText),
-                ),
-              )
-            : RefreshIndicator(
-                color: accentColor,
-                backgroundColor: isDark ? darkCard : Colors.white,
-          onRefresh: () => provider.fetchWeatherForecast(
-            latitude: 30.67,
-            longitude: 73.10,
+          child: Text(
+            lang.t("noWeatherData"),
+            style: TextStyle(color: primaryText),
           ),
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(20, 18, 20, 25),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _topBar(context),
-                      const SizedBox(height: 18),
-                      _location(provider.weather!),
-                      const SizedBox(height: 18),
-                      _searchField(provider),
-                      const SizedBox(height: 22),
-                      _weatherCard(provider.weather!),
-                      const SizedBox(height: 22),
-                      _suggestionCard(provider.weather!),
-                      const SizedBox(height: 22),
-                      Text(
-                        lang.t("fiveDayOutlook"),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: accentColor,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ...provider.weather!.forecast.map(
-                        (item) => _forecastTile(item),
-                      ),
-                    ],
+        )
+            : RefreshIndicator(
+          color: accentColor,
+          backgroundColor: isDark ? darkCard : Colors.white,
+          onRefresh: () => _refreshWeather(provider),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 25),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _topBar(context),
+                const SizedBox(height: 18),
+                _location(provider.weather!),
+                const SizedBox(height: 18),
+                _searchField(provider),
+                const SizedBox(height: 22),
+                _weatherCard(provider.weather!),
+                const SizedBox(height: 22),
+                _suggestionCard(provider.weather!),
+                const SizedBox(height: 22),
+                Text(
+                  lang.t("fiveDayOutlook"),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: accentColor,
                   ),
                 ),
-              ),
+                const SizedBox(height: 12),
+                ...provider.weather!.forecast.map(
+                      (item) => _forecastTile(item),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -124,7 +144,6 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
             ),
           ),
         ),
-        Icon(Icons.account_circle_outlined, color: accentColor, size: 26),
       ],
     );
   }
@@ -169,18 +188,18 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
       controller: _searchController,
       style: TextStyle(color: primaryText, fontWeight: FontWeight.w600),
       cursorColor: accentColor,
-      onSubmitted: (_) {
-        provider.fetchWeatherForecast(
-          latitude: 30.67,
-          longitude: 73.10,
-        );
-      },
+      textInputAction: TextInputAction.search,
+      onSubmitted: (value) => _searchCity(provider, value),
       decoration: InputDecoration(
         hintText: lang.t("searchCity"),
         hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.grey),
         prefixIcon: Icon(
           Icons.search,
           color: isDark ? Colors.white60 : const Color(0xff6d7471),
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(Icons.send_rounded, color: accentColor),
+          onPressed: () => _searchCity(provider, _searchController.text),
         ),
         filled: true,
         fillColor: isDark ? darkCard : Colors.white,
@@ -218,7 +237,8 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
         children: [
           Row(
             children: [
-              const Text("🌧️", style: TextStyle(fontSize: 48)),
+              Text(weather.forecast.isNotEmpty ? weather.forecast.first.icon : "🌤️",
+                  style: const TextStyle(fontSize: 48)),
               const SizedBox(width: 15),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,10 +336,7 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
         children: [
           Icon(icon, color: Colors.white, size: 22),
           const SizedBox(height: 6),
-          Text(
-            title,
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-          ),
+          Text(title, style: const TextStyle(color: Colors.white, fontSize: 12)),
           Text(
             value,
             style: const TextStyle(
@@ -356,9 +373,10 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              lang
-                  .t("farmingSuggestion")
-                  .replaceAll("{value}", weather.farmingSuggestion),
+              lang.t("farmingSuggestion").replaceAll(
+                "{value}",
+                weather.farmingSuggestion,
+              ),
               style: TextStyle(
                 color: isDark ? Colors.red.shade100 : const Color(0xffb33b31),
                 fontSize: 14,
@@ -431,16 +449,27 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
     final lang = context.watch<LanguageProvider>();
 
     return Center(
-      child: ElevatedButton(
-        onPressed: () => provider.fetchWeatherForecast(
-          latitude: 30.67,
-          longitude: 73.10,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              provider.errorMessage ?? "Failed to load weather",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: primaryText, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 14),
+            ElevatedButton(
+              onPressed: () => _refreshWeather(provider),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: darkGreen,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(lang.t("retry")),
+            ),
+          ],
         ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: darkGreen,
-          foregroundColor: Colors.white,
-        ),
-        child: Text(lang.t("retry")),
       ),
     );
   }

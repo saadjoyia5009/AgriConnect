@@ -1,14 +1,23 @@
+import 'package:flutter/material.dart';
+
 import '../models/weather_model.dart';
 import 'api_service.dart';
 
 class WeatherService {
   static Future<WeatherModel> getWeather({
-    required double latitude,
-    required double longitude,
+    double? latitude,
+    double? longitude,
+    String? city,
   }) async {
-    final endpoint = "/weather/?latitude=$latitude&longitude=$longitude";
+    String endpoint;
 
-    print("WEATHER ENDPOINT: $endpoint");
+    if (city != null && city.trim().isNotEmpty) {
+      endpoint = "/weather/?city=${Uri.encodeComponent(city.trim())}";
+    } else {
+      endpoint = "/weather/?latitude=$latitude&longitude=$longitude";
+    }
+
+    debugPrint("WEATHER ENDPOINT: $endpoint");
 
     final response = await ApiService.get(
       endpoint,
