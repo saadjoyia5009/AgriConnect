@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/buyer_inquiry_model.dart';
 import '../../providers/language_provider.dart';
+import 'buyer_farmer_chat_screen.dart';
 
 class BuyerInquiryDetailScreen extends StatelessWidget {
   final BuyerInquiryModel inquiry;
@@ -355,7 +356,16 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
         width: double.infinity,
         child: ElevatedButton(
           onPressed: () {
-            Navigator.pop(context);
+            if (isAccepted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BuyerFarmerChatScreen(inquiry: inquiry),
+                ),
+              );
+            } else {
+              Navigator.pop(context);
+            }
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: isAccepted

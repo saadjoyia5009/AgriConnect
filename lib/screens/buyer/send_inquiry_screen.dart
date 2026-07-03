@@ -53,10 +53,8 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
 
     final success = await provider.sendInquiry(
       crop: widget.crop,
-      buyerId: "buyer_1",
       quantity: _quantityController.text.trim(),
       offerPrice: _offerPriceController.text.trim(),
-      deliveryDate: _deliveryDateController.text.trim(),
       message: _messageController.text.trim(),
     );
 

@@ -40,22 +40,22 @@ class BuyerInquiryModel {
     return BuyerInquiryModel(
       id: json["id"]?.toString() ?? "",
 
-      cropId: json["crop_id"]?.toString() ?? "",
-      farmerId: json["farmer_id"]?.toString() ?? "",
-      buyerId: json["buyer_id"]?.toString() ?? "",
+      cropId: json["crop_id"]?.toString() ?? json["crop"]?.toString() ?? "",
+      farmerId: json["farmer_id"]?.toString() ?? json["farmer"]?.toString() ?? "",
+      buyerId: json["buyer_id"]?.toString() ?? json["buyer"]?.toString() ?? "",
 
-      cropName: json["crop_name"] ?? "",
-      farmerName: json["farmer_name"] ?? "",
-      imageUrl: json["image_url"] ?? "",
+      cropName: json["crop_name"]?.toString() ?? "",
+      farmerName: json["farmer_name"]?.toString() ?? "",
+      imageUrl: json["image_url"]?.toString() ?? "",
 
-      quantity: json["quantity"] ?? "",
-      offerPrice: json["offer_price"] ?? "",
+      quantity: json["quantity"]?.toString() ?? json["quantity_requested"]?.toString() ?? "",
+      offerPrice: json["offer_price"]?.toString() ?? json["offered_price"]?.toString() ?? "",
 
-      deliveryDate: json["delivery_date"] ?? "",
-      date: json["date"] ?? "",
+      deliveryDate: json["delivery_date"]?.toString() ?? "",
+      date: json["date"]?.toString() ?? json["created_at"]?.toString() ?? "",
 
-      status: json["status"] ?? "Pending",
-      message: json["message"] ?? "",
+      status: json["status"]?.toString() ?? "Pending",
+      message: json["message"]?.toString() ?? "",
     );
   }
 

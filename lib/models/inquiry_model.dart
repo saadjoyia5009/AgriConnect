@@ -47,12 +47,12 @@ class InquiryModel {
       (json['buyer_location'] ?? json['buyerLocation'] ?? '').toString(),
       buyerImage: (json['buyer_image'] ?? json['buyerImage'] ?? '').toString(),
       requestedQuantity:
-      (json['requested_quantity'] ?? json['requestedQuantity'] ?? '')
+      (json['quantity_requested'] ?? json['requested_quantity'] ?? json['requestedQuantity'] ?? '')
           .toString(),
       proposedPrice:
-      (json['proposed_price'] ?? json['proposedPrice'] ?? '').toString(),
+      (json['offered_price'] ?? json['proposed_price'] ?? json['proposedPrice'] ?? '').toString(),
       message: (json['message'] ?? '').toString(),
-      timeAgo: (json['time_ago'] ?? json['timeAgo'] ?? '').toString(),
+      timeAgo: (json['created_at'] ?? json['time_ago'] ?? json['timeAgo'] ?? '').toString(),
       status: (json['status'] ?? 'Pending').toString(),
     );
   }

@@ -1,53 +1,73 @@
 import 'package:flutter/material.dart';
+
 import '../models/chat_message_model.dart';
+import '../services/chat_service.dart';
 
 class ChatProvider extends ChangeNotifier {
   bool isLoading = false;
   bool isSending = false;
   String? errorMessage;
 
+  String? conversationId;
+
   final List<ChatMessageModel> _messages = [];
 
   List<ChatMessageModel> get messages => List.unmodifiable(_messages);
 
-  Future<void> fetchMessages({
-    required String chatId,
+  Future<void> createConversationAndFetchMessages({
+    required String inquiryId,
   }) async {
     try {
       isLoading = true;
       errorMessage = null;
       notifyListeners();
 
-      // Later:
-      // final response = await ChatService.fetchMessages(chatId);
-      // _messages
-      //   ..clear()
-      //   ..addAll(response.map((e) => ChatMessageModel.fromJson(e)));
+      final conversation = await ChatService.createConversation(
+        inquiryId: inquiryId,
+      );
 
-      await Future.delayed(const Duration(milliseconds: 400));
+      conversationId = conversation["id"]?.toString();
+
+      if (conversationId == null || conversationId!.isEmpty) {
+        throw Exception("Conversation id not found");
+      }
+
+      final response = await ChatService.fetchMessages(
+        conversationId: conversationId!,
+      );
 
       _messages
         ..clear()
-        ..addAll([
-          ChatMessageModel(
-            id: "1",
-            chatId: chatId,
-            senderId: "buyer_1",
-            receiverId: "farmer_1",
-            message: "Hello, I am interested in your crop.",
-            createdAt: DateTime.now().subtract(const Duration(minutes: 12)),
-            isRead: true,
-          ),
-          ChatMessageModel(
-            id: "2",
-            chatId: chatId,
-            senderId: "farmer_1",
-            receiverId: "buyer_1",
-            message: "Yes, it is available. How much quantity do you need?",
-            createdAt: DateTime.now().subtract(const Duration(minutes: 10)),
-            isRead: true,
-          ),
-        ]);
+        ..addAll(
+          response.map((e) => ChatMessageModel.fromJson(e)).toList(),
+        );
+
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      isLoading = false;
+      errorMessage = "Failed to load chat";
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchMessages({
+    required String conversationId,
+  }) async {
+    try {
+      isLoading = true;
+      errorMessage = null;
+      notifyListeners();
+
+      final response = await ChatService.fetchMessages(
+        conversationId: conversationId,
+      );
+
+      _messages
+        ..clear()
+        ..addAll(
+          response.map((e) => ChatMessageModel.fromJson(e)).toList(),
+        );
 
       isLoading = false;
       notifyListeners();
@@ -59,26 +79,43 @@ class ChatProvider extends ChangeNotifier {
   }
 
   Future<void> sendMessage({
-    required String chatId,
-    required String senderId,
-    required String receiverId,
     required String message,
   }) async {
     if (message.trim().isEmpty) return;
 
-    final newMessage = ChatMessageModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      chatId: chatId,
-      senderId: senderId,
-      receiverId: receiverId,
-      message: message.trim(),
-      createdAt: DateTime.now(),
-    );
+    if (conversationId == null || conversationId!.isEmpty) {
+      errorMessage = "Conversation not found";
+      notifyListeners();
+      return;
+    }
 
-    _messages.add(newMessage);
+    try {
+      isSending = true;
+      errorMessage = null;
+      notifyListeners();
+
+      final response = await ChatService.sendMessage(
+        conversationId: conversationId!,
+        message: message.trim(),
+      );
+
+      final sentMessage = ChatMessageModel.fromJson(response);
+
+      _messages.add(sentMessage);
+
+      isSending = false;
+      notifyListeners();
+    } catch (e) {
+      isSending = false;
+      errorMessage = "Failed to send message";
+      notifyListeners();
+    }
+  }
+
+  void clearChat() {
+    conversationId = null;
+    _messages.clear();
+    errorMessage = null;
     notifyListeners();
-
-    // Later:
-    // await ChatService.sendMessage(newMessage.toJson());
   }
 }

@@ -39,6 +39,20 @@ class ApiService {
     return _handleResponse(response);
   }
 
+  static Future<dynamic> patch(
+      String endpoint,
+      Map<String, dynamic> body, {
+        bool auth = false,
+      }) async {
+    final response = await http.patch(
+      _url(endpoint),
+      headers: await _headers(auth: auth),
+      body: jsonEncode(body),
+    );
+
+    return _handleResponse(response);
+  }
+
   static Future<dynamic> get(String endpoint, {bool auth = false}) async {
     final response = await http.get(
       _url(endpoint),

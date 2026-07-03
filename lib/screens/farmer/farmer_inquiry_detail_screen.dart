@@ -104,7 +104,11 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
               textColor: isDark ? Colors.white : const Color(0xff222222),
               borderColor: isDark ? Colors.white12 : null,
               onTap: () {
-                _showSnack(context, lang.t("chatConnectedLater"));
+                if (inquiry.status.toLowerCase() == "accepted") {
+                  _showSnack(context, lang.t("chatConnectedLater"));
+                } else {
+                  _showSnack(context, "Chat is only available for accepted inquiries.");
+                }
               },
             ),
           ],

@@ -32,7 +32,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     super.initState();
 
     Future.microtask(() {
-      context.read<ChatProvider>().fetchMessages(chatId: widget.chatId);
+      context.read<ChatProvider>().fetchMessages(conversationId: widget.chatId);
     });
   }
 
@@ -48,9 +48,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     if (text.isEmpty) return;
 
     context.read<ChatProvider>().sendMessage(
-      chatId: widget.chatId,
-      senderId: widget.currentUserId,
-      receiverId: widget.receiverId,
       message: text,
     );
 

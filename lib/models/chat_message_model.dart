@@ -20,13 +20,33 @@ class ChatMessageModel {
   factory ChatMessageModel.fromJson(Map<String, dynamic> json) {
     return ChatMessageModel(
       id: json["id"]?.toString() ?? "",
-      chatId: json["chat_id"]?.toString() ?? "",
-      senderId: json["sender_id"]?.toString() ?? "",
+
+      // Backend may send conversation / conversation_id / chat_id
+      chatId: json["chat_id"]?.toString() ??
+          json["conversation"]?.toString() ??
+          json["conversation_id"]?.toString() ??
+          "",
+
+      // Backend may send sender / sender_id
+      senderId: json["sender_id"]?.toString() ??
+          json["sender"]?.toString() ??
+          "",
+
+      // Your current backend message serializer may not send receiver
       receiverId: json["receiver_id"]?.toString() ?? "",
-      message: json["message"]?.toString() ?? "",
-      createdAt: DateTime.parse(
-        json["created_at"] ?? DateTime.now().toIso8601String(),
-      ),
+
+      // Backend sends text, old mock used message
+      message: json["message"]?.toString() ??
+          json["text"]?.toString() ??
+          "",
+
+      createdAt: DateTime.tryParse(
+        json["created_at"]?.toString() ??
+            json["createdAt"]?.toString() ??
+            "",
+      ) ??
+          DateTime.now(),
+
       isRead: json["is_read"] ?? false,
     );
   }
@@ -38,6 +58,7 @@ class ChatMessageModel {
       "sender_id": senderId,
       "receiver_id": receiverId,
       "message": message,
+      "text": message,
       "created_at": createdAt.toIso8601String(),
       "is_read": isRead,
     };

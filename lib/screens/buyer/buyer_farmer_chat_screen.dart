@@ -32,15 +32,15 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
   Color get primaryText => isDark ? Colors.white : const Color(0xff10291D);
   Color get secondaryText => isDark ? Colors.white70 : const Color(0xff5F675F);
 
-  String get chatId =>
-      "${widget.inquiry.buyerId}_${widget.inquiry.farmerId}_${widget.inquiry.cropId}";
 
   @override
   void initState() {
     super.initState();
 
     Future.microtask(() {
-      context.read<ChatProvider>().fetchMessages(chatId: chatId);
+      context.read<ChatProvider>().createConversationAndFetchMessages(
+        inquiryId: widget.inquiry.id,
+      );
     });
   }
 
@@ -57,9 +57,6 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
     _messageController.clear();
 
     await context.read<ChatProvider>().sendMessage(
-      chatId: chatId,
-      senderId: widget.inquiry.buyerId,
-      receiverId: widget.inquiry.farmerId,
       message: message,
     );
   }
@@ -345,13 +342,34 @@ class _BuyerFarmerChatScreenState extends State<BuyerFarmerChatScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: darkGreen,
-            child: IconButton(
-              icon: const Icon(Icons.send, color: Colors.white, size: 20),
-              onPressed: _sendMessage,
-            ),
+          Consumer<ChatProvider>(
+            builder: (context, provider, _) {
+              if (provider.isSending) {
+                return SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: Center(
+                    child: SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        color: accentColor,
+                        strokeWidth: 2.5,
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              return CircleAvatar(
+                radius: 24,
+                backgroundColor: darkGreen,
+                child: IconButton(
+                  icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                  onPressed: _sendMessage,
+                ),
+              );
+            },
           ),
         ],
       ),
