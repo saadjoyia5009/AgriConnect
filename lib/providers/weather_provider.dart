@@ -7,15 +7,22 @@ class WeatherProvider extends ChangeNotifier {
   bool isLoading = false;
   String? errorMessage;
   WeatherModel? weather;
+  String? lastCity;
+  double? lastLatitude;
+  double? lastLongitude;
 
   Future<void> fetchWeatherForecast({
-    double latitude = 30.67,
-    double longitude = 73.10,
+    required double latitude,
+    required double longitude,
   }) async {
     try {
       isLoading = true;
       errorMessage = null;
       notifyListeners();
+
+      lastCity = null;
+      lastLatitude = latitude;
+      lastLongitude = longitude;
 
       weather = await WeatherService.getWeather(
         latitude: latitude,
@@ -25,11 +32,7 @@ class WeatherProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     } catch (e) {
-      debugPrint("WEATHER ERROR: $e");
-
-      isLoading = false;
-      errorMessage = e.toString().replaceAll("Exception: ", "");
-      notifyListeners();
+      _setError(e, "WEATHER ERROR");
     }
   }
 
@@ -47,6 +50,10 @@ class WeatherProvider extends ChangeNotifier {
       errorMessage = null;
       notifyListeners();
 
+      lastCity = trimmedCity;
+      lastLatitude = null;
+      lastLongitude = null;
+
       weather = await WeatherService.getWeather(
         city: trimmedCity,
       );
@@ -54,32 +61,37 @@ class WeatherProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     } catch (e) {
-      debugPrint("WEATHER CITY ERROR: $e");
-
-      isLoading = false;
-      errorMessage = e.toString().replaceAll("Exception: ", "");
-      notifyListeners();
+      _setError(e, "WEATHER CITY ERROR");
     }
   }
 
-  Future<void> refreshWeather({
-    String? city,
-    double latitude = 30.67,
-    double longitude = 73.10,
-  }) async {
-    if (city != null && city.trim().isNotEmpty) {
-      await fetchWeatherByCity(city);
-    } else {
+  Future<void> refreshWeather() async {
+    if (lastCity != null && lastCity!.trim().isNotEmpty) {
+      await fetchWeatherByCity(lastCity!);
+    } else if (lastLatitude != null && lastLongitude != null) {
       await fetchWeatherForecast(
-        latitude: latitude,
-        longitude: longitude,
+        latitude: lastLatitude!,
+        longitude: lastLongitude!,
       );
+    } else {
+      errorMessage = "No weather location available";
+      notifyListeners();
     }
   }
 
   void clearWeather() {
     weather = null;
     errorMessage = null;
+    lastCity = null;
+    lastLatitude = null;
+    lastLongitude = null;
+    notifyListeners();
+  }
+
+  void _setError(Object e, String logTitle) {
+    debugPrint("$logTitle: $e");
+    isLoading = false;
+    errorMessage = e.toString().replaceAll("Exception: ", "");
     notifyListeners();
   }
 }
