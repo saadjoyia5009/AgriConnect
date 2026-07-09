@@ -69,6 +69,8 @@ class AuthService {
     required String address,
   }) async {
     try {
+      await TokenStorage.clearTokens(); // add this
+
       final response = await ApiService.post(
         "/register/",
         {
@@ -82,12 +84,42 @@ class AuthService {
         },
       );
 
+      final data = response["data"];
+
       return AuthResponse(
         success: true,
-        message: "Account created successfully",
-        username: response["username"]?.toString() ?? username,
-        email: response["email"]?.toString() ?? email,
-        role: response["role"]?.toString() ?? role,
+        message: response["message"]?.toString() ??
+            "Account created successfully. Please verify your email.",
+        username: data?["username"]?.toString() ?? username,
+        email: data?["email"]?.toString() ?? email,
+        role: data?["role"]?.toString() ?? role,
+      );
+    } catch (e) {
+      return AuthResponse(
+        success: false,
+        message: e.toString().replaceAll("Exception:", "").trim(),
+      );
+    }
+  }
+
+  Future<AuthResponse> verifyEmailOtp({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      final response = await ApiService.post(
+        "/verify-email-otp/",
+        {
+          "email": email,
+          "otp": otp,
+        },
+      );
+
+      return AuthResponse(
+        success: true,
+        message: response["message"]?.toString() ??
+            "Email verified successfully",
+        email: email,
       );
     } catch (e) {
       return AuthResponse(
@@ -108,7 +140,7 @@ class AuthService {
         success: true,
         message: response["otp"] != null
             ? "OTP: ${response["otp"]}"
-            : "OTP sent successfully",
+            : response["message"]?.toString() ?? "OTP sent successfully",
         email: email,
       );
     } catch (e) {
@@ -124,7 +156,7 @@ class AuthService {
     required String otp,
   }) async {
     try {
-      await ApiService.post(
+      final response = await ApiService.post(
         "/verify-reset-otp/",
         {
           "email": email,
@@ -134,7 +166,8 @@ class AuthService {
 
       return AuthResponse(
         success: true,
-        message: "OTP verified successfully",
+        message:
+        response["message"]?.toString() ?? "OTP verified successfully",
         email: email,
       );
     } catch (e) {
@@ -152,7 +185,7 @@ class AuthService {
     required String confirmPassword,
   }) async {
     try {
-      await ApiService.post(
+      final response = await ApiService.post(
         "/reset-password/",
         {
           "email": email,
@@ -164,7 +197,8 @@ class AuthService {
 
       return AuthResponse(
         success: true,
-        message: "Password reset successfully",
+        message:
+        response["message"]?.toString() ?? "Password reset successfully",
         email: email,
       );
     } catch (e) {

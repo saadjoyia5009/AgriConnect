@@ -9,6 +9,7 @@ import '../../widgets/auth/auth_input_field.dart';
 import '../../widgets/auth/auth_role_dropdown.dart';
 import 'forgot_password_screen.dart';
 import 'signup_screen.dart';
+import 'verify_email_otp_screen.dart';
 
 import '../farmer/farmer_dashboard_screen.dart';
 import '../buyer/buyer_dashboard_screen.dart';
@@ -110,14 +111,15 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (!success) {
+      final message = authProvider.errorMessage ?? "Login failed";
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            authProvider.errorMessage ?? lang.t("invalidEmailPassword"),
-          ),
+          content: Text(message),
           backgroundColor: Colors.red,
         ),
       );
+
       return;
     }
 

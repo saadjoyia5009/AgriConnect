@@ -7,6 +7,7 @@ import '../../providers/language_provider.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_input_field.dart';
 import '../../widgets/auth/auth_role_dropdown.dart';
+import 'verify_email_otp_screen.dart';
 import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -33,23 +34,23 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
-  void _goToLogin() {
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 500),
-        reverseTransitionDuration: const Duration(milliseconds: 350),
-        pageBuilder: (_, __, ___) => const LoginScreen(),
-        transitionsBuilder: (_, animation, secondaryAnimation, child) {
-          return FadeThroughTransition(
-            animation: animation,
-            secondaryAnimation: secondaryAnimation,
-            child: child,
-          );
-        },
-      ),
-    );
-  }
+    void _goToLogin() {
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 500),
+          reverseTransitionDuration: const Duration(milliseconds: 350),
+          pageBuilder: (_, __, ___) => const LoginScreen(),
+          transitionsBuilder: (_, animation, secondaryAnimation, child) {
+            return FadeThroughTransition(
+              animation: animation,
+              secondaryAnimation: secondaryAnimation,
+              child: child,
+            );
+          },
+        ),
+      );
+    }
 
   Future<void> _signup(AuthProvider authProvider, LanguageProvider lang) async {
     final name = nameController.text.trim();
@@ -87,13 +88,22 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(lang.t("accountCreated")),
+      const SnackBar(
+        content: Text(
+          "Account created successfully. Please verify your email.",
+        ),
         backgroundColor: Colors.green,
       ),
     );
 
-    _goToLogin();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => VerifyEmailOtpScreen(
+          email: email,
+        ),
+      ),
+    );
   }
 
   @override

@@ -24,7 +24,7 @@ class FarmerProfileScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xfff9fbfa),
-      bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 3),
+      bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 4),
       body: SingleChildScrollView(
         child: Column(
           children: [

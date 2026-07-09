@@ -131,6 +131,49 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
+
+  Future<bool> verifyEmailOtp({
+    required String email,
+    required String otp,
+  }) async {
+    final cleanEmail = email.trim();
+    final cleanOtp = otp.trim();
+
+    if (cleanEmail.isEmpty) {
+      errorMessage = "Email not found. Please register again.";
+      notifyListeners();
+      return false;
+    }
+
+    if (cleanOtp.length != 6) {
+      errorMessage = "Please enter valid 6 digit OTP";
+      notifyListeners();
+      return false;
+    }
+
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    final response = await _authService.verifyEmailOtp(
+      email: cleanEmail,
+      otp: cleanOtp,
+    );
+
+    isLoading = false;
+
+    if (response.success) {
+      errorMessage = response.message;
+      notifyListeners();
+      return true;
+    }
+
+    errorMessage = response.message;
+    notifyListeners();
+    return false;
+  }
+
+
   Future<bool> forgotPassword({
     required String email,
   }) async {

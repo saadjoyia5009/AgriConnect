@@ -71,17 +71,17 @@ class FarmerProfileHeader extends StatelessWidget {
       child: Stack(
         children: [
           Positioned(
-            right: -20,
+            right: -30,
             bottom: 18,
             child: Icon(
               Icons.eco,
-              size: 170,
+              size: 130,
               color: Colors.white.withOpacity(0.12),
             ),
           ),
 
           Positioned(
-            top: 26,
+            top: 46,
             left: 20,
             right: 20,
             child: Row(
@@ -94,7 +94,7 @@ class FarmerProfileHeader extends StatelessWidget {
                   child: const Icon(
                     Icons.arrow_back,
                     color: Colors.white,
-                    size: 34,
+                    size: 28,
                   ),
                 ),
                 const SizedBox(width: 18),
@@ -102,42 +102,12 @@ class FarmerProfileHeader extends StatelessWidget {
                   "Profile",
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 34,
+                    fontSize: 28,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
                 const Spacer(),
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    const Icon(
-                      Icons.notifications_none,
-                      color: Colors.white,
-                      size: 35,
-                    ),
-                    Positioned(
-                      right: -5,
-                      top: -8,
-                      child: Container(
-                        height: 24,
-                        width: 24,
-                        alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Text(
-                          "3",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+
               ],
             ),
           ),
@@ -203,8 +173,8 @@ class FarmerProfileHeader extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 30,
-                                fontWeight: FontWeight.w900,
+                                fontSize: 25,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
