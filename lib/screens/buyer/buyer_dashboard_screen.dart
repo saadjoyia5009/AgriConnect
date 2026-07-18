@@ -39,7 +39,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
     super.initState();
 
     Future.microtask(() {
-      context.read<CropProvider>().fetchCrops();
+      context.read<CropProvider>().fetchMarketplaceCrops();
     });
   }
 

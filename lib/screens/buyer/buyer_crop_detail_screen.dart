@@ -183,7 +183,11 @@ class BuyerCropDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  crop.location,
+                  crop.farmerName.trim().isNotEmpty
+                      ? crop.farmerName
+                      : 'Farmer',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
@@ -191,10 +195,32 @@ class BuyerCropDetailScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 5),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 15,
+                      color: _secondaryText(context),
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        crop.location,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: _secondaryText(context),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
                 Text(
                   context.watch<LanguageProvider>().t("farmerUploadedCrop"),
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     color: _secondaryText(context),
                   ),
                 ),
@@ -216,7 +242,8 @@ class BuyerCropDetailScreen extends StatelessWidget {
               child: _detailBox(
                 context: context,
                 title: context.watch<LanguageProvider>().t("quantity"),
-                value: context.watch<LanguageProvider>().tDynamic(crop.quantity),
+                value:
+                "${crop.quantity} ${context.watch<LanguageProvider>().tDynamic(crop.unit)}",
                 icon: Icons.inventory_2_outlined,
               ),
             ),
@@ -226,7 +253,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
                 context: context,
                 title: context.watch<LanguageProvider>().t("price"),
                 value:
-                "${crop.price} ${context.watch<LanguageProvider>().tDynamic(crop.unit)}",
+                "Rs. ${crop.price} / ${context.watch<LanguageProvider>().tDynamic(crop.unit)}",
                 icon: Icons.sell_outlined,
               ),
             ),
