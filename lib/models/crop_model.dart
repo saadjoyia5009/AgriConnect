@@ -16,6 +16,7 @@ class CropModel {
   final String location;
   final String description;
   final String harvestDate;
+  final bool isPremiumGrade;
 
   CropModel({
     required this.id,
@@ -33,25 +34,75 @@ class CropModel {
     required this.location,
     required this.description,
     required this.harvestDate,
+    this.isPremiumGrade = false,
   });
 
   factory CropModel.fromJson(Map<String, dynamic> json) {
     return CropModel(
       id: json["id"]?.toString() ?? "",
-      farmerId: json["farmer_id"]?.toString() ?? json["farmerId"]?.toString() ?? "",
-      farmerName: json["farmer_name"]?.toString() ?? json["farmerName"]?.toString() ?? "",
+
+      farmerId:
+      json["farmer_id"]?.toString() ??
+          json["farmerId"]?.toString() ??
+          json["farmer"]?.toString() ??
+          "",
+
+      farmerName:
+      json["farmer_name"]?.toString() ??
+          json["farmerName"]?.toString() ??
+          "",
+
       name: json["name"]?.toString() ?? "",
-      imageUrl: json["image_url"]?.toString() ?? json["imageUrl"]?.toString() ?? "",
+
+      imageUrl:
+      json["image"]?.toString() ??
+          json["image_url"]?.toString() ??
+          json["imageUrl"]?.toString() ??
+          "",
+
       quantity: json["quantity"]?.toString() ?? "",
-      price: json["price"]?.toString() ?? "",
+
+      price:
+      json["price_per_unit"]?.toString() ??
+          json["price"]?.toString() ??
+          "",
+
       unit: json["unit"]?.toString() ?? "",
+
       category: json["category"]?.toString() ?? "",
-      status: json["status"]?.toString() ?? "Active",
-      isOrganic: json["is_organic"] ?? json["isOrganic"] ?? false,
-      isReadyToShip: json["is_ready_to_ship"] ?? json["isReadyToShip"] ?? false,
-      location: json["location"]?.toString() ?? "",
-      description: json["description"]?.toString() ?? "",
-      harvestDate: json["harvest_date"]?.toString() ?? json["harvestDate"]?.toString() ?? "",
+
+      status: json["status"]?.toString() ?? "active",
+
+      isOrganic:
+      json["is_organic"] ??
+          json["isOrganic"] ??
+          false,
+
+      isReadyToShip:
+      json["is_delivery_available"] ??
+          json["is_ready_to_ship"] ??
+          json["isReadyToShip"] ??
+          false,
+
+      location:
+      json["farm_location"]?.toString() ??
+          json["location"]?.toString() ??
+          "",
+
+      description:
+      json["description"]?.toString() ??
+          "",
+
+      harvestDate:
+      json["estimated_harvest_date"]?.toString() ??
+          json["harvest_date"]?.toString() ??
+          json["harvestDate"]?.toString() ??
+          "",
+
+      isPremiumGrade:
+      json["is_premium_grade"] ??
+          json["isPremiumGrade"] ??
+          false,
     );
   }
 
@@ -61,6 +112,7 @@ class CropModel {
       "farmer_id": farmerId,
       "farmer_name": farmerName,
       "name": name,
+      "image": imageUrl,
       "image_url": imageUrl,
       "quantity": quantity,
       "price": price,
@@ -72,6 +124,7 @@ class CropModel {
       "location": location,
       "description": description,
       "harvest_date": harvestDate,
+      "is_premium_grade": isPremiumGrade,
     };
   }
 
@@ -91,6 +144,7 @@ class CropModel {
     String? location,
     String? description,
     String? harvestDate,
+    bool? isPremiumGrade,
   }) {
     return CropModel(
       id: id ?? this.id,
@@ -108,6 +162,7 @@ class CropModel {
       location: location ?? this.location,
       description: description ?? this.description,
       harvestDate: harvestDate ?? this.harvestDate,
+      isPremiumGrade: isPremiumGrade ?? this.isPremiumGrade,
     );
   }
 }

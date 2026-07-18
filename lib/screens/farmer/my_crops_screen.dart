@@ -6,10 +6,23 @@ import '../../providers/language_provider.dart';
 import '../../widgets/crop_card.dart';
 import '../../widgets/farmer_bottom_navbar.dart';
 
-class MyCropsScreen extends StatelessWidget {
+class MyCropsScreen extends StatefulWidget {
   const MyCropsScreen({super.key});
 
+  @override
+  State<MyCropsScreen> createState() => _MyCropsScreenState();
+}
+
+class _MyCropsScreenState extends State<MyCropsScreen> {
   static const Color darkGreen = Color(0xff075739);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CropProvider>().fetchCrops();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +97,7 @@ class MyCropsScreen extends StatelessWidget {
                         return MyCropCard(
                           crop: crop,
                           onEdit: () {
-                            Navigator.pushNamed(context, '/editCrop');
+                            Navigator.pushNamed(context, '/editCrop', arguments: crop);
                           },
                           onDelete: () {
                             cropProvider.deleteCrop(crop.id);

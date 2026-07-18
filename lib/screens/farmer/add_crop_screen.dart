@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,12 +28,14 @@ class _AddCropScreenState extends State<AddCropScreen> {
   final descriptionController = TextEditingController();
 
   final ImagePicker _picker = ImagePicker();
-  File? selectedImage;
 
-  String selectedCategory = "Select a category...";
-  String selectedUnit = "kg";
-  String selectedStatus = "Active";
-  String harvestDate = "dd/mm/yyyy";
+  XFile? selectedImage;
+  Uint8List? selectedImageBytes;
+
+  String selectedCategory = 'Select a category...';
+  String selectedUnit = 'kg';
+  String selectedStatus = 'Active';
+  String harvestDate = 'dd/mm/yyyy';
 
   bool isOrganic = false;
   bool isDeliveryAvailable = false;
@@ -50,13 +52,31 @@ class _AddCropScreenState extends State<AddCropScreen> {
   }
 
   Future<void> _pickCropImage() async {
-    final image = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 85,
-    );
+    try {
+      final image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
 
-    if (image != null) {
-      setState(() => selectedImage = File(image.path));
+      if (image == null) return;
+
+      final bytes = await image.readAsBytes();
+
+      if (!mounted) return;
+
+      setState(() {
+        selectedImage = image;
+        selectedImageBytes = bytes;
+      });
+    } catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Image could not be selected: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -68,35 +88,36 @@ class _AddCropScreenState extends State<AddCropScreen> {
       initialDate: DateTime.now(),
     );
 
-    if (pickedDate != null) {
-      setState(() {
-        harvestDate =
-            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
-      });
-    }
+    if (pickedDate == null || !mounted) return;
+
+    setState(() {
+      harvestDate =
+      '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
+    });
   }
 
   bool _validateForm() {
     return cropNameController.text.trim().isNotEmpty &&
         quantityController.text.trim().isNotEmpty &&
         priceController.text.trim().isNotEmpty &&
-        selectedCategory != "Select a category...";
+        locationController.text.trim().isNotEmpty &&
+        selectedCategory != 'Select a category...' &&
+        harvestDate != 'dd/mm/yyyy';
   }
 
   CropModel _buildCropModel() {
     return CropModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: cropNameController.text.trim(),
-      imageUrl: selectedImage != null
-          ? selectedImage!.path
-          : "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800",
-      quantity: "${quantityController.text.trim()} $selectedUnit left",
-      price: "\$${priceController.text.trim()}",
-      unit: "/$selectedUnit",
+      imageUrl: '',
+      quantity: '${quantityController.text.trim()} $selectedUnit left',
+      price: '\$${priceController.text.trim()}',
+      unit: '/$selectedUnit',
       category: selectedCategory,
       status: selectedStatus,
       isOrganic: isOrganic,
       isReadyToShip: isDeliveryAvailable,
+      isPremiumGrade: isPremiumGrade,
       location: locationController.text.trim(),
       description: descriptionController.text.trim(),
       harvestDate: harvestDate,
@@ -108,13 +129,18 @@ class _AddCropScreenState extends State<AddCropScreen> {
 
     if (!_validateForm()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(lang.t("pleaseFillRequiredFields"))),
+        SnackBar(
+          content: Text(lang.t('pleaseFillRequiredFields')),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
 
     final success = await context.read<CropProvider>().addCrop(
       _buildCropModel(),
+      imageFile: selectedImage,
+      imageBytes: selectedImageBytes,
     );
 
     if (!mounted) return;
@@ -122,7 +148,9 @@ class _AddCropScreenState extends State<AddCropScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          success ? lang.t("cropListedSuccessfully") : lang.t("failedListCrop"),
+          success
+              ? lang.t('cropListedSuccessfully')
+              : lang.t('failedListCrop'),
         ),
         backgroundColor: success ? darkGreen : Colors.red,
       ),
@@ -150,7 +178,7 @@ class _AddCropScreenState extends State<AddCropScreen> {
                 child: Column(
                   children: [
                     CropImagePickerBox(
-                      selectedImage: selectedImage,
+                      selectedImageBytes: selectedImageBytes,
                       onTap: _pickCropImage,
                     ),
                     const SizedBox(height: 22),
@@ -169,17 +197,31 @@ class _AddCropScreenState extends State<AddCropScreen> {
                       isDeliveryAvailable: isDeliveryAvailable,
                       isPremiumGrade: isPremiumGrade,
                       onPickHarvestDate: _pickHarvestDate,
-                      onCategoryChanged: (v) {
-                        setState(() => selectedCategory = v!);
+                      onCategoryChanged: (value) {
+                        if (value == null) return;
+
+                        setState(() {
+                          selectedCategory = value;
+                        });
                       },
-                      onUnitChanged: (v) {
-                        setState(() => selectedUnit = v!);
+                      onUnitChanged: (value) {
+                        if (value == null) return;
+
+                        setState(() {
+                          selectedUnit = value;
+                        });
                       },
-                      onStatusChanged: (v) {
-                        setState(() => selectedStatus = v!);
+                      onStatusChanged: (value) {
+                        if (value == null) return;
+
+                        setState(() {
+                          selectedStatus = value;
+                        });
                       },
                       onOrganicTap: () {
-                        setState(() => isOrganic = !isOrganic);
+                        setState(() {
+                          isOrganic = !isOrganic;
+                        });
                       },
                       onDeliveryTap: () {
                         setState(() {
@@ -187,14 +229,16 @@ class _AddCropScreenState extends State<AddCropScreen> {
                         });
                       },
                       onPremiumTap: () {
-                        setState(() => isPremiumGrade = !isPremiumGrade);
+                        setState(() {
+                          isPremiumGrade = !isPremiumGrade;
+                        });
                       },
                     ),
                     const SizedBox(height: 25),
                     CropSubmitButton(
                       isSubmitting: isSubmitting,
-                      title: lang.t("listCropMarketplace"),
-                      loadingTitle: lang.t("listingCrop"),
+                      title: lang.t('listCropMarketplace'),
+                      loadingTitle: lang.t('listingCrop'),
                       onPressed: _submitCrop,
                     ),
                   ],
@@ -218,7 +262,9 @@ class _AddCropScreenState extends State<AddCropScreen> {
         color: Theme.of(context).cardColor,
         border: Border(
           bottom: BorderSide(
-            color: isDark ? Colors.white12 : const Color(0xffe4eee8),
+            color: isDark
+                ? Colors.white12
+                : const Color(0xffe4eee8),
           ),
         ),
       ),
@@ -227,7 +273,12 @@ class _AddCropScreenState extends State<AddCropScreen> {
           GestureDetector(
             onTap: isSubmitting
                 ? null
-                : () => Navigator.pushReplacementNamed(context, '/myCrops'),
+                : () {
+              Navigator.pushReplacementNamed(
+                context,
+                '/myCrops',
+              );
+            },
             child: Icon(
               Icons.arrow_back,
               color: Theme.of(context).iconTheme.color,
@@ -237,7 +288,7 @@ class _AddCropScreenState extends State<AddCropScreen> {
           Expanded(
             child: Center(
               child: Text(
-                lang.t("listNewCrop"),
+                lang.t('listNewCrop'),
                 style: TextStyle(
                   color: isDark ? Colors.white : darkGreen,
                   fontSize: 17,

@@ -63,6 +63,21 @@ class AddCropFormCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final lang = context.watch<LanguageProvider>();
 
+    const categoryItems = [
+      'Select a category...',
+      'Grains',
+      'Vegetables',
+      'Fruits',
+      'Pulses',
+      'Cotton',
+      'Sugarcane',
+      'Other',
+    ];
+
+    final safeCategory = categoryItems.contains(selectedCategory)
+        ? selectedCategory
+        : 'Select a category...';
+
     return AbsorbPointer(
       absorbing: isSubmitting,
       child: Container(
@@ -79,7 +94,7 @@ class AddCropFormCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              lang.t("cropDetails"),
+              lang.t('cropDetails'),
               style: const TextStyle(
                 color: darkGreen,
                 fontSize: 17,
@@ -91,39 +106,32 @@ class AddCropFormCard extends StatelessWidget {
               color: isDark ? Colors.white12 : Colors.grey.shade300,
             ),
             CropTextField(
-              label: lang.t("cropName"),
+              label: lang.t('cropName'),
               controller: cropNameController,
-              hint: lang.t("cropNameHint"),
+              hint: lang.t('cropNameHint'),
               icon: Icons.grass_outlined,
             ),
             const SizedBox(height: 18),
             CropDropdown(
-              label: lang.t("category"),
-              value: selectedCategory,
-              hint: lang.t("selectCategory"),
+              label: lang.t('category'),
+              value: safeCategory,
+              hint: lang.t('selectCategory'),
               icon: Icons.category_outlined,
-              items: const [
-                "Select a category...",
-                "Wheat",
-                "Rice",
-                "Vegetables",
-                "Fruits",
-                "Organic",
-              ],
+              items: categoryItems,
               onChanged: onCategoryChanged,
             ),
             const SizedBox(height: 18),
             CropDropdown(
-              label: lang.t("cropStatus"),
+              label: lang.t('cropStatus'),
               value: selectedStatus,
-              hint: lang.t("selectCropStatus"),
+              hint: lang.t('selectCropStatus'),
               icon: Icons.inventory_outlined,
-              items: const ["Active", "Sold Out"],
+              items: const ['Active', 'Sold Out'],
               onChanged: onStatusChanged,
             ),
             const SizedBox(height: 18),
             CropTextField(
-              label: lang.t("estHarvestDate"),
+              label: lang.t('estHarvestDate'),
               controller: TextEditingController(text: harvestDate),
               hint: harvestDate,
               icon: Icons.calendar_today_outlined,
@@ -136,9 +144,9 @@ class AddCropFormCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: CropTextField(
-                    label: lang.t("availableQuantity"),
+                    label: lang.t('availableQuantity'),
                     controller: quantityController,
-                    hint: "0.00",
+                    hint: '0.00',
                     icon: Icons.scale_outlined,
                     keyboardType: TextInputType.number,
                   ),
@@ -147,9 +155,15 @@ class AddCropFormCard extends StatelessWidget {
                 SizedBox(
                   width: 100,
                   child: CropDropdown(
-                    label: lang.t("unit"),
+                    label: lang.t('unit'),
                     value: selectedUnit,
-                    items: const ["kg", "ton", "box"],
+                    items: const [
+                      'kg',
+                      'ton',
+                      'box',
+                      'bundle',
+                      'bag',
+                    ],
                     onChanged: onUnitChanged,
                   ),
                 ),
@@ -157,9 +171,9 @@ class AddCropFormCard extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             CropTextField(
-              label: lang.t("pricePerUnit"),
+              label: lang.t('pricePerUnit'),
               controller: priceController,
-              hint: "0.00",
+              hint: '0.00',
               icon: Icons.attach_money,
               keyboardType: TextInputType.number,
             ),
@@ -167,7 +181,7 @@ class AddCropFormCard extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  lang.t("farmLocation"),
+                  lang.t('farmLocation'),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -175,10 +189,14 @@ class AddCropFormCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                const Icon(Icons.my_location, size: 14, color: darkGreen),
+                const Icon(
+                  Icons.my_location,
+                  size: 14,
+                  color: darkGreen,
+                ),
                 const SizedBox(width: 4),
                 Text(
-                  lang.t("useCurrentLocation"),
+                  lang.t('useCurrentLocation'),
                   style: const TextStyle(
                     color: darkGreen,
                     fontSize: 12,
@@ -193,16 +211,15 @@ class AddCropFormCard extends StatelessWidget {
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
-              decoration:
-                  CropTextField.inputDecoration(
-                    hint: lang.t("locationHint"),
-                    icon: Icons.location_on_outlined,
-                  ).copyWith(
-                    fillColor: Theme.of(context).cardColor,
-                    hintStyle: TextStyle(
-                      color: isDark ? Colors.white54 : Colors.grey.shade500,
-                    ),
-                  ),
+              decoration: CropTextField.inputDecoration(
+                hint: lang.t('locationHint'),
+                icon: Icons.location_on_outlined,
+              ).copyWith(
+                fillColor: Theme.of(context).cardColor,
+                hintStyle: TextStyle(
+                  color: isDark ? Colors.white54 : Colors.grey.shade500,
+                ),
+              ),
             ),
             const SizedBox(height: 10),
             Container(
@@ -216,20 +233,24 @@ class AddCropFormCard extends StatelessWidget {
                 ),
               ),
               child: const Center(
-                child: Icon(Icons.location_on, color: Colors.red, size: 36),
+                child: Icon(
+                  Icons.location_on,
+                  color: Colors.red,
+                  size: 36,
+                ),
               ),
             ),
             const SizedBox(height: 18),
             CropTextField(
-              label: lang.t("description"),
+              label: lang.t('description'),
               controller: descriptionController,
-              hint: lang.t("descriptionHint"),
+              hint: lang.t('descriptionHint'),
               icon: Icons.description_outlined,
               maxLines: 4,
             ),
             const SizedBox(height: 18),
             Text(
-              lang.t("quickAttributes"),
+              lang.t('quickAttributes'),
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
@@ -242,17 +263,17 @@ class AddCropFormCard extends StatelessWidget {
               runSpacing: 8,
               children: [
                 CropAttributeChip(
-                  title: lang.t("organic"),
+                  title: lang.t('organic'),
                   selected: isOrganic,
                   onTap: onOrganicTap,
                 ),
                 CropAttributeChip(
-                  title: lang.t("deliveryAvailable"),
+                  title: lang.t('deliveryAvailable'),
                   selected: isDeliveryAvailable,
                   onTap: onDeliveryTap,
                 ),
                 CropAttributeChip(
-                  title: lang.t("premiumGrade"),
+                  title: lang.t('premiumGrade'),
                   selected: isPremiumGrade,
                   onTap: onPremiumTap,
                 ),

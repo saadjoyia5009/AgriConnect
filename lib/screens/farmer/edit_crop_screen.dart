@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,24 +20,64 @@ class EditCropScreen extends StatefulWidget {
 class _EditCropScreenState extends State<EditCropScreen> {
   static const Color darkGreen = Color(0xff075739);
 
-  final cropNameController = TextEditingController(text: "Fresh Red Tomatoes");
-  final quantityController = TextEditingController(text: "500 kg");
-  final priceController = TextEditingController(text: "\$1.50 /kg");
-  final locationController = TextEditingController(text: "Faisalabad, Punjab");
-  final descriptionController = TextEditingController(
-    text:
-        "Organic, pesticide-free tomatoes harvested directly from our family farm. Sweet and juicy.",
-  );
+  late final TextEditingController cropNameController;
+  late final TextEditingController quantityController;
+  late final TextEditingController priceController;
+  late final TextEditingController locationController;
+  late final TextEditingController descriptionController;
 
   final ImagePicker _picker = ImagePicker();
 
-  File? selectedImage;
+  XFile? selectedImage;
+  Uint8List? selectedImageBytes;
 
-  String cropId = "2";
-  String selectedCategory = "Vegetables";
-  String selectedStatus = "Active";
-  String currentImageUrl =
-      "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=900";
+  late String cropId;
+  late String selectedCategory;
+  late String selectedStatus;
+  late String currentImageUrl;
+  late String harvestDate;
+
+  bool _isInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is CropModel) {
+        cropId = args.id;
+        cropNameController = TextEditingController(text: args.name);
+        // If quantity has " left", remove it for editing
+        final qText = args.quantity.replaceAll(RegExp(r'\s*left\s*$', caseSensitive: false), '');
+        quantityController = TextEditingController(text: qText);
+
+        final pText = args.price.replaceAll('\$', '');
+        priceController = TextEditingController(text: pText);
+
+        locationController = TextEditingController(text: args.location);
+        descriptionController = TextEditingController(text: args.description);
+        selectedCategory = args.category;
+        selectedStatus = args.status;
+        currentImageUrl = args.imageUrl;
+        harvestDate = args.harvestDate;
+      } else {
+        // Fallback
+        cropId = "2";
+        cropNameController = TextEditingController(text: "Fresh Red Tomatoes");
+        quantityController = TextEditingController(text: "500");
+        priceController = TextEditingController(text: "1.50");
+        locationController = TextEditingController(text: "Faisalabad, Punjab");
+        descriptionController = TextEditingController(
+          text: "Organic, pesticide-free tomatoes harvested directly from our family farm. Sweet and juicy.",
+        );
+        selectedCategory = "Vegetables";
+        selectedStatus = "Active";
+        currentImageUrl = "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=900";
+        harvestDate = "20/06/2026";
+      }
+      _isInitialized = true;
+    }
+  }
 
   @override
   void dispose() {
@@ -55,9 +95,16 @@ class _EditCropScreenState extends State<EditCropScreen> {
       imageQuality: 85,
     );
 
-    if (image != null) {
-      setState(() => selectedImage = File(image.path));
-    }
+    if (image == null) return;
+
+    final bytes = await image.readAsBytes();
+
+    if (!mounted) return;
+
+    setState(() {
+      selectedImage = image;
+      selectedImageBytes = bytes;
+    });
   }
 
   Future<void> _saveChanges() async {
@@ -76,7 +123,7 @@ class _EditCropScreenState extends State<EditCropScreen> {
     final updatedCrop = CropModel(
       id: cropId,
       name: cropNameController.text.trim(),
-      imageUrl: selectedImage != null ? selectedImage!.path : currentImageUrl,
+      imageUrl: currentImageUrl,
       quantity: quantityController.text.trim(),
       price: priceController.text.trim(),
       unit: "/kg",
@@ -86,12 +133,13 @@ class _EditCropScreenState extends State<EditCropScreen> {
       isReadyToShip: true,
       location: locationController.text.trim(),
       description: descriptionController.text.trim(),
-      harvestDate: "20/06/2026",
+      harvestDate: harvestDate,
     );
 
     final success = await context.read<CropProvider>().updateCrop(
       updatedCrop,
       imageFile: selectedImage,
+      imageBytes: selectedImageBytes,
     );
 
     if (!mounted) return;
@@ -199,19 +247,42 @@ class _EditCropScreenState extends State<EditCropScreen> {
     return Stack(
       alignment: Alignment.center,
       children: [
-        selectedImage != null
-            ? Image.file(
-                selectedImage!,
-                height: 250,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              )
-            : Image.network(
-                currentImageUrl,
-                height: 250,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+        selectedImageBytes != null
+            ? Image.memory(
+          selectedImageBytes!,
+          height: 250,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        )
+            : currentImageUrl.isNotEmpty
+            ? Image.network(
+          currentImageUrl,
+          height: 250,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Container(
+            height: 250,
+            width: double.infinity,
+            color: Colors.grey.shade300,
+            alignment: Alignment.center,
+            child: const Icon(
+              Icons.image_outlined,
+              size: 60,
+              color: Colors.grey,
+            ),
+          ),
+        )
+            : Container(
+          height: 250,
+          width: double.infinity,
+          color: Colors.grey.shade300,
+          alignment: Alignment.center,
+          child: const Icon(
+            Icons.image_outlined,
+            size: 60,
+            color: Colors.grey,
+          ),
+        ),
         Container(height: 250, color: Colors.black.withOpacity(0.15)),
         ElevatedButton.icon(
           onPressed: _pickImage,
