@@ -1,99 +1,108 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
-import '../config/api_config.dart';
-import '../utils/token_storage.dart';
+import 'package:agriconnect/services/api_service.dart';
 
 class ChatService {
+  static const String _endpoint = "/chats/";
+
+  static Future<List<dynamic>> fetchConversations() async {
+    final response = await ApiService.get(
+      _endpoint,
+      auth: true,
+    );
+
+    if (response is List) {
+      return response;
+    }
+
+    if (response is Map) {
+      if (response["results"] is List) {
+        return response["results"] as List<dynamic>;
+      }
+
+      if (response["data"] is List) {
+        return response["data"] as List<dynamic>;
+      }
+    }
+
+    return [];
+  }
+
   static Future<Map<String, dynamic>> createConversation({
     required String inquiryId,
   }) async {
-    final token = await TokenStorage.getAccessToken();
-
-    final url = Uri.parse("${ApiConfig.baseUrl}/chat/");
-
-    final response = await http.post(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-      body: jsonEncode({
+    final response = await ApiService.post(
+      _endpoint,
+      {
         "inquiry": inquiryId,
-      }),
+      },
+      auth: true,
     );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final data = jsonDecode(response.body);
-      return data["data"] ?? data;
+    if (response is Map) {
+      final responseData = response["data"];
+
+      if (responseData is Map) {
+        return Map<String, dynamic>.from(responseData);
+      }
+
+      return Map<String, dynamic>.from(response);
     }
 
-    throw Exception("Failed to create conversation");
+    throw Exception("Invalid conversation response.");
   }
 
   static Future<List<dynamic>> fetchMessages({
     required String conversationId,
   }) async {
-    final token = await TokenStorage.getAccessToken();
-
-    final url = Uri.parse(
-      "${ApiConfig.baseUrl}/chat/$conversationId/messages/",
+    final response = await ApiService.get(
+      "$_endpoint$conversationId/messages/",
+      auth: true,
     );
 
-    final response = await http.get(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final decoded = jsonDecode(response.body);
-
-      // Handle Django REST Framework paginated response
-      if (decoded is List) {
-        return decoded;
-      }
-
-      // DRF may wrap results in {"results": [...]} or {"data": [...]}
-      if (decoded is Map) {
-        if (decoded["results"] is List) return decoded["results"];
-        if (decoded["data"] is List) return decoded["data"];
-      }
-
-      return [];
+    if (response is List) {
+      return response;
     }
 
-    throw Exception("Failed to fetch messages");
+    if (response is Map) {
+      if (response["results"] is List) {
+        return response["results"] as List<dynamic>;
+      }
+
+      if (response["data"] is List) {
+        return response["data"] as List<dynamic>;
+      }
+    }
+
+    return [];
   }
 
   static Future<Map<String, dynamic>> sendMessage({
     required String conversationId,
     required String message,
   }) async {
-    final token = await TokenStorage.getAccessToken();
+    final cleanedMessage = message.trim();
 
-    final url = Uri.parse(
-      "${ApiConfig.baseUrl}/chat/$conversationId/messages/",
-    );
-
-    final response = await http.post(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-      body: jsonEncode({
-        "text": message,
-      }),
-    );
-
-    if (response.statusCode == 201 || response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data["data"] ?? data;
+    if (cleanedMessage.isEmpty) {
+      throw Exception("Message cannot be empty.");
     }
 
-    throw Exception("Failed to send message");
+    final response = await ApiService.post(
+      "$_endpoint$conversationId/messages/",
+      {
+        "text": cleanedMessage,
+      },
+      auth: true,
+    );
+
+    if (response is Map) {
+      final responseData = response["data"];
+
+      if (responseData is Map) {
+        return Map<String, dynamic>.from(responseData);
+      }
+
+      return Map<String, dynamic>.from(response);
+    }
+
+    throw Exception("Invalid message response.");
   }
 }
