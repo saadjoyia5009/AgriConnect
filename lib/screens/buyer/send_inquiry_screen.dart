@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/crop_model.dart';
@@ -22,7 +23,8 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
 
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _offerPriceController = TextEditingController();
-  final TextEditingController _deliveryDateController = TextEditingController();
+  final TextEditingController _deliveryDateController =
+  TextEditingController();
   final TextEditingController _messageController = TextEditingController();
 
   static const Color darkGreen = Color(0xff0F5C3A);
@@ -34,8 +36,14 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
   bool get isDark => Theme.of(context).brightness == Brightness.dark;
 
   Color get accentColor => isDark ? lightGreen : darkGreen;
-  Color get primaryText => isDark ? Colors.white : const Color(0xff10291D);
-  Color get secondaryText => isDark ? Colors.white70 : const Color(0xff5F675F);
+
+  Color get primaryText {
+    return isDark ? Colors.white : const Color(0xff10291D);
+  }
+
+  Color get secondaryText {
+    return isDark ? Colors.white70 : const Color(0xff5F675F);
+  }
 
   @override
   void dispose() {
@@ -46,8 +54,133 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
     super.dispose();
   }
 
+  Future<void> _selectDeliveryDate() async {
+    FocusScope.of(context).unfocus();
+
+    final now = DateTime.now();
+    final initialDate = now.add(const Duration(days: 1));
+
+    final selectedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
+      helpText: "Select expected delivery date",
+    );
+
+    if (selectedDate == null || !mounted) return;
+
+    _deliveryDateController.text = _formatApiDate(selectedDate);
+  }
+
+  String _formatApiDate(DateTime date) {
+    final year = date.year.toString();
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+
+    return "$year-$month-$day";
+  }
+
+  String? _validateQuantity(String? value) {
+    final text = value?.trim() ?? "";
+
+    if (text.isEmpty) {
+      return "Required quantity is required";
+    }
+
+    final quantity = double.tryParse(text);
+
+    if (quantity == null) {
+      return "Enter a valid quantity";
+    }
+
+    if (quantity <= 0) {
+      return "Quantity must be greater than zero";
+    }
+
+    final availableQuantity = double.tryParse(
+      widget.crop.quantity.toString(),
+    );
+
+    if (
+    availableQuantity != null &&
+        quantity > availableQuantity
+    ) {
+      return "Only ${widget.crop.quantity} ${widget.crop.unit} is available";
+    }
+
+    return null;
+  }
+
+  String? _validateOfferPrice(String? value) {
+    final text = value?.trim() ?? "";
+
+    if (text.isEmpty) {
+      return "Offered price is required";
+    }
+
+    final price = double.tryParse(text);
+
+    if (price == null) {
+      return "Enter a valid offered price";
+    }
+
+    if (price <= 0) {
+      return "Offered price must be greater than zero";
+    }
+
+    return null;
+  }
+
+  String? _validateDeliveryDate(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "Delivery date is required";
+    }
+
+    final selectedDate = DateTime.tryParse(value.trim());
+
+    if (selectedDate == null) {
+      return "Select a valid delivery date";
+    }
+
+    final today = DateTime.now();
+    final todayOnly = DateTime(
+      today.year,
+      today.month,
+      today.day,
+    );
+
+    if (selectedDate.isBefore(todayOnly)) {
+      return "Delivery date cannot be in the past";
+    }
+
+    return null;
+  }
+
+  String? _validateMessage(String? value) {
+    final message = value?.trim() ?? "";
+
+    if (message.isEmpty) {
+      return "Message is required";
+    }
+
+    if (message.length < 5) {
+      return "Message must contain at least 5 characters";
+    }
+
+    if (message.length > 2000) {
+      return "Message cannot exceed 2000 characters";
+    }
+
+    return null;
+  }
+
   Future<void> _submitInquiry() async {
-    if (!_formKey.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
+
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
 
     final provider = context.read<BuyerInquiryProvider>();
 
@@ -55,6 +188,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
       crop: widget.crop,
       quantity: _quantityController.text.trim(),
       offerPrice: _offerPriceController.text.trim(),
+      deliveryDate: _deliveryDateController.text.trim(),
       message: _messageController.text.trim(),
     );
 
@@ -64,18 +198,27 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            context.read<LanguageProvider>().t("inquirySentSuccessfully"),
+            context
+                .read<LanguageProvider>()
+                .t("inquirySentSuccessfully"),
           ),
+          backgroundColor: darkGreen,
         ),
       );
 
-      Navigator.pushReplacementNamed(context, '/buyer-inquiries');
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/buyer-inquiries',
+            (route) => route.isFirst,
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             provider.errorMessage ??
-                context.read<LanguageProvider>().t("failedSendInquiry"),
+                context
+                    .read<LanguageProvider>()
+                    .t("failedSendInquiry"),
           ),
           backgroundColor: Colors.red,
         ),
@@ -102,13 +245,18 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: accentColor),
+          icon: Icon(
+            Icons.arrow_back,
+            color: accentColor,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Consumer<BuyerInquiryProvider>(
         builder: (context, provider, _) {
           return SingleChildScrollView(
+            keyboardDismissBehavior:
+            ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.all(18),
             child: Form(
               key: _formKey,
@@ -121,6 +269,16 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                     label: lang.t("requiredQuantity"),
                     hint: lang.t("requiredQuantityHint"),
                     icon: Icons.inventory_2_outlined,
+                    validator: _validateQuantity,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d*\.?\d{0,2}'),
+                      ),
+                    ],
+                    suffixText: crop.unit,
                   ),
                   const SizedBox(height: 14),
                   _inputField(
@@ -128,13 +286,27 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                     label: lang.t("offeredPrice"),
                     hint: lang.t("offeredPriceHint"),
                     icon: Icons.sell_outlined,
+                    validator: _validateOfferPrice,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d*\.?\d{0,2}'),
+                      ),
+                    ],
+                    prefixText: "Rs. ",
+                    suffixText: "/ ${crop.unit}",
                   ),
                   const SizedBox(height: 14),
                   _inputField(
                     controller: _deliveryDateController,
                     label: lang.t("expectedDeliveryDate"),
-                    hint: lang.t("expectedDeliveryDateHint"),
+                    hint: "YYYY-MM-DD",
                     icon: Icons.calendar_month_outlined,
+                    validator: _validateDeliveryDate,
+                    readOnly: true,
+                    onTap: _selectDeliveryDate,
                   ),
                   const SizedBox(height: 14),
                   _messageField(),
@@ -143,7 +315,9 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                     height: 54,
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: provider.isSubmitting ? null : _submitInquiry,
+                      onPressed: provider.isSubmitting
+                          ? null
+                          : _submitInquiry,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: darkGreen,
                         disabledBackgroundColor: isDark
@@ -154,7 +328,14 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                         ),
                       ),
                       child: provider.isSubmitting
-                          ? const CircularProgressIndicator(color: Colors.white)
+                          ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
                           : Text(
                         lang.t("submitInquiry"),
                         style: const TextStyle(
@@ -191,7 +372,9 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                 return Container(
                   height: 78,
                   width: 78,
-                  color: isDark ? const Color(0xff1E1E1E) : const Color(0xffEAF7EF),
+                  color: isDark
+                      ? const Color(0xff1E1E1E)
+                      : const Color(0xffEAF7EF),
                   child: Icon(
                     Icons.image_not_supported_outlined,
                     color: isDark ? Colors.white60 : darkGreen,
@@ -217,9 +400,9 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  crop.farmerName.isNotEmpty
+                  crop.farmerName.trim().isNotEmpty
                       ? crop.farmerName
-                      : context.watch<LanguageProvider>().t("unknownFarmer"),
+                      : "Unknown Farmer",
                   style: TextStyle(
                     fontSize: 13,
                     color: secondaryText,
@@ -228,11 +411,20 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  "${crop.price}${context.watch<LanguageProvider>().tDynamic(crop.unit)}",
+                  "Rs. ${crop.price} / ${crop.unit}",
                   style: TextStyle(
                     fontSize: 15,
                     color: accentColor,
                     fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "Available: ${crop.quantity} ${crop.unit}",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: secondaryText,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -248,27 +440,32 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
     required String label,
     required String hint,
     required IconData icon,
+    required String? Function(String?) validator,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    String? prefixText,
+    String? suffixText,
   }) {
     return TextFormField(
       controller: controller,
+      readOnly: readOnly,
+      onTap: onTap,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
+      validator: validator,
       style: TextStyle(
         color: primaryText,
         fontWeight: FontWeight.w600,
       ),
       cursorColor: accentColor,
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return context
-              .read<LanguageProvider>()
-              .t("fieldRequired")
-              .replaceAll("{field}", label);
-        }
-        return null;
-      },
       decoration: _inputDecoration(
         label: label,
         hint: hint,
         icon: icon,
+        prefixText: prefixText,
+        suffixText: suffixText,
       ),
     );
   }
@@ -276,21 +473,20 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
   Widget _messageField() {
     return TextFormField(
       controller: _messageController,
-      maxLines: 5,
+      minLines: 4,
+      maxLines: 6,
+      maxLength: 2000,
+      validator: _validateMessage,
       style: TextStyle(
         color: primaryText,
         fontWeight: FontWeight.w600,
       ),
       cursorColor: accentColor,
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return context.read<LanguageProvider>().t("messageRequired");
-        }
-        return null;
-      },
       decoration: _inputDecoration(
         label: context.read<LanguageProvider>().t("message"),
-        hint: context.read<LanguageProvider>().t("messageFarmerHint"),
+        hint: context
+            .read<LanguageProvider>()
+            .t("messageFarmerHint"),
         icon: Icons.message_outlined,
       ),
     );
@@ -300,55 +496,67 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
     required String label,
     required String hint,
     required IconData icon,
+    String? prefixText,
+    String? suffixText,
   }) {
     return InputDecoration(
       labelText: label,
       hintText: hint,
+      prefixIcon: Icon(icon, color: accentColor),
+      prefixText: prefixText,
+      suffixText: suffixText,
       labelStyle: TextStyle(
         color: isDark ? Colors.white60 : const Color(0xff5F675F),
       ),
       hintStyle: TextStyle(
         color: isDark ? Colors.white38 : Colors.grey,
       ),
+      prefixStyle: TextStyle(
+        color: primaryText,
+        fontWeight: FontWeight.w700,
+      ),
+      suffixStyle: TextStyle(
+        color: secondaryText,
+        fontWeight: FontWeight.w700,
+      ),
       errorStyle: TextStyle(
         color: isDark ? Colors.red.shade200 : Colors.red,
         fontWeight: FontWeight.w600,
       ),
-      prefixIcon: Icon(icon, color: accentColor),
       filled: true,
       fillColor: isDark ? darkCard : Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(
-          color: isDark ? Colors.white12 : const Color(0xffDCE7DD),
-        ),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 16,
       ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(
-          color: isDark ? Colors.white12 : const Color(0xffDCE7DD),
-        ),
+      border: _inputBorder(),
+      enabledBorder: _inputBorder(),
+      focusedBorder: _inputBorder(
+        color: accentColor,
+        width: 1.4,
       ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(
-          color: accentColor,
-          width: 1.4,
-        ),
+      errorBorder: _inputBorder(
+        color: isDark ? Colors.red.shade200 : Colors.red,
       ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(
-          color: isDark ? Colors.red.shade200 : Colors.red,
-        ),
+      focusedErrorBorder: _inputBorder(
+        color: isDark ? Colors.red.shade200 : Colors.red,
+        width: 1.4,
       ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(
-          color: isDark ? Colors.red.shade200 : Colors.red,
-          width: 1.4,
-        ),
+    );
+  }
+
+  OutlineInputBorder _inputBorder({
+    Color? color,
+    double width = 1,
+  }) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(
+        color: color ??
+            (isDark
+                ? Colors.white12
+                : const Color(0xffDCE7DD)),
+        width: width,
       ),
     );
   }
@@ -358,7 +566,9 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
       color: isDark ? darkCard : Colors.white,
       borderRadius: BorderRadius.circular(18),
       border: Border.all(
-        color: isDark ? Colors.white10 : const Color(0xffDCE7DD),
+        color: isDark
+            ? Colors.white10
+            : const Color(0xffDCE7DD),
       ),
     );
   }
