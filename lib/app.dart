@@ -45,6 +45,7 @@ import 'screens/buyer/buyer_dashboard_screen.dart';
 import 'screens/buyer/buyer_favorites_screen.dart';
 import 'screens/buyer/buyer_inquiries_screen.dart';
 import 'screens/buyer/buyer_profile_screen.dart';
+import 'screens/buyer/buyer_chats_screen.dart';
 
 import 'screens/admin/admin_main_screen.dart';
 import 'screens/admin/admin_users_screen.dart';
@@ -55,6 +56,8 @@ import 'screens/admin/admin_profile_screen.dart';
 import 'screens/farmer/edit_profile_screen.dart';
 import 'screens/language/language_selection_screen.dart';
 import 'config/app_theme.dart';
+import 'providers/buyer_chat_provider.dart';
+
 
 class AgriConnectApp extends StatelessWidget {
   const AgriConnectApp({super.key});
@@ -75,43 +78,44 @@ class AgriConnectApp extends StatelessWidget {
     );
   }
 
-  Route<dynamic> _generateRoute(RouteSettings settings) {
-    final routes = <String, Widget>{
-      '/': const SplashScreen(),
-      '/language': const LanguageSelectionScreen(),
+    Route<dynamic> _generateRoute(RouteSettings settings) {
+      final routes = <String, Widget>{
+        '/': const SplashScreen(),
+        '/language': const LanguageSelectionScreen(),
 
-      '/onboarding1': const OnboardingScreenOne(),
-      '/onboarding2': const OnboardingScreenTwo(),
-      '/onboarding3': const OnboardingScreenThree(),
+        '/onboarding1': const OnboardingScreenOne(),
+        '/onboarding2': const OnboardingScreenTwo(),
+        '/onboarding3': const OnboardingScreenThree(),
 
-      '/login': const LoginScreen(),
-      '/forgotPassword': const ForgotPasswordScreen(),
+        '/login': const LoginScreen(),
+        '/forgotPassword': const ForgotPasswordScreen(),
 
-      '/farmerDashboard': const FarmerDashboardScreen(),
-      '/myCrops': const MyCropsScreen(),
-      '/addCrop': const AddCropScreen(),
-      '/farmerInquiries': const FarmerInquiriesScreen(),
-      '/editCrop': const EditCropScreen(),
-      '/profile': const FarmerProfileScreen(),
-      '/weather': const WeatherForecastScreen(),
-      '/price-prediction': const PricePredictionScreen(),
-      '/disease-detection': const DiseaseDetectionScreen(),
-      '/farmerChats': const FarmerChatsScreen(),
-      '/notifications': const FarmerNotificationScreen(),
+        '/farmerDashboard': const FarmerDashboardScreen(),
+        '/myCrops': const MyCropsScreen(),
+        '/addCrop': const AddCropScreen(),
+        '/farmerInquiries': const FarmerInquiriesScreen(),
+        '/editCrop': const EditCropScreen(),
+        '/profile': const FarmerProfileScreen(),
+        '/weather': const WeatherForecastScreen(),
+        '/price-prediction': const PricePredictionScreen(),
+        '/disease-detection': const DiseaseDetectionScreen(),
+        '/farmerChats': const FarmerChatsScreen(),
+        '/notifications': const FarmerNotificationScreen(),
 
-      '/buyerDashboard': const BuyerDashboardScreen(),
-      '/buyerFavorites': const BuyerFavoritesScreen(),
-      '/buyer-inquiries': const BuyerInquiriesScreen(),
-      '/buyerProfile': const BuyerProfileScreen(),
+        '/buyerDashboard': const BuyerDashboardScreen(),
+        '/buyerFavorites': const BuyerFavoritesScreen(),
+        '/buyer-inquiries': const BuyerInquiriesScreen(),
+        '/buyerProfile': const BuyerProfileScreen(),
+        '/buyerChats': const BuyerChatsScreen(),
 
-      '/adminDashboard': const AdminMainScreen(),
-      '/adminUsers': const AdminUsersScreen(),
-      '/adminCrops': const AdminCropsScreen(),
-      '/adminAnalytics': const AdminAnalyticsScreen(),
-      '/adminReports': const AdminReportsScreen(),
-      '/adminProfile': const AdminProfileScreen(),
-      '/editProfile': const EditProfileScreen(),
-    };
+        '/adminDashboard': const AdminMainScreen(),
+        '/adminUsers': const AdminUsersScreen(),
+        '/adminCrops': const AdminCropsScreen(),
+        '/adminAnalytics': const AdminAnalyticsScreen(),
+        '/adminReports': const AdminReportsScreen(),
+        '/adminProfile': const AdminProfileScreen(),
+        '/editProfile': const EditProfileScreen(),
+      };
 
     return _animatedRoute(
       routes[settings.name] ?? const SplashScreen(),
@@ -123,6 +127,15 @@ class AgriConnectApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(
+          create: (_) => ChatProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => BuyerChatProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ChatProvider(),
+        ),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => CropProvider()),
         ChangeNotifierProvider(create: (_) => InquiryProvider()),

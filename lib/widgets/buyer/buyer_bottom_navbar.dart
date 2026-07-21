@@ -28,61 +28,37 @@ class BuyerBottomNavBar extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             blurRadius: 20,
-            color: isDark
-                ? Colors.black.withOpacity(0.35)
-                : Colors.black12,
+            color: isDark ? Colors.black.withOpacity(0.35) : Colors.black12,
           ),
         ],
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 15,
-            vertical: 12,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
           child: GNav(
             selectedIndex: currentIndex,
             onTabChange: onTap,
-            gap: 8,
+            gap: 6,
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeOutExpo,
             rippleColor: Colors.transparent,
             hoverColor: Colors.transparent,
-
             tabBackgroundColor: isDark
                 ? darkGreen.withOpacity(0.35)
                 : lightGreen,
-
-            color: isDark
-                ? Colors.white60
-                : Colors.grey,
-
-            activeColor: isDark
-                ? lightGreen
-                : darkGreen,
-
-            padding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 14,
-            ),
-
+            color: isDark ? Colors.white60 : Colors.grey,
+            activeColor: isDark ? lightGreen : darkGreen,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             tabs: [
-              GButton(
-                icon: Icons.home_outlined,
-                text: lang.t("home"),
-              ),
-              GButton(
-                icon: Icons.favorite_border,
-                text: lang.t("favorites"),
-              ),
+              GButton(icon: Icons.home_outlined, text: lang.t("home")),
+              GButton(icon: Icons.favorite_border, text: lang.t("favorites")),
+              GButton(icon: Icons.forum_outlined, text: lang.t("chats")),
               GButton(
                 icon: Icons.chat_bubble_outline,
                 text: lang.t("inquiries"),
               ),
-              GButton(
-                icon: Icons.person_outline,
-                text: lang.t("profile"),
-              ),
+
+              GButton(icon: Icons.person_outline, text: lang.t("profile")),
             ],
           ),
         ),

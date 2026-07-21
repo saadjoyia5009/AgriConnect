@@ -20,8 +20,6 @@ class BuyerDashboardScreen extends StatefulWidget {
 }
 
 class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
-  int _selectedIndex = 0;
-
   static const Color darkGreen = Color(0xff0F5C3A);
   static const Color lightBackground = Color(0xffF8FAF7);
   static const Color darkBackground = Color(0xFF0B1410);
@@ -44,22 +42,20 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
   }
 
   void _onNavTap(int index) {
-    if (index == 1) {
-      Navigator.pushReplacementNamed(context, '/buyerFavorites');
-      return;
-    }
+    if (index == 0) return;
 
-    if (index == 2) {
-      Navigator.pushReplacementNamed(context, '/buyer-inquiries');
-      return;
-    }
+    final routes = {
+      0: '/buyerDashboard',
+      1: '/buyerFavorites',
+      2: '/buyerChats',
+      3: '/buyer-inquiries',
+      4: '/buyerProfile',
+    };
 
-    if (index == 3) {
-      Navigator.pushReplacementNamed(context, '/buyerProfile');
-      return;
+    final route = routes[index];
+    if (route != null) {
+      Navigator.pushReplacementNamed(context, route);
     }
-
-    setState(() => _selectedIndex = index);
   }
 
   @override
@@ -71,7 +67,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
       child: Scaffold(
         backgroundColor: isDark ? darkBackground : lightBackground,
         bottomNavigationBar: BuyerBottomNavBar(
-          currentIndex: _selectedIndex,
+          currentIndex: 0,
           onTap: _onNavTap,
         ),
         body: SafeArea(
@@ -172,10 +168,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
               ),
             );
           },
-          icon: Icon(
-            Icons.notifications_none,
-            color: iconColor,
-          ),
+          icon: Icon(Icons.notifications_none, color: iconColor),
         ),
       ],
     );
@@ -194,7 +187,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
           title: lang.t("grains"),
           subtitle: lang.t("listingsCount").replaceAll("{count}", "120"),
           imageUrl:
-          'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600',
+              'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600',
           onTap: () => provider.filterByCategory('Grains'),
         ),
 
@@ -202,7 +195,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
           title: lang.t("vegetables"),
           subtitle: lang.t("listingsCount").replaceAll("{count}", "85"),
           imageUrl:
-          'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600',
+              'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600',
           onTap: () => provider.filterByCategory('Vegetables'),
         ),
 
@@ -210,7 +203,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
           title: lang.t("fruits"),
           subtitle: lang.t("listingsCount").replaceAll("{count}", "64"),
           imageUrl:
-          'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=600',
+              'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=600',
           onTap: () => provider.filterByCategory('Fruits'),
         ),
 
@@ -228,9 +221,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
     if (provider.isLoading) {
       return SizedBox(
         height: 220,
-        child: Center(
-          child: CircularProgressIndicator(color: accentColor),
-        ),
+        child: Center(child: CircularProgressIndicator(color: accentColor)),
       );
     }
 

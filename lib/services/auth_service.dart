@@ -7,6 +7,7 @@ class AuthResponse {
   final String? username;
   final String? email;
   final String? role;
+  final int? userId;
 
   AuthResponse({
     required this.success,
@@ -14,6 +15,7 @@ class AuthResponse {
     this.username,
     this.email,
     this.role,
+    this.userId,
   });
 }
 
@@ -23,13 +25,10 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final response = await ApiService.post(
-        "/login/",
-        {
-          "email": email,
-          "password": password,
-        },
-      );
+      final response = await ApiService.post("/login/", {
+        "email": email,
+        "password": password,
+      });
 
       final tokens = response["tokens"];
 
@@ -42,14 +41,18 @@ class AuthService {
         );
       }
 
-      final user = response["user"];
+      final userData = response["user"];
+      final int? parsedUserId = userData is Map
+          ? int.tryParse(userData["id"]?.toString() ?? "")
+          : null;
 
       return AuthResponse(
         success: true,
         message: response["message"]?.toString() ?? "Login successful",
-        username: user?["username"]?.toString(),
-        email: user?["email"]?.toString() ?? email,
-        role: user?["role"]?.toString(),
+        username: userData?["username"]?.toString(),
+        email: userData?["email"]?.toString() ?? email,
+        role: userData?["role"]?.toString(),
+        userId: parsedUserId,
       );
     } catch (e) {
       return AuthResponse(
@@ -71,24 +74,22 @@ class AuthService {
     try {
       await TokenStorage.clearTokens(); // add this
 
-      final response = await ApiService.post(
-        "/register/",
-        {
-          "username": username,
-          "email": email,
-          "password": password,
-          "password2": password2,
-          "role": role,
-          "phone": phone,
-          "address": address,
-        },
-      );
+      final response = await ApiService.post("/register/", {
+        "username": username,
+        "email": email,
+        "password": password,
+        "password2": password2,
+        "role": role,
+        "phone": phone,
+        "address": address,
+      });
 
       final data = response["data"];
 
       return AuthResponse(
         success: true,
-        message: response["message"]?.toString() ??
+        message:
+            response["message"]?.toString() ??
             "Account created successfully. Please verify your email.",
         username: data?["username"]?.toString() ?? username,
         email: data?["email"]?.toString() ?? email,
@@ -107,18 +108,15 @@ class AuthService {
     required String otp,
   }) async {
     try {
-      final response = await ApiService.post(
-        "/verify-email-otp/",
-        {
-          "email": email,
-          "otp": otp,
-        },
-      );
+      final response = await ApiService.post("/verify-email-otp/", {
+        "email": email,
+        "otp": otp,
+      });
 
       return AuthResponse(
         success: true,
-        message: response["message"]?.toString() ??
-            "Email verified successfully",
+        message:
+            response["message"]?.toString() ?? "Email verified successfully",
         email: email,
       );
     } catch (e) {
@@ -131,10 +129,9 @@ class AuthService {
 
   Future<AuthResponse> forgotPassword({required String email}) async {
     try {
-      final response = await ApiService.post(
-        "/forgot-password/",
-        {"email": email},
-      );
+      final response = await ApiService.post("/forgot-password/", {
+        "email": email,
+      });
 
       return AuthResponse(
         success: true,
@@ -156,18 +153,14 @@ class AuthService {
     required String otp,
   }) async {
     try {
-      final response = await ApiService.post(
-        "/verify-reset-otp/",
-        {
-          "email": email,
-          "otp": otp,
-        },
-      );
+      final response = await ApiService.post("/verify-reset-otp/", {
+        "email": email,
+        "otp": otp,
+      });
 
       return AuthResponse(
         success: true,
-        message:
-        response["message"]?.toString() ?? "OTP verified successfully",
+        message: response["message"]?.toString() ?? "OTP verified successfully",
         email: email,
       );
     } catch (e) {
@@ -185,20 +178,17 @@ class AuthService {
     required String confirmPassword,
   }) async {
     try {
-      final response = await ApiService.post(
-        "/reset-password/",
-        {
-          "email": email,
-          "otp": otp,
-          "new_password": newPassword,
-          "confirm_password": confirmPassword,
-        },
-      );
+      final response = await ApiService.post("/reset-password/", {
+        "email": email,
+        "otp": otp,
+        "new_password": newPassword,
+        "confirm_password": confirmPassword,
+      });
 
       return AuthResponse(
         success: true,
         message:
-        response["message"]?.toString() ?? "Password reset successfully",
+            response["message"]?.toString() ?? "Password reset successfully",
         email: email,
       );
     } catch (e) {

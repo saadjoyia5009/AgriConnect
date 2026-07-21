@@ -40,14 +40,20 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
   }
 
   void _onNavTap(int index) {
-    if (index == 0) {
-      Navigator.pushReplacementNamed(context, '/buyerDashboard');
-    } else if (index == 1) {
-      Navigator.pushReplacementNamed(context, '/buyerFavorites');
-    } else if (index == 2) {
-      Navigator.pushReplacementNamed(context, '/buyer-inquiries');
-    } else if (index == 3) {
-      return;
+    if (index == 1) return;
+
+    final routes = <int, String>{
+      0: '/buyerDashboard',
+      1: '/buyerFavorites',
+      2: '/buyerChats',
+      3: '/buyer-inquiries',
+      4: '/buyerProfile',
+    };
+
+    final route = routes[index];
+
+    if (route != null) {
+      Navigator.pushReplacementNamed(context, route);
     }
   }
 
@@ -137,7 +143,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
     return Scaffold(
       backgroundColor: isDark ? darkBackground : lightBackground,
       bottomNavigationBar: BuyerBottomNavBar(
-        currentIndex: 3,
+        currentIndex: 4,
         onTap: _onNavTap,
       ),
       body: SafeArea(

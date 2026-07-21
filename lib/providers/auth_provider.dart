@@ -21,6 +21,7 @@ class AuthProvider extends ChangeNotifier {
   String _resetEmail = "";
   String _resetOtp = "";
   String? _profileImagePath;
+  int? _userId;
 
   String get userName => _userName;
   String get email => _email;
@@ -31,6 +32,7 @@ class AuthProvider extends ChangeNotifier {
   String get resetEmail => _resetEmail;
   String get resetOtp => _resetOtp;
   String? get profileImagePath => _profileImagePath;
+  int? get userId => _userId;
 
   void togglePasswordVisibility() {
     isPasswordHidden = !isPasswordHidden;
@@ -51,18 +53,12 @@ class AuthProvider extends ChangeNotifier {
     return role.toLowerCase();
   }
 
-  Future<bool> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> login({required String email, required String password}) async {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
 
-    final response = await _authService.login(
-      email: email,
-      password: password,
-    );
+    final response = await _authService.login(email: email, password: password);
 
     isLoading = false;
 
@@ -71,6 +67,7 @@ class AuthProvider extends ChangeNotifier {
       _email = response.email ?? email;
       _role = (response.role ?? selectedRole).toLowerCase();
       _password = password;
+      _userId = response.userId;
 
       if (_phone.trim().isEmpty) {
         _phone = "No phone added";
@@ -131,7 +128,6 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
-
   Future<bool> verifyEmailOtp({
     required String email,
     required String otp,
@@ -173,10 +169,7 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
-
-  Future<bool> forgotPassword({
-    required String email,
-  }) async {
+  Future<bool> forgotPassword({required String email}) async {
     if (email.trim().isEmpty) {
       errorMessage = "Please enter your email";
       notifyListeners();
@@ -204,9 +197,7 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
-  Future<bool> verifyOtp({
-    required String otp,
-  }) async {
+  Future<bool> verifyOtp({required String otp}) async {
     final cleanOtp = otp.trim();
 
     if (_resetEmail.trim().isEmpty) {
@@ -318,6 +309,7 @@ class AuthProvider extends ChangeNotifier {
     _resetEmail = "";
     _resetOtp = "";
     _profileImagePath = null;
+    _userId = null;
     rememberMe = false;
     selectedRole = "Farmer";
 

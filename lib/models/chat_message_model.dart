@@ -7,7 +7,7 @@ class ChatMessageModel {
   final DateTime createdAt;
   final bool isRead;
 
-  ChatMessageModel({
+  const ChatMessageModel({
     required this.id,
     required this.chatId,
     required this.senderId,
@@ -21,23 +21,28 @@ class ChatMessageModel {
     return ChatMessageModel(
       id: json["id"]?.toString() ?? "",
 
-      // Backend may send conversation / conversation_id / chat_id
+      // Backend:
+      // conversation
+      // conversation_id
+      // chat_id
       chatId: json["chat_id"]?.toString() ??
-          json["conversation"]?.toString() ??
           json["conversation_id"]?.toString() ??
-          "",
+          _extractId(json["conversation"]),
 
-      // Backend may send sender / sender_id
+      // Backend:
+      // sender_id: 4
+      // sender: 4
+      // sender: {"id": 4, "full_name": "..."}
       senderId: json["sender_id"]?.toString() ??
-          json["sender"]?.toString() ??
-          "",
+          _extractId(json["sender"]),
 
-      // Your current backend message serializer may not send receiver
-      receiverId: json["receiver_id"]?.toString() ?? "",
+      // Backend receiver optional ho sakta hai
+      receiverId: json["receiver_id"]?.toString() ??
+          _extractId(json["receiver"]),
 
-      // Backend sends text, old mock used message
-      message: json["message"]?.toString() ??
-          json["text"]?.toString() ??
+      // Django backend generally "text" send karega
+      message: json["text"]?.toString() ??
+          json["message"]?.toString() ??
           "",
 
       createdAt: DateTime.tryParse(
@@ -47,20 +52,63 @@ class ChatMessageModel {
       ) ??
           DateTime.now(),
 
-      isRead: json["is_read"] ?? false,
+      isRead: _parseBool(
+        json["is_read"] ?? json["isRead"],
+      ),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       "id": id,
-      "chat_id": chatId,
+      "conversation_id": chatId,
       "sender_id": senderId,
       "receiver_id": receiverId,
-      "message": message,
       "text": message,
       "created_at": createdAt.toIso8601String(),
       "is_read": isRead,
     };
+  }
+
+  static String _extractId(dynamic value) {
+    if (value == null) return "";
+
+    if (value is Map) {
+      return value["id"]?.toString() ?? "";
+    }
+
+    return value.toString();
+  }
+
+  static bool _parseBool(dynamic value) {
+    if (value is bool) return value;
+
+    if (value is int) {
+      return value == 1;
+    }
+
+    final stringValue = value?.toString().toLowerCase();
+
+    return stringValue == "true" || stringValue == "1";
+  }
+
+  ChatMessageModel copyWith({
+    String? id,
+    String? chatId,
+    String? senderId,
+    String? receiverId,
+    String? message,
+    DateTime? createdAt,
+    bool? isRead,
+  }) {
+    return ChatMessageModel(
+      id: id ?? this.id,
+      chatId: chatId ?? this.chatId,
+      senderId: senderId ?? this.senderId,
+      receiverId: receiverId ?? this.receiverId,
+      message: message ?? this.message,
+      createdAt: createdAt ?? this.createdAt,
+      isRead: isRead ?? this.isRead,
+    );
   }
 }
