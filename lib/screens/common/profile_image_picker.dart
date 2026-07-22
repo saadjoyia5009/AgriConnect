@@ -30,11 +30,7 @@ class ProfileImagePicker extends StatelessWidget {
             backgroundImage: _profileImage(),
             child: hasImage
                 ? null
-                : const Icon(
-              Icons.person,
-              size: 52,
-              color: darkGreen,
-            ),
+                : const Icon(Icons.person, size: 52, color: darkGreen),
           ),
           Positioned(
             right: 2,

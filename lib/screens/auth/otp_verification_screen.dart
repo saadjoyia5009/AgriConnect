@@ -2,23 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import 'reset_password_screen.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String email;
 
-  const OtpVerificationScreen({
-    super.key,
-    required this.email,
-  });
+  const OtpVerificationScreen({super.key, required this.email});
 
   @override
   State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  final List<TextEditingController> _controllers =
-  List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _controllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
 
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
@@ -47,13 +47,16 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     if (success) {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (_) => const ResetPasswordScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => const ResetPasswordScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(authProvider.errorMessage ?? "Invalid OTP")),
+        SnackBar(
+          content: Text(
+            authProvider.errorMessage ??
+                context.read<LanguageProvider>().t("invalidOtp"),
+          ),
+        ),
       );
     }
   }
@@ -68,10 +71,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         textAlign: TextAlign.center,
         keyboardType: TextInputType.number,
         maxLength: 1,
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           counterText: "",
           filled: true,
@@ -125,7 +125,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   color: darkGreen,
                   borderRadius: BorderRadius.circular(28),
                 ),
-                child: const Column(
+                child: Column(
                   children: [
                     Icon(
                       Icons.verified_user_rounded,
@@ -134,7 +134,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      "Verify OTP",
+                      context.watch<LanguageProvider>().t("verifyOtp"),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 28,
@@ -143,12 +143,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      "Enter the 6-digit code sent to your email",
+                      context.watch<LanguageProvider>().t("otpSixDigitEmail"),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 15,
-                      ),
+                      style: TextStyle(color: Colors.white70, fontSize: 15),
                     ),
                   ],
                 ),
@@ -174,12 +171,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
               const SizedBox(height: 24),
 
-              const Text(
-                "Code will expire in 02:45",
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                ),
+              Text(
+                context.watch<LanguageProvider>().t("codeExpires"),
+                style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
 
               const SizedBox(height: 34),
@@ -197,14 +191,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   ),
                   child: authProvider.isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                    "Verify Code",
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                      : Text(
+                          context.watch<LanguageProvider>().t("verifyCode"),
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
 
@@ -212,8 +206,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
               TextButton(
                 onPressed: () {},
-                child: const Text(
-                  "Didn't receive code? Resend OTP",
+                child: Text(
+                  context.watch<LanguageProvider>().t("resendOtpPrompt"),
                   style: TextStyle(
                     color: darkGreen,
                     fontWeight: FontWeight.w700,

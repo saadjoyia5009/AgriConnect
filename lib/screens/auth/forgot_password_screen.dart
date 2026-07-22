@@ -39,7 +39,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
     super.dispose();
   }
 
-  Future<void> _sendOtp(AuthProvider authProvider, LanguageProvider lang) async {
+  Future<void> _sendOtp(
+    AuthProvider authProvider,
+    LanguageProvider lang,
+  ) async {
     final email = emailController.text.trim();
 
     if (email.isEmpty) {
@@ -77,9 +80,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => OtpVerificationScreen(email: email),
-      ),
+      MaterialPageRoute(builder: (_) => OtpVerificationScreen(email: email)),
     );
   }
 
@@ -99,7 +100,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 InkWell(
-                  onTap: authProvider.isLoading ? null : () => Navigator.pop(context),
+                  onTap: authProvider.isLoading
+                      ? null
+                      : () => Navigator.pop(context),
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
                     padding: const EdgeInsets.all(10),
@@ -224,21 +227,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                     ),
                     child: authProvider.isLoading
                         ? const SizedBox(
-                      height: 22,
-                      width: 22,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2.4,
-                      ),
-                    )
-                        : const Text(
-                      "Send OTP",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.4,
+                            ),
+                          )
+                        : Text(
+                            lang.t("sendOtp"),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
                   ),
                 ),
               ],

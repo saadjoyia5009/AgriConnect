@@ -6,8 +6,6 @@ class FarmerNotificationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const NotificationScreen(
-      userRole: "farmer",
-    );
+    return const NotificationScreen(userRole: "farmer");
   }
 }

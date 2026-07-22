@@ -87,9 +87,7 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   int unreadCount(String role) {
-    return _notifications
-        .where((n) => n.role == role && !n.isRead)
-        .length;
+    return _notifications.where((n) => n.role == role && !n.isRead).length;
   }
 
   void changeFilter(String filter) {

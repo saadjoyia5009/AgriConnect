@@ -91,7 +91,9 @@ class AuthProvider extends ChangeNotifier {
     required String email,
     required String phone,
     required String password,
+    required String address,
   }) async {
+    final cleanAddress = address.trim();
     isLoading = true;
     errorMessage = null;
     notifyListeners();
@@ -103,7 +105,7 @@ class AuthProvider extends ChangeNotifier {
       password2: password,
       role: _backendRole(selectedRole),
       phone: phone,
-      address: _location,
+      address: cleanAddress,
     );
 
     isLoading = false;
@@ -112,12 +114,9 @@ class AuthProvider extends ChangeNotifier {
       _userName = response.username ?? name;
       _email = response.email ?? email;
       _phone = phone;
+      _location = cleanAddress;
       _password = password;
       _role = (response.role ?? _backendRole(selectedRole)).toLowerCase();
-
-      if (_location.trim().isEmpty) {
-        _location = "Sahiwal, Punjab";
-      }
 
       notifyListeners();
       return true;

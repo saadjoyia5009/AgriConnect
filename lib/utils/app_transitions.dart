@@ -15,10 +15,7 @@ class AppTransitions {
         return FadeTransition(
           opacity: curved,
           child: ScaleTransition(
-            scale: Tween<double>(
-              begin: 0.96,
-              end: 1.0,
-            ).animate(curved),
+            scale: Tween<double>(begin: 0.96, end: 1.0).animate(curved),
             child: child,
           ),
         );

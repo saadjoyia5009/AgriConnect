@@ -45,11 +45,7 @@ class EditCropFormCard extends StatelessWidget {
     "other",
   ];
 
-  static const List<String> statusItems = [
-    "active",
-    "sold_out",
-    "draft",
-  ];
+  static const List<String> statusItems = ["active", "sold_out", "draft"];
 
   @override
   Widget build(BuildContext context) {
@@ -149,9 +145,7 @@ class EditCropFormCard extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.my_location,
-                    color: isDark
-                        ? const Color(0xff9ff2c1)
-                        : darkGreen,
+                    color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                   ),
                 ),
               ],
@@ -167,11 +161,7 @@ class EditCropFormCard extends StatelessWidget {
             ),
             const SizedBox(height: 28),
 
-            Divider(
-              color: isDark
-                  ? Colors.white12
-                  : const Color(0xffeef2ef),
-            ),
+            Divider(color: isDark ? Colors.white12 : const Color(0xffeef2ef)),
             const SizedBox(height: 8),
 
             Row(
@@ -179,9 +169,7 @@ class EditCropFormCard extends StatelessWidget {
                 Text(
                   lang.t("visibilitySettings"),
                   style: TextStyle(
-                    color: isDark
-                        ? const Color(0xff9ff2c1)
-                        : darkGreen,
+                    color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
@@ -189,9 +177,7 @@ class EditCropFormCard extends StatelessWidget {
                 const Spacer(),
                 Icon(
                   Icons.chevron_right,
-                  color: isDark
-                      ? const Color(0xff9ff2c1)
-                      : darkGreen,
+                  color: isDark ? const Color(0xff9ff2c1) : darkGreen,
                 ),
               ],
             ),

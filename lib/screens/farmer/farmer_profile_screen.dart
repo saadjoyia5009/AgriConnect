@@ -51,8 +51,12 @@ class FarmerProfileScreen extends StatelessWidget {
                     },
                     onNotifications: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Notifications coming soon"),
+                        SnackBar(
+                          content: Text(
+                            context.read<LanguageProvider>().t(
+                              "notificationsComingSoon",
+                            ),
+                          ),
                         ),
                       );
                     },
@@ -64,8 +68,12 @@ class FarmerProfileScreen extends StatelessWidget {
                     },
                     onHelpSupport: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Help & Support coming soon"),
+                        SnackBar(
+                          content: Text(
+                            context.read<LanguageProvider>().t(
+                              "helpSupportComingSoon",
+                            ),
+                          ),
                         ),
                       );
                     },
@@ -91,16 +99,14 @@ class FarmerProfileScreen extends StatelessWidget {
   }
 
   void _showLanguageSheet(
-      BuildContext context,
-      LanguageProvider languageProvider,
-      ) {
+    BuildContext context,
+    LanguageProvider languageProvider,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) {
         return Padding(
@@ -108,8 +114,8 @@ class FarmerProfileScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                "Select Language",
+              Text(
+                context.watch<LanguageProvider>().t("selectLanguage"),
                 style: TextStyle(
                   color: darkGreen,
                   fontSize: 22,
@@ -137,11 +143,11 @@ class FarmerProfileScreen extends StatelessWidget {
   }
 
   Widget _languageTile(
-      BuildContext context,
-      LanguageProvider languageProvider, {
-        required String languageName,
-        required String languageCode,
-      }) {
+    BuildContext context,
+    LanguageProvider languageProvider, {
+    required String languageName,
+    required String languageCode,
+  }) {
     final isSelected = languageProvider.locale.languageCode == languageCode;
 
     return ListTile(
@@ -151,7 +157,12 @@ class FarmerProfileScreen extends StatelessWidget {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Language changed to $languageName"),
+            content: Text(
+              context
+                  .read<LanguageProvider>()
+                  .t("languageChanged")
+                  .replaceAll('{value}', languageName),
+            ),
           ),
         );
       },
@@ -167,10 +178,7 @@ class FarmerProfileScreen extends StatelessWidget {
         ),
       ),
       trailing: isSelected
-          ? const Icon(
-        Icons.check_circle,
-        color: darkGreen,
-      )
+          ? const Icon(Icons.check_circle, color: darkGreen)
           : null,
     );
   }
@@ -185,18 +193,16 @@ class FarmerProfileScreen extends StatelessWidget {
         color: darkGreen,
         size: 35,
       ),
-      children: const [
-        Text(
-          "AgriConnect is an AI-powered farmer marketplace app that connects farmers and buyers directly.",
-        ),
+      children: [
+        Text(context.watch<LanguageProvider>().t("farmerAppDescription")),
       ],
     );
   }
 
   void _showChangePasswordDialog(
-      BuildContext context,
-      AuthProvider authProvider,
-      ) {
+    BuildContext context,
+    AuthProvider authProvider,
+  ) {
     final currentController = TextEditingController();
     final newController = TextEditingController();
     final confirmController = TextEditingController();
@@ -207,12 +213,9 @@ class FarmerProfileScreen extends StatelessWidget {
         return AlertDialog(
           scrollable: true,
           insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-          title: const Text(
-            "Change Password",
-            style: TextStyle(
-              fontWeight: FontWeight.w900,
-              color: darkGreen,
-            ),
+          title: Text(
+            context.read<LanguageProvider>().t("changePassword"),
+            style: TextStyle(fontWeight: FontWeight.w900, color: darkGreen),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -220,8 +223,10 @@ class FarmerProfileScreen extends StatelessWidget {
               TextField(
                 controller: currentController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Current Password",
+                decoration: InputDecoration(
+                  labelText: context.read<LanguageProvider>().t(
+                    "currentPassword",
+                  ),
                   prefixIcon: Icon(Icons.lock_outline),
                 ),
               ),
@@ -229,8 +234,8 @@ class FarmerProfileScreen extends StatelessWidget {
               TextField(
                 controller: newController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "New Password",
+                decoration: InputDecoration(
+                  labelText: context.read<LanguageProvider>().t("newPassword"),
                   prefixIcon: Icon(Icons.lock_reset),
                 ),
               ),
@@ -238,8 +243,10 @@ class FarmerProfileScreen extends StatelessWidget {
               TextField(
                 controller: confirmController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Confirm Password",
+                decoration: InputDecoration(
+                  labelText: context.read<LanguageProvider>().t(
+                    "confirmPassword",
+                  ),
                   prefixIcon: Icon(Icons.verified_outlined),
                 ),
               ),
@@ -248,7 +255,7 @@ class FarmerProfileScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text("Cancel"),
+              child: Text(context.read<LanguageProvider>().t("cancel")),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -258,7 +265,12 @@ class FarmerProfileScreen extends StatelessWidget {
               onPressed: () {
                 if (newController.text.trim().isEmpty ||
                     confirmController.text.trim().isEmpty) {
-                  _showSnackBar(context, "Please enter new password");
+                  _showSnackBar(
+                    context,
+                    context.read<LanguageProvider>().t(
+                      "pleaseEnterNewPassword",
+                    ),
+                  );
                   return;
                 }
 
@@ -266,7 +278,7 @@ class FarmerProfileScreen extends StatelessWidget {
                     confirmController.text.trim()) {
                   _showSnackBar(
                     context,
-                    "New password and confirm password do not match",
+                    context.read<LanguageProvider>().t("passwordsDoNotMatch"),
                   );
                   return;
                 }
@@ -277,14 +289,24 @@ class FarmerProfileScreen extends StatelessWidget {
                 );
 
                 if (!success) {
-                  _showSnackBar(context, "Current password is incorrect");
+                  _showSnackBar(
+                    context,
+                    context.read<LanguageProvider>().t(
+                      "currentPasswordIncorrect",
+                    ),
+                  );
                   return;
                 }
 
                 Navigator.pop(dialogContext);
-                _showSnackBar(context, "Password updated successfully");
+                _showSnackBar(
+                  context,
+                  context.read<LanguageProvider>().t(
+                    "passwordUpdatedSuccessfully",
+                  ),
+                );
               },
-              child: const Text("Update"),
+              child: Text(context.read<LanguageProvider>().t("update")),
             ),
           ],
         );
@@ -293,8 +315,8 @@ class FarmerProfileScreen extends StatelessWidget {
   }
 
   void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

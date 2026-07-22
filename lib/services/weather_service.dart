@@ -19,17 +19,12 @@ class WeatherService {
 
     debugPrint("WEATHER ENDPOINT: $endpoint");
 
-    final response = await ApiService.get(
-      endpoint,
-      auth: false,
-    );
+    final response = await ApiService.get(endpoint, auth: false);
 
     if (response["success"] == true) {
       return WeatherModel.fromJson(response);
     }
 
-    throw Exception(
-      response["error"] ?? "Failed to fetch weather data",
-    );
+    throw Exception(response["error"] ?? "Failed to fetch weather data");
   }
 }

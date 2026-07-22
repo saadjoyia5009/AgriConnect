@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/weather_model.dart';
+import '../../providers/language_provider.dart';
 
 class WeatherForecastTile extends StatelessWidget {
   final WeatherForecastModel item;
@@ -34,10 +36,7 @@ class WeatherForecastTile extends StatelessWidget {
           Expanded(
             child: Text(
               item.day,
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: primaryText,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w700, color: primaryText),
             ),
           ),
           Text(item.icon, style: const TextStyle(fontSize: 24)),
@@ -49,7 +48,10 @@ class WeatherForecastTile extends StatelessWidget {
                 Text(item.condition, style: TextStyle(color: primaryText)),
                 Text(item.highTemp, style: TextStyle(color: secondaryText)),
                 Text(
-                  "Rain: ${item.rainChance}",
+                  context
+                      .watch<LanguageProvider>()
+                      .t("rainChance")
+                      .replaceAll('{value}', item.rainChance.toString()),
                   style: TextStyle(
                     color: accentColor,
                     fontWeight: FontWeight.w700,

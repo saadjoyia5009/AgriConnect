@@ -33,8 +33,7 @@ class CropDropdown extends StatelessWidget {
     final uniqueItems = items.toSet().toList();
 
     // Selected value tabhi use hogi jab items mein available ho.
-    final selectedValue =
-    value.trim().isNotEmpty && uniqueItems.contains(value)
+    final selectedValue = value.trim().isNotEmpty && uniqueItems.contains(value)
         ? value
         : null;
 
@@ -46,34 +45,27 @@ class CropDropdown extends StatelessWidget {
         DropdownButtonFormField<String>(
           initialValue: selectedValue,
           isExpanded: true,
-          dropdownColor: isDark
-              ? const Color(0xff1E1E1E)
-              : Colors.white,
-          iconEnabledColor: isDark
-              ? Colors.white70
-              : darkGreen,
-          iconDisabledColor: isDark
-              ? Colors.white38
-              : Colors.grey,
+          dropdownColor: isDark ? const Color(0xff1E1E1E) : Colors.white,
+          iconEnabledColor: isDark ? Colors.white70 : darkGreen,
+          iconDisabledColor: isDark ? Colors.white38 : Colors.grey,
 
           style: TextStyle(
-            color: isDark
-                ? Colors.white
-                : const Color(0xff26332e),
+            color: isDark ? Colors.white : const Color(0xff26332e),
             fontWeight: FontWeight.w600,
             fontSize: 14,
           ),
 
-          decoration: CropTextField.inputDecoration(
-            context: context,
-            hint: hint,
-            icon: icon,
-          ).copyWith(
-            filled: true,
-            fillColor: isDark
-                ? const Color(0xff1E1E1E)
-                : const Color(0xfffbfcfb),
-          ),
+          decoration:
+              CropTextField.inputDecoration(
+                context: context,
+                hint: hint,
+                icon: icon,
+              ).copyWith(
+                filled: true,
+                fillColor: isDark
+                    ? const Color(0xff1E1E1E)
+                    : const Color(0xfffbfcfb),
+              ),
 
           selectedItemBuilder: (context) {
             return uniqueItems.map((item) {
@@ -83,9 +75,7 @@ class CropDropdown extends StatelessWidget {
                   _displayItem(item, lang),
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: isDark
-                        ? Colors.white
-                        : const Color(0xff26332e),
+                    color: isDark ? Colors.white : const Color(0xff26332e),
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
@@ -101,9 +91,7 @@ class CropDropdown extends StatelessWidget {
                 _displayItem(item, lang),
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: isDark
-                      ? Colors.white
-                      : const Color(0xff26332e),
+                  color: isDark ? Colors.white : const Color(0xff26332e),
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),
@@ -117,10 +105,7 @@ class CropDropdown extends StatelessWidget {
     );
   }
 
-  String _displayItem(
-      String item,
-      LanguageProvider lang,
-      ) {
+  String _displayItem(String item, LanguageProvider lang) {
     return lang.tDynamic(item);
   }
 }

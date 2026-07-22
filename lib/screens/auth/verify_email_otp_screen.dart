@@ -2,23 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import 'login_screen.dart';
 
 class VerifyEmailOtpScreen extends StatefulWidget {
   final String email;
 
-  const VerifyEmailOtpScreen({
-    super.key,
-    required this.email,
-  });
+  const VerifyEmailOtpScreen({super.key, required this.email});
 
   @override
   State<VerifyEmailOtpScreen> createState() => _VerifyEmailOtpScreenState();
 }
 
 class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
-  final List<TextEditingController> _controllers =
-  List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _controllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
 
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
@@ -40,7 +40,11 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
   Future<void> _verifyEmailOtp() async {
     if (otp.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter 6 digit OTP")),
+        SnackBar(
+          content: Text(
+            context.read<LanguageProvider>().t("pleaseEnterSixDigitOtp"),
+          ),
+        ),
       );
       return;
     }
@@ -56,22 +60,25 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Email verified successfully. Please login."),
+        SnackBar(
+          content: Text(
+            context.read<LanguageProvider>().t("emailVerifiedSuccessfully"),
+          ),
         ),
       );
 
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(
-          builder: (_) => const LoginScreen(),
-        ),
-            (route) => false,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authProvider.errorMessage ?? "Invalid OTP"),
+          content: Text(
+            authProvider.errorMessage ??
+                context.read<LanguageProvider>().t("invalidOtp"),
+          ),
         ),
       );
     }
@@ -87,10 +94,7 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
         textAlign: TextAlign.center,
         keyboardType: TextInputType.number,
         maxLength: 1,
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           counterText: "",
           filled: true,
@@ -144,7 +148,7 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
                   color: darkGreen,
                   borderRadius: BorderRadius.circular(28),
                 ),
-                child: const Column(
+                child: Column(
                   children: [
                     Icon(
                       Icons.mark_email_read_rounded,
@@ -153,7 +157,7 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      "Verify Email",
+                      context.watch<LanguageProvider>().t("verifyEmail"),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 28,
@@ -162,12 +166,9 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      "Enter the 6-digit code sent to your email",
+                      context.watch<LanguageProvider>().t("otpSixDigitEmail"),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 15,
-                      ),
+                      style: TextStyle(color: Colors.white70, fontSize: 15),
                     ),
                   ],
                 ),
@@ -193,12 +194,9 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
 
               const SizedBox(height: 24),
 
-              const Text(
-                "OTP will expire in 10 minutes",
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                ),
+              Text(
+                context.watch<LanguageProvider>().t("otpExpiresTenMinutes"),
+                style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
 
               const SizedBox(height: 34),
@@ -207,8 +205,7 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed:
-                  authProvider.isLoading ? null : _verifyEmailOtp,
+                  onPressed: authProvider.isLoading ? null : _verifyEmailOtp,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: darkGreen,
                     shape: RoundedRectangleBorder(
@@ -217,14 +214,14 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
                   ),
                   child: authProvider.isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                    "Verify Email",
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                      : Text(
+                          context.watch<LanguageProvider>().t("verifyEmail"),
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
 
@@ -234,8 +231,8 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text(
-                  "Wrong email? Go back",
+                child: Text(
+                  context.watch<LanguageProvider>().t("wrongEmailGoBack"),
                   style: TextStyle(
                     color: darkGreen,
                     fontWeight: FontWeight.w700,

@@ -7,10 +7,7 @@ import 'send_inquiry_screen.dart';
 class BuyerCropDetailScreen extends StatelessWidget {
   final CropModel crop;
 
-  const BuyerCropDetailScreen({
-    super.key,
-    required this.crop,
-  });
+  const BuyerCropDetailScreen({super.key, required this.crop});
 
   static const Color darkGreen = Color(0xff0F5C3A);
   static const Color lightBackground = Color(0xffF8FAF7);
@@ -100,10 +97,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
           child: CircleAvatar(
             backgroundColor: isDark ? const Color(0xff1E1E1E) : Colors.white,
             child: IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                color: _accent(context),
-              ),
+              icon: Icon(Icons.arrow_back, color: _accent(context)),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -114,10 +108,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
           child: CircleAvatar(
             backgroundColor: isDark ? const Color(0xff1E1E1E) : Colors.white,
             child: IconButton(
-              icon: Icon(
-                Icons.favorite_border,
-                color: _accent(context),
-              ),
+              icon: Icon(Icons.favorite_border, color: _accent(context)),
               onPressed: () {},
             ),
           ),
@@ -172,10 +163,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
             backgroundColor: _isDark(context)
                 ? darkGreen.withOpacity(0.22)
                 : const Color(0xffEAF7EF),
-            child: Icon(
-              Icons.person,
-              color: _accent(context),
-            ),
+            child: Icon(Icons.person, color: _accent(context)),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -243,7 +231,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
                 context: context,
                 title: context.watch<LanguageProvider>().t("quantity"),
                 value:
-                "${crop.quantity} ${context.watch<LanguageProvider>().tDynamic(crop.unit)}",
+                    "${crop.quantity} ${context.watch<LanguageProvider>().tDynamic(crop.unit)}",
                 icon: Icons.inventory_2_outlined,
               ),
             ),
@@ -253,7 +241,7 @@ class BuyerCropDetailScreen extends StatelessWidget {
                 context: context,
                 title: context.watch<LanguageProvider>().t("price"),
                 value:
-                "Rs. ${crop.price} / ${context.watch<LanguageProvider>().tDynamic(crop.unit)}",
+                    "Rs. ${crop.price} / ${context.watch<LanguageProvider>().tDynamic(crop.unit)}",
                 icon: Icons.sell_outlined,
               ),
             ),
@@ -375,7 +363,8 @@ class BuyerCropDetailScreen extends StatelessWidget {
             runSpacing: 10,
             children: [
               if (crop.isOrganic) const _AttributeChip(text: "Organic"),
-              if (crop.isReadyToShip) const _AttributeChip(text: "Ready to Ship"),
+              if (crop.isReadyToShip)
+                const _AttributeChip(text: "Ready to Ship"),
               _AttributeChip(text: crop.category),
               _AttributeChip(text: crop.status),
             ],
@@ -488,13 +477,9 @@ class _SmallChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: isDark
-            ? darkGreen.withOpacity(0.25)
-            : const Color(0xffEAF7EF),
+        color: isDark ? darkGreen.withOpacity(0.25) : const Color(0xffEAF7EF),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark ? Colors.white10 : Colors.transparent,
-        ),
+        border: Border.all(color: isDark ? Colors.white10 : Colors.transparent),
       ),
       child: Text(
         lang.tDynamic(text),
@@ -513,7 +498,6 @@ class _AttributeChip extends StatelessWidget {
 
   const _AttributeChip({required this.text});
 
-
   static const Color lightGreen = Color(0xff9ff2c1);
 
   @override
@@ -524,9 +508,7 @@ class _AttributeChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
       decoration: BoxDecoration(
-        color: isDark
-            ? const Color(0xff1E1E1E)
-            : const Color(0xffF2F8F4),
+        color: isDark ? const Color(0xff1E1E1E) : const Color(0xffF2F8F4),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark ? Colors.white12 : const Color(0xffDCE7DD),

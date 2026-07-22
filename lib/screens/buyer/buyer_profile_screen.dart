@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'edit_buyer_profile_screen.dart';
 import '../../providers/buyer_profile_provider.dart';
+import '../../providers/buyer_language_provider.dart';
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/language_provider.dart';
@@ -138,26 +139,135 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
     );
   }
 
+  void _openLanguageSheet() {
+    final buyerLanguage = context.read<BuyerLanguageProvider>();
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF15251E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return ChangeNotifierProvider<BuyerLanguageProvider>.value(
+          value: buyerLanguage,
+          child: Consumer<BuyerLanguageProvider>(
+            builder: (context, language, _) {
+              return Directionality(
+                textDirection: language.locale.languageCode == 'ur'
+                    ? TextDirection.rtl
+                    : TextDirection.ltr,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          language.t('chooseLanguage'),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: primaryText,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        _languageOption(
+                          sheetContext,
+                          language: language,
+                          code: 'en',
+                          label: language.t('languageEnglish'),
+                        ),
+                        _languageOption(
+                          sheetContext,
+                          language: language,
+                          code: 'ur',
+                          label: language.t('languageUrdu'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void _openHelpDialog() {
+    final language = context.read<BuyerLanguageProvider>();
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => ChangeNotifierProvider.value(
+        value: language,
+        child: Consumer<BuyerLanguageProvider>(
+          builder: (context, currentLanguage, _) => AlertDialog(
+            title: Text(currentLanguage.t('helpSupport')),
+            content: Text(currentLanguage.t('aboutAgriConnectDescription')),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(currentLanguage.t('okay')),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _languageOption(
+    BuildContext sheetContext, {
+    required BuyerLanguageProvider language,
+    required String code,
+    required String label,
+  }) {
+    final selected = language.locale.languageCode == code;
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+      leading: Icon(Icons.translate_rounded, color: accentColor),
+      title: Text(
+        label,
+        style: TextStyle(color: primaryText, fontWeight: FontWeight.w700),
+      ),
+      trailing: selected
+          ? Icon(Icons.check_circle_rounded, color: accentColor)
+          : Icon(Icons.circle_outlined, color: iconColor),
+      onTap: () async {
+        await language.changeLanguage(code);
+        if (sheetContext.mounted) Navigator.pop(sheetContext);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final language = context.watch<BuyerLanguageProvider>();
+
     return Scaffold(
       backgroundColor: isDark ? darkBackground : lightBackground,
-      bottomNavigationBar: BuyerBottomNavBar(
-        currentIndex: 4,
-        onTap: _onNavTap,
-      ),
+      bottomNavigationBar: BuyerBottomNavBar(currentIndex: 4, onTap: _onNavTap),
       body: SafeArea(
         child: Consumer<BuyerProfileProvider>(
           builder: (context, provider, _) {
             if (provider.isLoading) {
-              return Center(child: CircularProgressIndicator(color: accentColor));
+              return Center(
+                child: CircularProgressIndicator(color: accentColor),
+              );
             }
 
             if (provider.errorMessage != null) {
               return Center(
                 child: Text(
                   provider.errorMessage!,
-                  style: TextStyle(color: errorColor, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: errorColor,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               );
             }
@@ -167,8 +277,11 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
             if (profile == null) {
               return Center(
                 child: Text(
-                  context.watch<LanguageProvider>().t("noProfileFound"),
-                  style: TextStyle(color: primaryText, fontWeight: FontWeight.w600),
+                  language.t("noProfileFound"),
+                  style: TextStyle(
+                    color: primaryText,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               );
             }
@@ -185,29 +298,42 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
                   const SizedBox(height: 24),
                   BuyerProfileMenuTile(
                     icon: Icons.edit_outlined,
-                    title: context.watch<LanguageProvider>().t("editProfile"),
+                    title: language.t("editProfile"),
                     onTap: () => _openEditProfile(profile),
                   ),
                   BuyerProfileMenuTile(
-                    icon: isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
-                    title: isDark
-                        ? context.watch<LanguageProvider>().t("darkMode")
-                        : context.watch<LanguageProvider>().t("lightMode"),
+                    icon: isDark
+                        ? Icons.dark_mode_outlined
+                        : Icons.light_mode_outlined,
+                    title: language.t('settings'),
+                    subtitle: isDark
+                        ? language.t("darkMode")
+                        : language.t("lightMode"),
                     onTap: _openThemeSheet,
                   ),
                   BuyerProfileMenuTile(
+                    icon: Icons.language_rounded,
+                    title: language.t('language'),
+                    subtitle: language.isUrdu
+                        ? language.t('languageUrdu')
+                        : language.t('languageEnglish'),
+                    onTap: _openLanguageSheet,
+                  ),
+                  BuyerProfileMenuTile(
                     icon: Icons.chat_bubble_outline,
-                    title: context.watch<LanguageProvider>().t("myInquiries"),
-                    onTap: () => Navigator.pushNamed(context, '/buyer-inquiries'),
+                    title: language.t("myInquiries"),
+                    onTap: () =>
+                        Navigator.pushNamed(context, '/buyer-inquiries'),
                   ),
                   BuyerProfileMenuTile(
                     icon: Icons.favorite_border,
-                    title: context.watch<LanguageProvider>().t("favoriteCrops"),
-                    onTap: () => Navigator.pushNamed(context, '/buyerFavorites'),
+                    title: language.t("favoriteCrops"),
+                    onTap: () =>
+                        Navigator.pushNamed(context, '/buyerFavorites'),
                   ),
                   BuyerProfileMenuTile(
                     icon: Icons.notifications_none,
-                    title: context.watch<LanguageProvider>().t("notifications"),
+                    title: language.t("notifications"),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -218,14 +344,19 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
                     },
                   ),
                   BuyerProfileMenuTile(
+                    icon: Icons.help_outline_rounded,
+                    title: language.t('helpSupport'),
+                    onTap: _openHelpDialog,
+                  ),
+                  BuyerProfileMenuTile(
                     icon: Icons.logout,
-                    title: context.watch<LanguageProvider>().t("logout"),
+                    title: language.t("logout"),
                     iconColor: Colors.red,
                     onTap: () {
                       Navigator.pushNamedAndRemoveUntil(
                         context,
                         '/login',
-                            (route) => false,
+                        (route) => false,
                       );
                     },
                   ),
@@ -239,12 +370,13 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
   }
 
   Widget _topBar() {
+    final language = context.watch<BuyerLanguageProvider>();
+
     return Row(
       children: [
-
         const Spacer(),
         Text(
-          context.watch<LanguageProvider>().t("profile"),
+          language.t("profile"),
           style: TextStyle(
             color: accentColor,
             fontWeight: FontWeight.w900,
@@ -252,7 +384,6 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
           ),
         ),
         const Spacer(),
-
       ],
     );
   }

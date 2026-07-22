@@ -48,7 +48,10 @@ class _EditCropScreenState extends State<EditCropScreen> {
         cropId = args.id;
         cropNameController = TextEditingController(text: args.name);
         // If quantity has " left", remove it for editing
-        final qText = args.quantity.replaceAll(RegExp(r'\s*left\s*$', caseSensitive: false), '');
+        final qText = args.quantity.replaceAll(
+          RegExp(r'\s*left\s*$', caseSensitive: false),
+          '',
+        );
         quantityController = TextEditingController(text: qText);
 
         final pText = args.price.replaceAll('\$', '');
@@ -68,11 +71,13 @@ class _EditCropScreenState extends State<EditCropScreen> {
         priceController = TextEditingController(text: "1.50");
         locationController = TextEditingController(text: "Faisalabad, Punjab");
         descriptionController = TextEditingController(
-          text: "Organic, pesticide-free tomatoes harvested directly from our family farm. Sweet and juicy.",
+          text:
+              "Organic, pesticide-free tomatoes harvested directly from our family farm. Sweet and juicy.",
         );
         selectedCategory = "Vegetables";
         selectedStatus = "Active";
-        currentImageUrl = "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=900";
+        currentImageUrl =
+            "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=900";
         harvestDate = "20/06/2026";
       }
       _isInitialized = true;
@@ -249,40 +254,40 @@ class _EditCropScreenState extends State<EditCropScreen> {
       children: [
         selectedImageBytes != null
             ? Image.memory(
-          selectedImageBytes!,
-          height: 250,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        )
+                selectedImageBytes!,
+                height: 250,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              )
             : currentImageUrl.isNotEmpty
             ? Image.network(
-          currentImageUrl,
-          height: 250,
-          width: double.infinity,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
-            height: 250,
-            width: double.infinity,
-            color: Colors.grey.shade300,
-            alignment: Alignment.center,
-            child: const Icon(
-              Icons.image_outlined,
-              size: 60,
-              color: Colors.grey,
-            ),
-          ),
-        )
+                currentImageUrl,
+                height: 250,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  height: 250,
+                  width: double.infinity,
+                  color: Colors.grey.shade300,
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.image_outlined,
+                    size: 60,
+                    color: Colors.grey,
+                  ),
+                ),
+              )
             : Container(
-          height: 250,
-          width: double.infinity,
-          color: Colors.grey.shade300,
-          alignment: Alignment.center,
-          child: const Icon(
-            Icons.image_outlined,
-            size: 60,
-            color: Colors.grey,
-          ),
-        ),
+                height: 250,
+                width: double.infinity,
+                color: Colors.grey.shade300,
+                alignment: Alignment.center,
+                child: const Icon(
+                  Icons.image_outlined,
+                  size: 60,
+                  color: Colors.grey,
+                ),
+              ),
         Container(height: 250, color: Colors.black.withOpacity(0.15)),
         ElevatedButton.icon(
           onPressed: _pickImage,

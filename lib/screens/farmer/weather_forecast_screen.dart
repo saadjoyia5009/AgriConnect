@@ -32,8 +32,7 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
 
   Color get primaryText => isDark ? Colors.white : const Color(0xff202525);
 
-  Color get secondaryText =>
-      isDark ? Colors.white70 : const Color(0xff4f5b56);
+  Color get secondaryText => isDark ? Colors.white70 : const Color(0xff4f5b56);
 
   Color get accentColor => isDark ? lightGreen : darkGreen;
 
@@ -74,10 +73,7 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
     final lang = context.watch<LanguageProvider>();
 
     final weather = provider.weather;
-    final uiData = WeatherUiHelper.getUiData(
-      weather?.condition ?? "",
-      isDark,
-    );
+    final uiData = WeatherUiHelper.getUiData(weather?.condition ?? "", isDark);
 
     return Scaffold(
       backgroundColor: isDark ? darkBackground : lightBackground,
@@ -88,89 +84,88 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
             ? _errorView(provider)
             : weather == null
             ? Center(
-          child: Text(
-            lang.t("noWeatherData"),
-            style: TextStyle(color: primaryText),
-          ),
-        )
+                child: Text(
+                  lang.t("noWeatherData"),
+                  style: TextStyle(color: primaryText),
+                ),
+              )
             : RefreshIndicator(
-          color: accentColor,
-          backgroundColor: isDark ? darkCard : Colors.white,
-          onRefresh: () => _refreshWeather(provider),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: uiData.gradient,
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 25),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _topBar(context),
-                  const SizedBox(height: 18),
-                  _location(weather),
-                  const SizedBox(height: 18),
-
-                  WeatherSearchField(
-                    controller: _searchController,
-                    isDark: isDark,
-                    accentColor: accentColor,
-                    hintText: lang.t("searchCity"),
-                    onSearch: (value) =>
-                        _searchCity(provider, value),
-                  ),
-
-                  const SizedBox(height: 22),
-
-                  WeatherMainCard(
-                    weather: weather,
-                    uiData: uiData,
-                    humidityText: lang.t("humidity"),
-                    windText: lang.t("wind"),
-                    feelsLikeText: lang.t("feelsLike"),
-                    uvIndexText: lang.t("uvIndex"),
-                    visibilityText: lang.t("visibility"),
-                  ),
-
-                  const SizedBox(height: 22),
-
-                  WeatherSuggestionCard(
-                    suggestion: weather.farmingSuggestion,
-                    isDark: isDark,
-                  ),
-
-                  const SizedBox(height: 22),
-
-                  Text(
-                    "Next Weather Updates",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: isDark
-                          ? Colors.white
-                          : const Color(0xff202525),
+                color: accentColor,
+                backgroundColor: isDark ? darkCard : Colors.white,
+                onRefresh: () => _refreshWeather(provider),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: uiData.gradient,
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                     ),
                   ),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 25),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _topBar(context),
+                        const SizedBox(height: 18),
+                        _location(weather),
+                        const SizedBox(height: 18),
 
-                  const SizedBox(height: 12),
+                        WeatherSearchField(
+                          controller: _searchController,
+                          isDark: isDark,
+                          accentColor: accentColor,
+                          hintText: lang.t("searchCity"),
+                          onSearch: (value) => _searchCity(provider, value),
+                        ),
 
-                  ...weather.forecast.map(
-                        (item) => WeatherForecastTile(
-                      item: item,
-                      isDark: isDark,
-                      accentColor: accentColor,
+                        const SizedBox(height: 22),
+
+                        WeatherMainCard(
+                          weather: weather,
+                          uiData: uiData,
+                          humidityText: lang.t("humidity"),
+                          windText: lang.t("wind"),
+                          feelsLikeText: lang.t("feelsLike"),
+                          uvIndexText: lang.t("uvIndex"),
+                          visibilityText: lang.t("visibility"),
+                        ),
+
+                        const SizedBox(height: 22),
+
+                        WeatherSuggestionCard(
+                          suggestion: weather.farmingSuggestion,
+                          isDark: isDark,
+                        ),
+
+                        const SizedBox(height: 22),
+
+                        Text(
+                          lang.t("nextWeatherUpdates"),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xff202525),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        ...weather.forecast.map(
+                          (item) => WeatherForecastTile(
+                            item: item,
+                            isDark: isDark,
+                            accentColor: accentColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -248,10 +243,7 @@ class _WeatherForecastScreenState extends State<WeatherForecastScreen> {
             Text(
               provider.errorMessage ?? "Failed to load weather",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: primaryText,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(color: primaryText, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 14),
             ElevatedButton(

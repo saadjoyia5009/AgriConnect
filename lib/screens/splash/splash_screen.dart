@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/language_provider.dart';
 import '../language/language_selection_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -24,20 +26,12 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1200),
     );
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
     _scaleAnimation = Tween<double>(
       begin: 0.75,
       end: 1.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutBack,
-      ),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _controller.forward();
 
@@ -68,24 +62,20 @@ class _SplashScreenState extends State<SplashScreen>
             scale: _scaleAnimation,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(
-                  Icons.eco,
-                  color: Colors.white,
-                  size: 85,
-                ),
-                SizedBox(height: 20),
+              children: [
+                const Icon(Icons.eco, color: Colors.white, size: 85),
+                const SizedBox(height: 20),
                 Text(
-                  "AgriConnect",
+                  context.watch<LanguageProvider>().t("appName"),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 33,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
-                  "Growing together, smarter agriculture\nfor a sustainable future.",
+                  context.watch<LanguageProvider>().t("growingTogether"),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(0xFFB7D8C8),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/responsive/responsive_layout.dart';
 import '../../providers/admin_crops_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/admin/admin_crop_card.dart';
 import '../../widgets/admin/admin_crop_shimmer.dart';
 
@@ -42,54 +44,56 @@ class _AdminCropsScreenState extends State<AdminCropsScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          "Crop Management",
+        title: Text(
+          context.watch<LanguageProvider>().t("cropManagement"),
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
-      body: Consumer<AdminCropsProvider>(
-        builder: (context, provider, _) {
-          if (provider.isLoading) {
-            return const AdminCropShimmer();
-          }
+      body: ResponsiveLayout(
+        child: Consumer<AdminCropsProvider>(
+          builder: (context, provider, _) {
+            if (provider.isLoading) {
+              return const AdminCropShimmer();
+            }
 
-          return Column(
-            children: [
-              _searchAndFilters(provider),
-              Expanded(
-                child: provider.crops.isEmpty
-                    ? Center(
-                  child: Text(
-                    "No crops found",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: primaryText,
-                    ),
-                  ),
-                )
-                    : ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-                  itemCount: provider.crops.length,
-                  itemBuilder: (context, index) {
-                    final crop = provider.crops[index];
+            return Column(
+              children: [
+                _searchAndFilters(provider),
+                Expanded(
+                  child: provider.crops.isEmpty
+                      ? Center(
+                          child: Text(
+                            context.watch<LanguageProvider>().t("noCropsFound"),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              color: primaryText,
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+                          itemCount: provider.crops.length,
+                          itemBuilder: (context, index) {
+                            final crop = provider.crops[index];
 
-                    return AdminCropCard(
-                      crop: crop,
-                      index: index,
-                      onToggleStatus: () {
-                        provider.toggleCropStatus(crop.id);
-                      },
-                      onDelete: () {
-                        _confirmDelete(context, provider, crop.id);
-                      },
-                    );
-                  },
+                            return AdminCropCard(
+                              crop: crop,
+                              index: index,
+                              onToggleStatus: () {
+                                provider.toggleCropStatus(crop.id);
+                              },
+                              onDelete: () {
+                                _confirmDelete(context, provider, crop.id);
+                              },
+                            );
+                          },
+                        ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -103,13 +107,10 @@ class _AdminCropsScreenState extends State<AdminCropsScreen> {
         children: [
           TextField(
             onChanged: provider.updateSearch,
-            style: TextStyle(
-              color: primaryText,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(color: primaryText, fontWeight: FontWeight.w600),
             cursorColor: accentColor,
             decoration: InputDecoration(
-              hintText: "Search crops...",
+              hintText: context.watch<LanguageProvider>().t("searchCrops"),
               hintStyle: TextStyle(
                 color: isDark ? Colors.white38 : Colors.grey.shade500,
               ),
@@ -132,10 +133,7 @@ class _AdminCropsScreenState extends State<AdminCropsScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(18),
-                borderSide: BorderSide(
-                  color: accentColor,
-                  width: 1.3,
-                ),
+                borderSide: BorderSide(color: accentColor, width: 1.3),
               ),
             ),
           ),
@@ -189,10 +187,10 @@ class _AdminCropsScreenState extends State<AdminCropsScreen> {
   }
 
   void _confirmDelete(
-      BuildContext context,
-      AdminCropsProvider provider,
-      String id,
-      ) {
+    BuildContext context,
+    AdminCropsProvider provider,
+    String id,
+  ) {
     showDialog(
       context: context,
       builder: (_) {
@@ -204,14 +202,14 @@ class _AdminCropsScreenState extends State<AdminCropsScreen> {
             borderRadius: BorderRadius.circular(22),
           ),
           title: Text(
-            "Delete Crop Listing?",
+            context.read<LanguageProvider>().t("deleteCropListingQuestion"),
             style: TextStyle(
               fontWeight: FontWeight.w900,
               color: dialogIsDark ? Colors.white : const Color(0xFF123524),
             ),
           ),
           content: Text(
-            "This crop listing will be removed from admin records.",
+            context.read<LanguageProvider>().t("deleteCropAdminWarning"),
             style: TextStyle(
               color: dialogIsDark ? Colors.white70 : Colors.black87,
             ),
@@ -220,7 +218,7 @@ class _AdminCropsScreenState extends State<AdminCropsScreen> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                "Cancel",
+                context.read<LanguageProvider>().t("cancel"),
                 style: TextStyle(
                   color: dialogIsDark ? lightGreen : darkGreen,
                   fontWeight: FontWeight.w800,
@@ -236,7 +234,7 @@ class _AdminCropsScreenState extends State<AdminCropsScreen> {
                 provider.deleteCrop(id);
                 Navigator.pop(context);
               },
-              child: const Text("Delete"),
+              child: Text(context.read<LanguageProvider>().t("delete")),
             ),
           ],
         );

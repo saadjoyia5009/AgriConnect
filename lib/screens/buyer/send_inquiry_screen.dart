@@ -9,10 +9,7 @@ import '../../providers/language_provider.dart';
 class SendInquiryScreen extends StatefulWidget {
   final CropModel crop;
 
-  const SendInquiryScreen({
-    super.key,
-    required this.crop,
-  });
+  const SendInquiryScreen({super.key, required this.crop});
 
   @override
   State<SendInquiryScreen> createState() => _SendInquiryScreenState();
@@ -23,8 +20,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
 
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _offerPriceController = TextEditingController();
-  final TextEditingController _deliveryDateController =
-  TextEditingController();
+  final TextEditingController _deliveryDateController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
 
   static const Color darkGreen = Color(0xff0F5C3A);
@@ -65,7 +61,9 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
       initialDate: initialDate,
       firstDate: now,
       lastDate: now.add(const Duration(days: 365)),
-      helpText: "Select expected delivery date",
+      helpText: context.read<LanguageProvider>().t(
+        "selectExpectedDeliveryDate",
+      ),
     );
 
     if (selectedDate == null || !mounted) return;
@@ -85,28 +83,30 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
     final text = value?.trim() ?? "";
 
     if (text.isEmpty) {
-      return "Required quantity is required";
+      return context.read<LanguageProvider>().t("requiredQuantityRequired");
     }
 
     final quantity = double.tryParse(text);
 
     if (quantity == null) {
-      return "Enter a valid quantity";
+      return context.read<LanguageProvider>().t("validQuantityRequired");
     }
 
     if (quantity <= 0) {
-      return "Quantity must be greater than zero";
+      return context.read<LanguageProvider>().t("quantityGreaterZero");
     }
 
-    final availableQuantity = double.tryParse(
-      widget.crop.quantity.toString(),
-    );
+    final availableQuantity = double.tryParse(widget.crop.quantity.toString());
 
-    if (
-    availableQuantity != null &&
-        quantity > availableQuantity
-    ) {
-      return "Only ${widget.crop.quantity} ${widget.crop.unit} is available";
+    if (availableQuantity != null && quantity > availableQuantity) {
+      return context
+          .read<LanguageProvider>()
+          .t("onlyQuantityAvailable")
+          .replaceAll('{quantity}', widget.crop.quantity.toString())
+          .replaceAll(
+            '{unit}',
+            context.read<LanguageProvider>().tDynamic(widget.crop.unit),
+          );
     }
 
     return null;
@@ -116,17 +116,17 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
     final text = value?.trim() ?? "";
 
     if (text.isEmpty) {
-      return "Offered price is required";
+      return context.read<LanguageProvider>().t("offeredPriceRequired");
     }
 
     final price = double.tryParse(text);
 
     if (price == null) {
-      return "Enter a valid offered price";
+      return context.read<LanguageProvider>().t("validOfferedPriceRequired");
     }
 
     if (price <= 0) {
-      return "Offered price must be greater than zero";
+      return context.read<LanguageProvider>().t("offeredPriceGreaterZero");
     }
 
     return null;
@@ -134,24 +134,20 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
 
   String? _validateDeliveryDate(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return "Delivery date is required";
+      return context.read<LanguageProvider>().t("deliveryDateRequired");
     }
 
     final selectedDate = DateTime.tryParse(value.trim());
 
     if (selectedDate == null) {
-      return "Select a valid delivery date";
+      return context.read<LanguageProvider>().t("validDeliveryDateRequired");
     }
 
     final today = DateTime.now();
-    final todayOnly = DateTime(
-      today.year,
-      today.month,
-      today.day,
-    );
+    final todayOnly = DateTime(today.year, today.month, today.day);
 
     if (selectedDate.isBefore(todayOnly)) {
-      return "Delivery date cannot be in the past";
+      return context.read<LanguageProvider>().t("deliveryDatePast");
     }
 
     return null;
@@ -161,15 +157,15 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
     final message = value?.trim() ?? "";
 
     if (message.isEmpty) {
-      return "Message is required";
+      return context.read<LanguageProvider>().t("messageRequired");
     }
 
     if (message.length < 5) {
-      return "Message must contain at least 5 characters";
+      return context.read<LanguageProvider>().t("messageMinLength");
     }
 
     if (message.length > 2000) {
-      return "Message cannot exceed 2000 characters";
+      return context.read<LanguageProvider>().t("messageMaxLength");
     }
 
     return null;
@@ -198,9 +194,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            context
-                .read<LanguageProvider>()
-                .t("inquirySentSuccessfully"),
+            context.read<LanguageProvider>().t("inquirySentSuccessfully"),
           ),
           backgroundColor: darkGreen,
         ),
@@ -209,16 +203,14 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
       Navigator.pushNamedAndRemoveUntil(
         context,
         '/buyer-inquiries',
-            (route) => route.isFirst,
+        (route) => route.isFirst,
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             provider.errorMessage ??
-                context
-                    .read<LanguageProvider>()
-                    .t("failedSendInquiry"),
+                context.read<LanguageProvider>().t("failedSendInquiry"),
           ),
           backgroundColor: Colors.red,
         ),
@@ -239,24 +231,17 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
         centerTitle: true,
         title: Text(
           lang.t("sendInquiry"),
-          style: TextStyle(
-            color: accentColor,
-            fontWeight: FontWeight.w900,
-          ),
+          style: TextStyle(color: accentColor, fontWeight: FontWeight.w900),
         ),
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: accentColor,
-          ),
+          icon: Icon(Icons.arrow_back, color: accentColor),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Consumer<BuyerInquiryProvider>(
         builder: (context, provider, _) {
           return SingleChildScrollView(
-            keyboardDismissBehavior:
-            ScrollViewKeyboardDismissBehavior.onDrag,
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.all(18),
             child: Form(
               key: _formKey,
@@ -302,7 +287,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                   _inputField(
                     controller: _deliveryDateController,
                     label: lang.t("expectedDeliveryDate"),
-                    hint: "YYYY-MM-DD",
+                    hint: lang.t("dateFormatHint"),
                     icon: Icons.calendar_month_outlined,
                     validator: _validateDeliveryDate,
                     readOnly: true,
@@ -315,9 +300,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                     height: 54,
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: provider.isSubmitting
-                          ? null
-                          : _submitInquiry,
+                      onPressed: provider.isSubmitting ? null : _submitInquiry,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: darkGreen,
                         disabledBackgroundColor: isDark
@@ -329,21 +312,21 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                       ),
                       child: provider.isSubmitting
                           ? const SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2.5,
-                        ),
-                      )
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
                           : Text(
-                        lang.t("submitInquiry"),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
+                              lang.t("submitInquiry"),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -356,6 +339,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
   }
 
   Widget _cropSummaryCard(CropModel crop) {
+    final lang = context.watch<LanguageProvider>();
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: _cardDecoration(),
@@ -402,7 +386,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                 Text(
                   crop.farmerName.trim().isNotEmpty
                       ? crop.farmerName
-                      : "Unknown Farmer",
+                      : context.watch<LanguageProvider>().t("unknownFarmer"),
                   style: TextStyle(
                     fontSize: 13,
                     color: secondaryText,
@@ -411,7 +395,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  "Rs. ${crop.price} / ${crop.unit}",
+                  "Rs. ${crop.price} / ${lang.tDynamic(crop.unit)}",
                   style: TextStyle(
                     fontSize: 15,
                     color: accentColor,
@@ -420,7 +404,10 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Available: ${crop.quantity} ${crop.unit}",
+                  lang
+                      .t("availableValue")
+                      .replaceAll('{quantity}', crop.quantity.toString())
+                      .replaceAll('{unit}', lang.tDynamic(crop.unit)),
                   style: TextStyle(
                     fontSize: 12,
                     color: secondaryText,
@@ -455,10 +442,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
       validator: validator,
-      style: TextStyle(
-        color: primaryText,
-        fontWeight: FontWeight.w600,
-      ),
+      style: TextStyle(color: primaryText, fontWeight: FontWeight.w600),
       cursorColor: accentColor,
       decoration: _inputDecoration(
         label: label,
@@ -477,16 +461,11 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
       maxLines: 6,
       maxLength: 2000,
       validator: _validateMessage,
-      style: TextStyle(
-        color: primaryText,
-        fontWeight: FontWeight.w600,
-      ),
+      style: TextStyle(color: primaryText, fontWeight: FontWeight.w600),
       cursorColor: accentColor,
       decoration: _inputDecoration(
         label: context.read<LanguageProvider>().t("message"),
-        hint: context
-            .read<LanguageProvider>()
-            .t("messageFarmerHint"),
+        hint: context.read<LanguageProvider>().t("messageFarmerHint"),
         icon: Icons.message_outlined,
       ),
     );
@@ -508,33 +487,19 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
       labelStyle: TextStyle(
         color: isDark ? Colors.white60 : const Color(0xff5F675F),
       ),
-      hintStyle: TextStyle(
-        color: isDark ? Colors.white38 : Colors.grey,
-      ),
-      prefixStyle: TextStyle(
-        color: primaryText,
-        fontWeight: FontWeight.w700,
-      ),
-      suffixStyle: TextStyle(
-        color: secondaryText,
-        fontWeight: FontWeight.w700,
-      ),
+      hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.grey),
+      prefixStyle: TextStyle(color: primaryText, fontWeight: FontWeight.w700),
+      suffixStyle: TextStyle(color: secondaryText, fontWeight: FontWeight.w700),
       errorStyle: TextStyle(
         color: isDark ? Colors.red.shade200 : Colors.red,
         fontWeight: FontWeight.w600,
       ),
       filled: true,
       fillColor: isDark ? darkCard : Colors.white,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 16,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       border: _inputBorder(),
       enabledBorder: _inputBorder(),
-      focusedBorder: _inputBorder(
-        color: accentColor,
-        width: 1.4,
-      ),
+      focusedBorder: _inputBorder(color: accentColor, width: 1.4),
       errorBorder: _inputBorder(
         color: isDark ? Colors.red.shade200 : Colors.red,
       ),
@@ -545,17 +510,11 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
     );
   }
 
-  OutlineInputBorder _inputBorder({
-    Color? color,
-    double width = 1,
-  }) {
+  OutlineInputBorder _inputBorder({Color? color, double width = 1}) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
       borderSide: BorderSide(
-        color: color ??
-            (isDark
-                ? Colors.white12
-                : const Color(0xffDCE7DD)),
+        color: color ?? (isDark ? Colors.white12 : const Color(0xffDCE7DD)),
         width: width,
       ),
     );
@@ -566,9 +525,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
       color: isDark ? darkCard : Colors.white,
       borderRadius: BorderRadius.circular(18),
       border: Border.all(
-        color: isDark
-            ? Colors.white10
-            : const Color(0xffDCE7DD),
+        color: isDark ? Colors.white10 : const Color(0xffDCE7DD),
       ),
     );
   }

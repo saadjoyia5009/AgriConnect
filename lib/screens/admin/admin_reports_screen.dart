@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/admin_reports_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/admin/admin_report_card.dart';
 import '../../widgets/admin/admin_report_shimmer.dart';
 
@@ -42,8 +43,8 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          "Reports",
+        title: Text(
+          context.watch<LanguageProvider>().t("reports"),
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
@@ -59,30 +60,30 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
               Expanded(
                 child: provider.reports.isEmpty
                     ? Center(
-                  child: Text(
-                    "No reports found",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: primaryText,
-                    ),
-                  ),
-                )
+                        child: Text(
+                          context.watch<LanguageProvider>().t("noReportsFound"),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: primaryText,
+                          ),
+                        ),
+                      )
                     : ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-                  itemCount: provider.reports.length,
-                  itemBuilder: (context, index) {
-                    final report = provider.reports[index];
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+                        itemCount: provider.reports.length,
+                        itemBuilder: (context, index) {
+                          final report = provider.reports[index];
 
-                    return AdminReportCard(
-                      report: report,
-                      index: index,
-                      onStatusChanged: (status) {
-                        provider.updateReportStatus(report.id, status);
-                      },
-                    );
-                  },
-                ),
+                          return AdminReportCard(
+                            report: report,
+                            index: index,
+                            onStatusChanged: (status) {
+                              provider.updateReportStatus(report.id, status);
+                            },
+                          );
+                        },
+                      ),
               ),
             ],
           );

@@ -30,9 +30,6 @@ class AuthResponseModel {
   }
 
   factory AuthResponseModel.error(String message) {
-    return AuthResponseModel(
-      success: false,
-      message: message,
-    );
+    return AuthResponseModel(success: false, message: message);
   }
 }

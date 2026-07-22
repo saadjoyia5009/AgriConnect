@@ -68,55 +68,55 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
     final lang = context.watch<LanguageProvider>();
 
     return Directionality(
-        textDirection: lang.isUrdu ? TextDirection.rtl : TextDirection.ltr,
-        child:Scaffold(
-      backgroundColor: isDark ? darkBackground : lightBackground,
-      bottomNavigationBar: BuyerBottomNavBar(
-        currentIndex: 1,
-        onTap: _onNavTap,
-      ),
-      body: SafeArea(
-        child: Consumer<BuyerFavoriteProvider>(
-          builder: (context, provider, _) {
-            return Column(
-              children: [
-                _topBar(),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(18, 12, 18, 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          lang.t("favoriteCrops"),
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                            color: accentColor,
+      textDirection: lang.isUrdu ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+        backgroundColor: isDark ? darkBackground : lightBackground,
+        bottomNavigationBar: BuyerBottomNavBar(
+          currentIndex: 1,
+          onTap: _onNavTap,
+        ),
+        body: SafeArea(
+          child: Consumer<BuyerFavoriteProvider>(
+            builder: (context, provider, _) {
+              return Column(
+                children: [
+                  _topBar(),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(18, 12, 18, 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            lang.t("favoriteCrops"),
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: accentColor,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          lang.t("favoriteCropsSubtitle"),
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: secondaryText,
+                          const SizedBox(height: 6),
+                          Text(
+                            lang.t("favoriteCropsSubtitle"),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: secondaryText,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 22),
-                        _categoryChips(provider),
-                        const SizedBox(height: 18),
-                        _favoriteList(provider),
-                      ],
+                          const SizedBox(height: 22),
+                          _categoryChips(provider),
+                          const SizedBox(height: 18),
+                          _favoriteList(provider),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
       ),
-        ),
     );
   }
 
@@ -125,7 +125,6 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
       child: Row(
         children: [
-
           const Spacer(),
           Text(
             context.watch<LanguageProvider>().t("favorites"),
@@ -136,7 +135,6 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
             ),
           ),
           const Spacer(),
-
         ],
       ),
     );
@@ -163,8 +161,9 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
             ),
             selected: selected,
             onSelected: (_) => provider.changeCategory(category),
-            selectedColor:
-            isDark ? darkGreen.withOpacity(0.35) : const Color(0xffBDF2CE),
+            selectedColor: isDark
+                ? darkGreen.withOpacity(0.35)
+                : const Color(0xffBDF2CE),
             backgroundColor: isDark ? darkCard : Colors.white,
             labelStyle: TextStyle(
               fontSize: 12,
@@ -189,9 +188,7 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
     if (provider.isLoading) {
       return SizedBox(
         height: 300,
-        child: Center(
-          child: CircularProgressIndicator(color: accentColor),
-        ),
+        child: Center(child: CircularProgressIndicator(color: accentColor)),
       );
     }
 
@@ -201,10 +198,7 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
         child: Center(
           child: Text(
             context.watch<LanguageProvider>().t("noFavoriteCropsFound"),
-            style: TextStyle(
-              color: secondaryText,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(color: secondaryText, fontWeight: FontWeight.w600),
           ),
         ),
       );
@@ -223,9 +217,7 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
           onInquireTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => SendInquiryScreen(crop: crop),
-              ),
+              MaterialPageRoute(builder: (_) => SendInquiryScreen(crop: crop)),
             );
           },
         );

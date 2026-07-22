@@ -17,9 +17,9 @@ class AdminCropsProvider extends ChangeNotifier {
 
       final matchesSearch =
           crop.cropName.toLowerCase().contains(query) ||
-              crop.farmerName.toLowerCase().contains(query) ||
-              crop.category.toLowerCase().contains(query) ||
-              crop.location.toLowerCase().contains(query);
+          crop.farmerName.toLowerCase().contains(query) ||
+          crop.category.toLowerCase().contains(query) ||
+          crop.location.toLowerCase().contains(query);
 
       return matchesFilter && matchesSearch;
     }).toList();

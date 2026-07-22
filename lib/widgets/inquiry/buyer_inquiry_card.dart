@@ -38,40 +38,29 @@ class BuyerInquiryCard extends StatelessWidget {
             : const Color(0xFFD7E8FF);
 
       default:
-        return isDark
-            ? Colors.white10
-            : const Color(0xFFE6ECE8);
+        return isDark ? Colors.white10 : const Color(0xFFE6ECE8);
     }
   }
 
   Color _statusTextColor(bool isDark) {
     switch (inquiry.normalizedStatus) {
       case "accepted":
-        return isDark
-            ? lightGreen
-            : const Color(0xFF0E7A3E);
+        return isDark ? lightGreen : const Color(0xFF0E7A3E);
 
       case "rejected":
-        return isDark
-            ? Colors.red.shade200
-            : const Color(0xFFD33A2C);
+        return isDark ? Colors.red.shade200 : const Color(0xFFD33A2C);
 
       case "completed":
-        return isDark
-            ? Colors.blue.shade200
-            : const Color(0xFF1D5FA7);
+        return isDark ? Colors.blue.shade200 : const Color(0xFF1D5FA7);
 
       default:
-        return isDark
-            ? Colors.white70
-            : const Color(0xFF4E6B59);
+        return isDark ? Colors.white70 : const Color(0xFF4E6B59);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 22),
@@ -79,15 +68,11 @@ class BuyerInquiryCard extends StatelessWidget {
         color: isDark ? darkCard : Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isDark
-              ? Colors.white10
-              : const Color(0xFFDDEFE3),
+          color: isDark ? Colors.white10 : const Color(0xFFDDEFE3),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(
-              alpha: isDark ? 0.20 : 0.035,
-            ),
+            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.035),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -96,12 +81,7 @@ class BuyerInquiryCard extends StatelessWidget {
       child: Column(
         children: [
           _topSection(context),
-          Divider(
-            height: 1,
-            color: isDark
-                ? Colors.white10
-                : Colors.black12,
-          ),
+          Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
           _infoSection(context),
           _actionButton(context),
         ],
@@ -110,8 +90,7 @@ class BuyerInquiryCard extends StatelessWidget {
   }
 
   Widget _topSection(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.all(14),
@@ -133,9 +112,7 @@ class BuyerInquiryCard extends StatelessWidget {
                       : const Color(0xFFEAF7EF),
                   child: Icon(
                     Icons.image_not_supported_outlined,
-                    color: isDark
-                        ? Colors.white60
-                        : darkGreen,
+                    color: isDark ? Colors.white60 : darkGreen,
                   ),
                 );
               },
@@ -144,8 +121,7 @@ class BuyerInquiryCard extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   inquiry.cropName,
@@ -154,9 +130,7 @@ class BuyerInquiryCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: isDark
-                        ? Colors.white
-                        : const Color(0xFF1F2D25),
+                    color: isDark ? Colors.white : const Color(0xFF1F2D25),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -168,9 +142,7 @@ class BuyerInquiryCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 14,
-                    color: isDark
-                        ? Colors.white70
-                        : const Color(0xFF40584B),
+                    color: isDark ? Colors.white70 : const Color(0xFF40584B),
                   ),
                 ),
               ],
@@ -178,17 +150,10 @@ class BuyerInquiryCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Container(
-            constraints: const BoxConstraints(
-              maxWidth: 90,
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 9,
-              vertical: 5,
-            ),
+            constraints: const BoxConstraints(maxWidth: 90),
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
             decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.white10
-                  : const Color(0xFFE9EEEB),
+              color: isDark ? Colors.white10 : const Color(0xFFE9EEEB),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -198,9 +163,7 @@ class BuyerInquiryCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: isDark
-                    ? Colors.white70
-                    : const Color(0xFF4B5650),
+                color: isDark ? Colors.white70 : const Color(0xFF4B5650),
               ),
             ),
           ),
@@ -213,12 +176,7 @@ class BuyerInquiryCard extends StatelessWidget {
     final lang = context.watch<LanguageProvider>();
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        14,
-        14,
-        14,
-        10,
-      ),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
       child: Row(
         children: [
           Expanded(
@@ -240,8 +198,7 @@ class BuyerInquiryCard extends StatelessWidget {
     required String title,
     required String value,
   }) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,9 +209,7 @@ class BuyerInquiryCard extends StatelessWidget {
             fontSize: 11,
             letterSpacing: 0.8,
             fontWeight: FontWeight.w700,
-            color: isDark
-                ? Colors.white54
-                : const Color(0xFF656F68),
+            color: isDark ? Colors.white54 : const Color(0xFF656F68),
           ),
         ),
         const SizedBox(height: 7),
@@ -265,9 +220,7 @@ class BuyerInquiryCard extends StatelessWidget {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w800,
-            color: isDark
-                ? Colors.white
-                : const Color(0xFF1E2722),
+            color: isDark ? Colors.white : const Color(0xFF1E2722),
           ),
         ),
       ],
@@ -275,8 +228,7 @@ class BuyerInquiryCard extends StatelessWidget {
   }
 
   Widget _statusChip(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final lang = context.watch<LanguageProvider>();
 
     return Column(
@@ -288,17 +240,12 @@ class BuyerInquiryCard extends StatelessWidget {
             fontSize: 11,
             letterSpacing: 0.8,
             fontWeight: FontWeight.w700,
-            color: isDark
-                ? Colors.white54
-                : const Color(0xFF656F68),
+            color: isDark ? Colors.white54 : const Color(0xFF656F68),
           ),
         ),
         const SizedBox(height: 7),
         Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 6,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: _statusBackgroundColor(isDark),
             borderRadius: BorderRadius.circular(20),
@@ -317,61 +264,37 @@ class BuyerInquiryCard extends StatelessWidget {
   }
 
   Widget _actionButton(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final lang = context.watch<LanguageProvider>();
 
     final canOpenChat = inquiry.chatAvailable;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        14,
-        8,
-        14,
-        14,
-      ),
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
       child: SizedBox(
         width: double.infinity,
         height: 40,
         child: OutlinedButton.icon(
-          onPressed: canOpenChat
-              ? onMessageFarmer
-              : onViewDetails,
+          onPressed: canOpenChat ? onMessageFarmer : onViewDetails,
           icon: Icon(
-            canOpenChat
-                ? Icons.chat_bubble_outline
-                : Icons.visibility_outlined,
+            canOpenChat ? Icons.chat_bubble_outline : Icons.visibility_outlined,
             size: 18,
           ),
           style: OutlinedButton.styleFrom(
             backgroundColor: canOpenChat
                 ? darkGreen
-                : (
-                isDark
-                    ? const Color(0xff1E1E1E)
-                    : Colors.white
-            ),
+                : (isDark ? const Color(0xff1E1E1E) : Colors.white),
             foregroundColor: canOpenChat
                 ? Colors.white
-                : (
-                isDark
-                    ? lightGreen
-                    : darkGreen
-            ),
-            side: BorderSide(
-              color: isDark ? lightGreen : darkGreen,
-            ),
+                : (isDark ? lightGreen : darkGreen),
+            side: BorderSide(color: isDark ? lightGreen : darkGreen),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(7),
             ),
           ),
           label: Text(
-            canOpenChat
-                ? lang.t("messageFarmer")
-                : lang.t("viewDetails"),
-            style: const TextStyle(
-              fontWeight: FontWeight.w800,
-            ),
+            canOpenChat ? lang.t("messageFarmer") : lang.t("viewDetails"),
+            style: const TextStyle(fontWeight: FontWeight.w800),
           ),
         ),
       ),
@@ -391,8 +314,7 @@ class BuyerInquiryCard extends StatelessWidget {
 
     final localDate = parsedDate.toLocal();
     final day = localDate.day.toString().padLeft(2, '0');
-    final month =
-    localDate.month.toString().padLeft(2, '0');
+    final month = localDate.month.toString().padLeft(2, '0');
     final year = localDate.year.toString();
 
     return "$day/$month/$year";

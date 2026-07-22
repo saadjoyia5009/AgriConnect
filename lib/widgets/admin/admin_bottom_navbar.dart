@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/language_provider.dart';
 
 class AdminBottomNavbar extends StatelessWidget {
   final int currentIndex;
@@ -24,9 +26,7 @@ class AdminBottomNavbar extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? darkCard : darkGreen,
         borderRadius: BorderRadius.circular(26),
-        border: isDark
-            ? Border.all(color: Colors.white10)
-            : null,
+        border: isDark ? Border.all(color: Colors.white10) : null,
         boxShadow: [
           BoxShadow(
             color: isDark
@@ -42,31 +42,31 @@ class AdminBottomNavbar extends StatelessWidget {
           _item(
             context,
             Icons.dashboard_rounded,
-            "Home",
+            context.watch<LanguageProvider>().t("home"),
             0,
           ),
           _item(
             context,
             Icons.people_alt_rounded,
-            "Users",
+            context.watch<LanguageProvider>().t("users"),
             1,
           ),
           _item(
             context,
             Icons.grass_rounded,
-            "Crops",
+            context.watch<LanguageProvider>().t("crops"),
             2,
           ),
           _item(
             context,
             Icons.bar_chart_rounded,
-            "Stats",
+            context.watch<LanguageProvider>().t("stats"),
             3,
           ),
           _item(
             context,
             Icons.person_rounded,
-            "Profile",
+            context.watch<LanguageProvider>().t("profile"),
             4,
           ),
         ],
@@ -74,12 +74,7 @@ class AdminBottomNavbar extends StatelessWidget {
     );
   }
 
-  Widget _item(
-      BuildContext context,
-      IconData icon,
-      String label,
-      int index,
-      ) {
+  Widget _item(BuildContext context, IconData icon, String label, int index) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final selected = currentIndex == index;
 
@@ -91,15 +86,11 @@ class AdminBottomNavbar extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
             color: selected
-                ? (isDark
-                ? const Color(0xFF1E352B)
-                : Colors.white)
+                ? (isDark ? const Color(0xFF1E352B) : Colors.white)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(18),
             border: selected && isDark
-                ? Border.all(
-              color: lightGreen.withOpacity(0.25),
-            )
+                ? Border.all(color: lightGreen.withOpacity(0.25))
                 : null,
           ),
           child: Column(

@@ -26,10 +26,10 @@ class ApiService {
   }
 
   static Future<dynamic> post(
-      String endpoint,
-      Map<String, dynamic> body, {
-        bool auth = false,
-      }) async {
+    String endpoint,
+    Map<String, dynamic> body, {
+    bool auth = false,
+  }) async {
     final response = await http.post(
       _url(endpoint),
       headers: await _headers(auth: auth),
@@ -40,10 +40,10 @@ class ApiService {
   }
 
   static Future<dynamic> patch(
-      String endpoint,
-      Map<String, dynamic> body, {
-        bool auth = false,
-      }) async {
+    String endpoint,
+    Map<String, dynamic> body, {
+    bool auth = false,
+  }) async {
     final response = await http.patch(
       _url(endpoint),
       headers: await _headers(auth: auth),

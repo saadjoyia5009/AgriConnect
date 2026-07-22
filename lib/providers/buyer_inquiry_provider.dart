@@ -40,9 +40,7 @@ class BuyerInquiryProvider extends ChangeNotifier {
 
   BuyerInquiryModel? getInquiryById(String inquiryId) {
     try {
-      return _inquiries.firstWhere(
-            (item) => item.id == inquiryId,
-      );
+      return _inquiries.firstWhere((item) => item.id == inquiryId);
     } catch (_) {
       return null;
     }
@@ -61,10 +59,9 @@ class BuyerInquiryProvider extends ChangeNotifier {
       final loadedInquiries = response
           .whereType<Map>()
           .map(
-            (item) => BuyerInquiryModel.fromJson(
-          Map<String, dynamic>.from(item),
-        ),
-      )
+            (item) =>
+                BuyerInquiryModel.fromJson(Map<String, dynamic>.from(item)),
+          )
           .toList();
 
       _inquiries
@@ -140,9 +137,6 @@ class BuyerInquiryProvider extends ChangeNotifier {
   }
 
   String _cleanError(Object error) {
-    return error
-        .toString()
-        .replaceFirst("Exception: ", "")
-        .trim();
+    return error.toString().replaceFirst("Exception: ", "").trim();
   }
 }

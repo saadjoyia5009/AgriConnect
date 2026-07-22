@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/responsive/responsive_layout.dart';
 import '../../providers/admin_users_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/admin/admin_user_card.dart';
 import '../../widgets/admin/admin_user_shimmer.dart';
 
@@ -42,51 +44,53 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          "User Management",
+        title: Text(
+          context.watch<LanguageProvider>().t("userManagement"),
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
-      body: Consumer<AdminUsersProvider>(
-        builder: (context, provider, _) {
-          if (provider.isLoading) {
-            return const AdminUserShimmer();
-          }
+      body: ResponsiveLayout(
+        child: Consumer<AdminUsersProvider>(
+          builder: (context, provider, _) {
+            if (provider.isLoading) {
+              return const AdminUserShimmer();
+            }
 
-          return Column(
-            children: [
-              _searchAndFilters(provider),
-              Expanded(
-                child: provider.users.isEmpty
-                    ? Center(
-                  child: Text(
-                    "No users found",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: primaryText,
-                    ),
-                  ),
-                )
-                    : ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-                  itemCount: provider.users.length,
-                  itemBuilder: (context, index) {
-                    final user = provider.users[index];
+            return Column(
+              children: [
+                _searchAndFilters(provider),
+                Expanded(
+                  child: provider.users.isEmpty
+                      ? Center(
+                          child: Text(
+                            context.watch<LanguageProvider>().t("noUsersFound"),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              color: primaryText,
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+                          itemCount: provider.users.length,
+                          itemBuilder: (context, index) {
+                            final user = provider.users[index];
 
-                    return AdminUserCard(
-                      user: user,
-                      index: index,
-                      onToggleStatus: () {
-                        provider.toggleUserStatus(user.id);
-                      },
-                    );
-                  },
+                            return AdminUserCard(
+                              user: user,
+                              index: index,
+                              onToggleStatus: () {
+                                provider.toggleUserStatus(user.id);
+                              },
+                            );
+                          },
+                        ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -100,13 +104,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         children: [
           TextField(
             onChanged: provider.updateSearch,
-            style: TextStyle(
-              color: primaryText,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(color: primaryText, fontWeight: FontWeight.w600),
             cursorColor: accentColor,
             decoration: InputDecoration(
-              hintText: "Search users...",
+              hintText: context.watch<LanguageProvider>().t("searchUsers"),
               hintStyle: TextStyle(
                 color: isDark ? Colors.white38 : Colors.grey.shade500,
               ),
@@ -129,10 +130,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(18),
-                borderSide: BorderSide(
-                  color: accentColor,
-                  width: 1.3,
-                ),
+                borderSide: BorderSide(color: accentColor, width: 1.3),
               ),
             ),
           ),

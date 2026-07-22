@@ -36,7 +36,7 @@ class CropService {
 
     throw Exception(
       'Failed to load farmer crops (${response.statusCode}): '
-          '${response.body}',
+      '${response.body}',
     );
   }
 
@@ -67,21 +67,19 @@ class CropService {
 
     throw Exception(
       'Failed to load marketplace crops (${response.statusCode}): '
-          '${response.body}',
+      '${response.body}',
     );
   }
 
   static Future<Map<String, dynamic>> addCrop(
-      CropModel crop, {
-        XFile? imageFile,
-        Uint8List? imageBytes,
-      }) async {
+    CropModel crop, {
+    XFile? imageFile,
+    Uint8List? imageBytes,
+  }) async {
     final token = await TokenStorage.getAccessToken();
 
     if (token == null || token.isEmpty) {
-      throw Exception(
-        'Access token not found. Please login again.',
-      );
+      throw Exception('Access token not found. Please login again.');
     }
 
     final request = http.MultipartRequest(
@@ -117,50 +115,41 @@ class CropService {
     print('Crop image name: ${imageFile?.name}');
 
     final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(
-      streamedResponse,
-    );
+    final response = await http.Response.fromStream(streamedResponse);
 
     print('Crop add status: ${response.statusCode}');
     print('Crop add response: ${response.body}');
 
-    if (response.statusCode == 201 ||
-        response.statusCode == 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       final decoded = json.decode(response.body);
 
       if (decoded is Map<String, dynamic>) {
         return decoded;
       }
 
-      throw Exception(
-        'Invalid crop response format.',
-      );
+      throw Exception('Invalid crop response format.');
     }
 
     throw Exception(
       'Crop add failed (${response.statusCode}): '
-          '${response.body}',
+      '${response.body}',
     );
   }
 
   static Future<Map<String, dynamic>> updateCrop(
-      CropModel crop, {
-        XFile? imageFile,
-        Uint8List? imageBytes,
-      }) async {
+    CropModel crop, {
+    XFile? imageFile,
+    Uint8List? imageBytes,
+  }) async {
     final token = await TokenStorage.getAccessToken();
 
     if (token == null || token.isEmpty) {
-      throw Exception(
-        'Access token not found. Please login again.',
-      );
+      throw Exception('Access token not found. Please login again.');
     }
 
     final request = http.MultipartRequest(
       'PATCH',
-      Uri.parse(
-        '${ApiConfig.baseUrl}/crops/${crop.id}/',
-      ),
+      Uri.parse('${ApiConfig.baseUrl}/crops/${crop.id}/'),
     );
 
     request.headers['Authorization'] = 'Bearer $token';
@@ -188,15 +177,13 @@ class CropService {
 
     print(
       'Crop update URL: '
-          '${ApiConfig.baseUrl}/crops/${crop.id}/',
+      '${ApiConfig.baseUrl}/crops/${crop.id}/',
     );
     print('Crop update fields: ${request.fields}');
     print('Crop update image name: ${imageFile?.name}');
 
     final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(
-      streamedResponse,
-    );
+    final response = await http.Response.fromStream(streamedResponse);
 
     print('Crop update status: ${response.statusCode}');
     print('Crop update response: ${response.body}');
@@ -208,14 +195,12 @@ class CropService {
         return decoded;
       }
 
-      throw Exception(
-        'Invalid crop response format.',
-      );
+      throw Exception('Invalid crop response format.');
     }
 
     throw Exception(
       'Crop update failed (${response.statusCode}): '
-          '${response.body}',
+      '${response.body}',
     );
   }
 
@@ -223,23 +208,18 @@ class CropService {
     final token = await TokenStorage.getAccessToken();
 
     if (token == null || token.isEmpty) {
-      throw Exception(
-        'Access token not found. Please login again.',
-      );
+      throw Exception('Access token not found. Please login again.');
     }
 
     final response = await http.delete(
       Uri.parse('${ApiConfig.baseUrl}/crops/$id/'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
+      headers: {'Authorization': 'Bearer $token'},
     );
 
-    if (response.statusCode != 204 &&
-        response.statusCode != 200) {
+    if (response.statusCode != 204 && response.statusCode != 200) {
       throw Exception(
         'Failed to delete crop (${response.statusCode}): '
-            '${response.body}',
+        '${response.body}',
       );
     }
   }
@@ -260,11 +240,7 @@ class CropService {
     }
 
     request.files.add(
-      http.MultipartFile.fromBytes(
-        'image',
-        bytes,
-        filename: imageFile.name,
-      ),
+      http.MultipartFile.fromBytes('image', bytes, filename: imageFile.name),
     );
   }
 
@@ -289,10 +265,7 @@ class CropService {
   }
 
   static String _cleanNumber(String value) {
-    final cleaned = value.replaceAll(
-      RegExp(r'[^0-9.]'),
-      '',
-    );
+    final cleaned = value.replaceAll(RegExp(r'[^0-9.]'), '');
 
     if (cleaned.isEmpty) {
       return '0';
@@ -302,17 +275,9 @@ class CropService {
   }
 
   static String _cleanUnit(String value) {
-    final unit = value
-        .replaceAll(RegExp(r'[^a-zA-Z]'), '')
-        .toLowerCase();
+    final unit = value.replaceAll(RegExp(r'[^a-zA-Z]'), '').toLowerCase();
 
-    const validUnits = {
-      'kg',
-      'ton',
-      'box',
-      'bundle',
-      'bag',
-    };
+    const validUnits = {'kg', 'ton', 'box', 'bundle', 'bag'};
 
     if (validUnits.contains(unit)) {
       return unit;
@@ -324,8 +289,7 @@ class CropService {
   static String _formatDate(String date) {
     final cleanDate = date.trim();
 
-    if (cleanDate.isEmpty ||
-        cleanDate == 'dd/mm/yyyy') {
+    if (cleanDate.isEmpty || cleanDate == 'dd/mm/yyyy') {
       return '';
     }
 

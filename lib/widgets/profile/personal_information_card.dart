@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/language_provider.dart';
 
 import '../../providers/auth_provider.dart';
 
 class PersonalInformationCard extends StatelessWidget {
   final AuthProvider authProvider;
 
-  const PersonalInformationCard({
-    super.key,
-    required this.authProvider,
-  });
+  const PersonalInformationCard({super.key, required this.authProvider});
 
   static const Color darkGreen = Color(0xff075739);
 
@@ -18,30 +17,30 @@ class PersonalInformationCard extends StatelessWidget {
       children: [
         _cardTitle(
           icon: Icons.person,
-          title: "Personal Information",
+          title: context.watch<LanguageProvider>().t("personalInformation"),
         ),
         const SizedBox(height: 12),
         _infoRow(
           icon: Icons.email,
-          title: "Email Address",
+          title: context.watch<LanguageProvider>().t("emailAddress"),
           value: authProvider.email.isEmpty
-              ? "No email found"
+              ? context.watch<LanguageProvider>().t("noEmailFound")
               : authProvider.email,
         ),
         _divider(),
         _infoRow(
           icon: Icons.phone,
-          title: "Phone Number",
+          title: context.watch<LanguageProvider>().t("phoneNumber"),
           value: authProvider.phone.isEmpty
-              ? "No phone found"
+              ? context.watch<LanguageProvider>().t("noPhoneFound")
               : authProvider.phone,
         ),
         _divider(),
         _infoRow(
           icon: Icons.location_on,
-          title: "Location",
+          title: context.watch<LanguageProvider>().t("location"),
           value: authProvider.location.isEmpty
-              ? "No location found"
+              ? context.watch<LanguageProvider>().t("noLocationFound")
               : authProvider.location,
         ),
       ],
@@ -67,10 +66,7 @@ class PersonalInformationCard extends StatelessWidget {
     );
   }
 
-  Widget _cardTitle({
-    required IconData icon,
-    required String title,
-  }) {
+  Widget _cardTitle({required IconData icon, required String title}) {
     return Row(
       children: [
         _iconBox(icon),
@@ -143,10 +139,6 @@ class PersonalInformationCard extends StatelessWidget {
   }
 
   Widget _divider() {
-    return Divider(
-      height: 1,
-      thickness: 1,
-      color: Colors.grey.shade300,
-    );
+    return Divider(height: 1, thickness: 1, color: Colors.grey.shade300);
   }
 }

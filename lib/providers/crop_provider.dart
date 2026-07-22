@@ -10,10 +10,7 @@ class WeatherAlertModel {
   final String title;
   final String description;
 
-  WeatherAlertModel({
-    required this.title,
-    required this.description,
-  });
+  WeatherAlertModel({required this.title, required this.description});
 
   factory WeatherAlertModel.fromJson(Map<String, dynamic> json) {
     return WeatherAlertModel(
@@ -81,7 +78,7 @@ class CropProvider extends ChangeNotifier {
       farmerName: 'Green Valley Farm',
       name: 'Premium Winter Wheat',
       imageUrl:
-      'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800',
+          'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800',
       quantity: '150 Tons left',
       price: '\$320',
       unit: '/t',
@@ -99,7 +96,7 @@ class CropProvider extends ChangeNotifier {
       farmerName: 'Ali Fresh Farm',
       name: 'Heirloom Tomatoes',
       imageUrl:
-      'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800',
+          'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800',
       quantity: '40 Boxes left',
       price: '\$45',
       unit: '/box',
@@ -117,7 +114,7 @@ class CropProvider extends ChangeNotifier {
       farmerName: 'Multan Seed Farm',
       name: 'Sunflower Seeds',
       imageUrl:
-      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+          'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
       quantity: '0 Tons left',
       price: '\$180',
       unit: '/t',
@@ -242,9 +239,7 @@ class CropProvider extends ChangeNotifier {
 
       _crops
         ..clear()
-        ..addAll(
-          _extractCropList(response),
-        );
+        ..addAll(_extractCropList(response));
 
       activeCrops = activeCount;
     } catch (error) {
@@ -265,9 +260,7 @@ class CropProvider extends ChangeNotifier {
 
       _crops
         ..clear()
-        ..addAll(
-          _extractCropList(response),
-        );
+        ..addAll(_extractCropList(response));
     } catch (error) {
       errorMessage = 'Failed to load marketplace crops: $error';
     } finally {
@@ -277,10 +270,10 @@ class CropProvider extends ChangeNotifier {
   }
 
   Future<bool> addCrop(
-      CropModel crop, {
-        XFile? imageFile,
-        Uint8List? imageBytes,
-      }) async {
+    CropModel crop, {
+    XFile? imageFile,
+    Uint8List? imageBytes,
+  }) async {
     try {
       isSubmitting = true;
       errorMessage = null;
@@ -311,10 +304,10 @@ class CropProvider extends ChangeNotifier {
   }
 
   Future<bool> updateCrop(
-      CropModel crop, {
-        XFile? imageFile,
-        Uint8List? imageBytes,
-      }) async {
+    CropModel crop, {
+    XFile? imageFile,
+    Uint8List? imageBytes,
+  }) async {
     try {
       isSubmitting = true;
       errorMessage = null;
@@ -329,9 +322,7 @@ class CropProvider extends ChangeNotifier {
       final cropData = _extractCropData(response);
       final updatedCrop = CropModel.fromJson(cropData);
 
-      final index = _crops.indexWhere(
-            (item) => item.id == crop.id,
-      );
+      final index = _crops.indexWhere((item) => item.id == crop.id);
 
       if (index != -1) {
         _crops[index] = updatedCrop;
@@ -375,9 +366,7 @@ class CropProvider extends ChangeNotifier {
     }
   }
 
-  Map<String, dynamic> _extractCropData(
-      Map<String, dynamic> response,
-      ) {
+  Map<String, dynamic> _extractCropData(Map<String, dynamic> response) {
     final dynamic data = response['data'];
 
     if (data is Map<String, dynamic>) {
@@ -393,9 +382,7 @@ class CropProvider extends ChangeNotifier {
 
   List<CropModel> _extractCropList(List<dynamic> response) {
     return response.map((item) {
-      return CropModel.fromJson(
-        Map<String, dynamic>.from(item as Map),
-      );
+      return CropModel.fromJson(Map<String, dynamic>.from(item as Map));
     }).toList();
   }
 

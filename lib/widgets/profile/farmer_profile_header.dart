@@ -2,17 +2,16 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../screens/farmer/edit_profile_screen.dart';
 
 class FarmerProfileHeader extends StatelessWidget {
   final AuthProvider authProvider;
 
-  const FarmerProfileHeader({
-    super.key,
-    required this.authProvider,
-  });
+  const FarmerProfileHeader({super.key, required this.authProvider});
 
   static const Color darkGreen = Color(0xff075739);
 
@@ -30,13 +29,22 @@ class FarmerProfileHeader extends StatelessWidget {
       authProvider.updateProfileImage(pickedImage.path);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Profile picture updated successfully"),
+        SnackBar(
+          content: Text(
+            context.read<LanguageProvider>().t("profilePictureUpdated"),
+          ),
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Image picker error: $e")),
+        SnackBar(
+          content: Text(
+            context
+                .read<LanguageProvider>()
+                .t("imagePickerError")
+                .replaceAll('{value}', e.toString()),
+          ),
+        ),
       );
     }
   }
@@ -59,11 +67,7 @@ class FarmerProfileHeader extends StatelessWidget {
       width: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Color(0xff063d2c),
-            Color(0xff075739),
-            Color(0xff0b8f4d),
-          ],
+          colors: [Color(0xff063d2c), Color(0xff075739), Color(0xff0b8f4d)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -86,20 +90,9 @@ class FarmerProfileHeader extends StatelessWidget {
             right: 20,
             child: Row(
               children: [
-                InkWell(
-                  borderRadius: BorderRadius.circular(30),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                ),
                 const SizedBox(width: 18),
-                const Text(
-                  "Profile",
+                Text(
+                  context.watch<LanguageProvider>().t("profile"),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 28,
@@ -107,7 +100,6 @@ class FarmerProfileHeader extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-
               ],
             ),
           ),
@@ -168,7 +160,9 @@ class FarmerProfileHeader extends StatelessWidget {
                           Flexible(
                             child: Text(
                               authProvider.userName.isEmpty
-                                  ? "Farmer User"
+                                  ? context.watch<LanguageProvider>().t(
+                                      "farmerUser",
+                                    )
                                   : authProvider.userName,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -198,7 +192,7 @@ class FarmerProfileHeader extends StatelessWidget {
                           color: const Color(0xff18b65f),
                           borderRadius: BorderRadius.circular(24),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
@@ -208,7 +202,9 @@ class FarmerProfileHeader extends StatelessWidget {
                             ),
                             SizedBox(width: 8),
                             Text(
-                              "Verified Farmer",
+                              context.watch<LanguageProvider>().t(
+                                "verifiedFarmer",
+                              ),
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -224,7 +220,9 @@ class FarmerProfileHeader extends StatelessWidget {
                       _headerInfo(
                         icon: Icons.location_on_outlined,
                         text: authProvider.location.isEmpty
-                            ? "Sahiwal, Punjab, Pakistan"
+                            ? context.watch<LanguageProvider>().t(
+                                "defaultFarmerLocation",
+                              )
                             : authProvider.location,
                       ),
 
@@ -232,7 +230,9 @@ class FarmerProfileHeader extends StatelessWidget {
 
                       _headerInfo(
                         icon: Icons.calendar_month_outlined,
-                        text: "Member since May 2023",
+                        text: context.watch<LanguageProvider>().t(
+                          "memberSince",
+                        ),
                       ),
                     ],
                   ),
@@ -245,10 +245,7 @@ class FarmerProfileHeader extends StatelessWidget {
     );
   }
 
-  Widget _headerInfo({
-    required IconData icon,
-    required String text,
-  }) {
+  Widget _headerInfo({required IconData icon, required String text}) {
     return Row(
       children: [
         Icon(icon, color: Colors.white, size: 22),

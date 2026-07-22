@@ -53,8 +53,9 @@ class BuyerFavoriteCropCard extends StatelessWidget {
                     onTap: onRemoveTap,
                     child: CircleAvatar(
                       radius: 18,
-                      backgroundColor:
-                      isDark ? const Color(0xff1E1E1E) : Colors.white,
+                      backgroundColor: isDark
+                          ? const Color(0xff1E1E1E)
+                          : Colors.white,
                       child: const Icon(
                         Icons.favorite,
                         color: Colors.red,
@@ -135,11 +136,13 @@ class BuyerFavoriteCropCard extends StatelessWidget {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: "${lang.t("price")} ${lang.tDynamic(crop.unit)}\n",
+                                text:
+                                    "${lang.t("price")} ${lang.tDynamic(crop.unit)}\n",
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color:
-                                  isDark ? Colors.white60 : Colors.black54,
+                                  color: isDark
+                                      ? Colors.white60
+                                      : Colors.black54,
                                 ),
                               ),
                               TextSpan(

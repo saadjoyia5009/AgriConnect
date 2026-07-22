@@ -4,10 +4,7 @@ class InquiryService {
   static const String _endpoint = "/inquiries/";
 
   static Future<List<dynamic>> fetchInquiries() async {
-    final response = await ApiService.get(
-      _endpoint,
-      auth: true,
-    );
+    final response = await ApiService.get(_endpoint, auth: true);
 
     if (response is List) {
       return response;
@@ -33,17 +30,13 @@ class InquiryService {
     required String deliveryDate,
     required String message,
   }) async {
-    final response = await ApiService.post(
-      _endpoint,
-      {
-        "crop": cropId,
-        "quantity_requested": quantity,
-        "offered_price": offeredPrice,
-        "delivery_date": deliveryDate,
-        "message": message,
-      },
-      auth: true,
-    );
+    final response = await ApiService.post(_endpoint, {
+      "crop": cropId,
+      "quantity_requested": quantity,
+      "offered_price": offeredPrice,
+      "delivery_date": deliveryDate,
+      "message": message,
+    }, auth: true);
 
     if (response is Map<String, dynamic>) {
       return response;

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/responsive/app_breakpoints.dart';
+import '../../core/responsive/responsive_layout.dart';
 import '../../providers/crop_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/buyer_favorite_provider.dart';
@@ -70,71 +72,77 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
           currentIndex: 0,
           onTap: _onNavTap,
         ),
-        body: SafeArea(
-          child: Consumer<CropProvider>(
-            builder: (context, provider, _) {
-              return SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(18, 14, 18, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _topBar(lang),
-                    const SizedBox(height: 34),
+        body: ResponsiveLayout(
+          child: SafeArea(
+            child: Consumer<CropProvider>(
+              builder: (context, provider, _) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(18, 14, 18, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _topBar(lang),
+                      const SizedBox(height: 34),
 
-                    Text(
-                      lang.t("buyerGreeting"),
-                      textAlign: lang.isUrdu ? TextAlign.right : TextAlign.left,
-                      style: TextStyle(
-                        fontSize: 23,
-                        fontWeight: FontWeight.w900,
-                        color: primaryText,
-                        fontFamily: lang.isUrdu ? 'NotoNastaliqUrdu' : null,
+                      Text(
+                        lang.t("buyerGreeting"),
+                        textAlign: lang.isUrdu
+                            ? TextAlign.right
+                            : TextAlign.left,
+                        style: TextStyle(
+                          fontSize: 23,
+                          fontWeight: FontWeight.w900,
+                          color: primaryText,
+                          fontFamily: lang.isUrdu ? 'NotoNastaliqUrdu' : null,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 8),
+                      const SizedBox(height: 8),
 
-                    Text(
-                      lang.t("buyerDashboardSubtitle"),
-                      textAlign: lang.isUrdu ? TextAlign.right : TextAlign.left,
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: secondaryText,
-                        height: 1.5,
-                        fontFamily: lang.isUrdu ? 'NotoNastaliqUrdu' : null,
+                      Text(
+                        lang.t("buyerDashboardSubtitle"),
+                        textAlign: lang.isUrdu
+                            ? TextAlign.right
+                            : TextAlign.left,
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: secondaryText,
+                          height: 1.5,
+                          fontFamily: lang.isUrdu ? 'NotoNastaliqUrdu' : null,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                    BuyerSearchBar(
-                      hintText: lang.t("searchCropsSellers"),
-                      onChanged: provider.searchCrops,
-                    ),
+                      BuyerSearchBar(
+                        hintText: lang.t("searchCropsSellers"),
+                        onChanged: provider.searchCrops,
+                      ),
 
-                    const SizedBox(height: 34),
+                      const SizedBox(height: 34),
 
-                    BuyerSectionHeader(title: lang.t("browseCategories")),
+                      BuyerSectionHeader(title: lang.t("browseCategories")),
 
-                    const SizedBox(height: 14),
+                      const SizedBox(height: 14),
 
-                    _categoryGrid(provider, lang),
+                      _categoryGrid(provider, lang),
 
-                    const SizedBox(height: 34),
+                      const SizedBox(height: 34),
 
-                    BuyerSectionHeader(
-                      title: lang.t("recommendedForYou"),
-                      actionText: lang.t("seeMore"),
-                      onActionTap: () {},
-                    ),
+                      BuyerSectionHeader(
+                        title: lang.t("recommendedForYou"),
+                        actionText: lang.t("seeMore"),
+                        onActionTap: () {},
+                      ),
 
-                    const SizedBox(height: 14),
+                      const SizedBox(height: 14),
 
-                    _recommendedCrops(provider, lang),
-                  ],
-                ),
-              );
-            },
+                      _recommendedCrops(provider, lang),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -175,12 +183,12 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
   }
 
   Widget _categoryGrid(CropProvider provider, LanguageProvider lang) {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 14,
-      mainAxisSpacing: 14,
+    return ResponsiveGrid(
+      mobileColumns: 2,
+      tabletColumns: 2,
+      desktopColumns: 4,
+      wideDesktopColumns: 4,
+      spacing: 14,
       childAspectRatio: 1.35,
       children: [
         BuyerCategoryCard(
@@ -259,37 +267,51 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
       );
     }
 
-    return SizedBox(
-      height: 245,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        reverse: lang.isUrdu,
-        itemCount: provider.recommendedCrops.length,
-        itemBuilder: (context, index) {
-          final crop = provider.recommendedCrops[index];
+    Widget cardAt(int index) {
+      final crop = provider.recommendedCrops[index];
 
-          return Consumer<BuyerFavoriteProvider>(
-            builder: (context, favoriteProvider, _) {
-              return BuyerCropCard(
-                crop: crop,
-                isFavorite: favoriteProvider.isFavorite(crop.id),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BuyerCropDetailScreen(crop: crop),
-                    ),
-                  );
-                },
-                onAddTap: () {},
-                onFavoriteTap: () async {
-                  await favoriteProvider.toggleFavorite(crop);
-                },
+      return Consumer<BuyerFavoriteProvider>(
+        builder: (context, favoriteProvider, _) {
+          return BuyerCropCard(
+            crop: crop,
+            isFavorite: favoriteProvider.isFavorite(crop.id),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BuyerCropDetailScreen(crop: crop),
+                ),
               );
+            },
+            onAddTap: () {},
+            onFavoriteTap: () async {
+              await favoriteProvider.toggleFavorite(crop);
             },
           );
         },
-      ),
+      );
+    }
+
+    if (AppBreakpoints.isMobile(context)) {
+      return SizedBox(
+        height: 245,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          reverse: lang.isUrdu,
+          itemCount: provider.recommendedCrops.length,
+          itemBuilder: (context, index) => cardAt(index),
+        ),
+      );
+    }
+
+    return ResponsiveGrid(
+      mobileColumns: 1,
+      tabletColumns: 3,
+      desktopColumns: 4,
+      wideDesktopColumns: 4,
+      spacing: 16,
+      childAspectRatio: .78,
+      children: List.generate(provider.recommendedCrops.length, cardAt),
     );
   }
 }

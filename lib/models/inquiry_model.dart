@@ -12,6 +12,10 @@ class InquiryModel {
   final String message;
   final String timeAgo;
   final String status;
+  final String buyerId;
+  final String conversationId;
+  final String cropUnit;
+  final bool canChat;
 
   InquiryModel({
     this.id = '',
@@ -27,11 +31,15 @@ class InquiryModel {
     this.message = '',
     this.timeAgo = '',
     this.status = 'Pending',
+    this.buyerId = '',
+    this.conversationId = '',
+    this.cropUnit = '',
+    this.canChat = false,
   });
 
   factory InquiryModel.fromJson(Map<String, dynamic> json) {
-    final buyerName =
-    (json['buyer_name'] ?? json['buyerName'] ?? '').toString();
+    final buyerName = (json['buyer_name'] ?? json['buyerName'] ?? '')
+        .toString();
 
     return InquiryModel(
       id: (json['id'] ?? '').toString(),
@@ -39,21 +47,44 @@ class InquiryModel {
       cropGrade: (json['crop_grade'] ?? json['cropGrade'] ?? '').toString(),
       cropImage: (json['crop_image'] ?? json['cropImage'] ?? '').toString(),
       buyerName: buyerName,
-      buyerInitials: (json['buyer_initials'] ??
-          json['buyerInitials'] ??
-          _getInitials(buyerName))
+      buyerInitials:
+          (json['buyer_initials'] ??
+                  json['buyerInitials'] ??
+                  _getInitials(buyerName))
+              .toString(),
+      buyerLocation: (json['buyer_location'] ?? json['buyerLocation'] ?? '')
           .toString(),
-      buyerLocation:
-      (json['buyer_location'] ?? json['buyerLocation'] ?? '').toString(),
       buyerImage: (json['buyer_image'] ?? json['buyerImage'] ?? '').toString(),
       requestedQuantity:
-      (json['quantity_requested'] ?? json['requested_quantity'] ?? json['requestedQuantity'] ?? '')
-          .toString(),
+          (json['quantity_requested'] ??
+                  json['requested_quantity'] ??
+                  json['requestedQuantity'] ??
+                  '')
+              .toString(),
       proposedPrice:
-      (json['offered_price'] ?? json['proposed_price'] ?? json['proposedPrice'] ?? '').toString(),
+          (json['offered_price'] ??
+                  json['proposed_price'] ??
+                  json['proposedPrice'] ??
+                  '')
+              .toString(),
       message: (json['message'] ?? '').toString(),
-      timeAgo: (json['created_at'] ?? json['time_ago'] ?? json['timeAgo'] ?? '').toString(),
+      timeAgo: (json['created_at'] ?? json['time_ago'] ?? json['timeAgo'] ?? '')
+          .toString(),
       status: (json['status'] ?? 'Pending').toString(),
+      buyerId:
+          (json['buyer_id'] ??
+                  (json['buyer'] is Map
+                      ? json['buyer']['id']
+                      : json['buyer']) ??
+                  '')
+              .toString(),
+      conversationId: _extractId(
+        json['conversation_id'] ?? json['conversation'],
+      ),
+      cropUnit: (json['crop_unit'] ?? json['unit'] ?? '').toString(),
+      canChat:
+          json['can_chat'] == true ||
+          (json['status'] ?? '').toString().toLowerCase() == 'accepted',
     );
   }
 
@@ -72,6 +103,10 @@ class InquiryModel {
       'message': message,
       'time_ago': timeAgo,
       'status': status,
+      'buyer_id': buyerId,
+      'conversation_id': conversationId,
+      'crop_unit': cropUnit,
+      'can_chat': canChat,
     };
   }
 
@@ -89,6 +124,10 @@ class InquiryModel {
     String? message,
     String? timeAgo,
     String? status,
+    String? buyerId,
+    String? conversationId,
+    String? cropUnit,
+    bool? canChat,
   }) {
     return InquiryModel(
       id: id ?? this.id,
@@ -104,6 +143,10 @@ class InquiryModel {
       message: message ?? this.message,
       timeAgo: timeAgo ?? this.timeAgo,
       status: status ?? this.status,
+      buyerId: buyerId ?? this.buyerId,
+      conversationId: conversationId ?? this.conversationId,
+      cropUnit: cropUnit ?? this.cropUnit,
+      canChat: canChat ?? this.canChat,
     );
   }
 
@@ -118,5 +161,10 @@ class InquiryModel {
 
     return "${parts.first.substring(0, 1)}${parts.last.substring(0, 1)}"
         .toUpperCase();
+  }
+
+  static String _extractId(dynamic value) {
+    if (value is Map) return value['id']?.toString() ?? '';
+    return value?.toString() ?? '';
   }
 }

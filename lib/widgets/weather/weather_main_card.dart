@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/language_provider.dart';
 
 import '../../models/weather_model.dart';
 import '../../utils/weather_ui_helper.dart';
@@ -96,22 +98,44 @@ class WeatherMainCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        _info(Icons.water_drop_outlined, humidityText, weather.humidity),
+                        _info(
+                          Icons.water_drop_outlined,
+                          humidityText,
+                          weather.humidity,
+                        ),
                         _info(Icons.air, windText, weather.wind),
                       ],
                     ),
                     const SizedBox(height: 20),
                     Row(
                       children: [
-                        _info(Icons.grain, "Rain Chance", weather.precipitation),
-                        _info(Icons.thermostat, feelsLikeText, weather.feelsLike),
+                        _info(
+                          Icons.grain,
+                          context.watch<LanguageProvider>().t(
+                            "rainChanceLabel",
+                          ),
+                          weather.precipitation,
+                        ),
+                        _info(
+                          Icons.thermostat,
+                          feelsLikeText,
+                          weather.feelsLike,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 20),
                     Row(
                       children: [
-                        _info(Icons.wb_sunny_outlined, uvIndexText, weather.uvIndex),
-                        _info(Icons.visibility_outlined, visibilityText, weather.visibility),
+                        _info(
+                          Icons.wb_sunny_outlined,
+                          uvIndexText,
+                          weather.uvIndex,
+                        ),
+                        _info(
+                          Icons.visibility_outlined,
+                          visibilityText,
+                          weather.visibility,
+                        ),
                       ],
                     ),
                   ],
@@ -130,7 +154,10 @@ class WeatherMainCard extends StatelessWidget {
         children: [
           Icon(icon, color: Colors.white, size: 22),
           const SizedBox(height: 6),
-          Text(title, style: const TextStyle(color: Colors.white, fontSize: 12)),
+          Text(
+            title,
+            style: const TextStyle(color: Colors.white, fontSize: 12),
+          ),
           Text(
             value,
             style: const TextStyle(

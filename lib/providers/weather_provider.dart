@@ -54,9 +54,7 @@ class WeatherProvider extends ChangeNotifier {
       lastLatitude = null;
       lastLongitude = null;
 
-      weather = await WeatherService.getWeather(
-        city: trimmedCity,
-      );
+      weather = await WeatherService.getWeather(city: trimmedCity);
 
       isLoading = false;
       notifyListeners();

@@ -39,17 +39,17 @@ class DiseaseDetectionProvider extends ChangeNotifier {
           TreatmentStepModel(
             title: "Prune Affected Foliage",
             description:
-            "Immediately remove and destroy spotted leaves. Do not compost them to prevent spore spread.",
+                "Immediately remove and destroy spotted leaves. Do not compost them to prevent spore spread.",
           ),
           TreatmentStepModel(
             title: "Adjust Watering Practices",
             description:
-            "Water at the base of the plant early in the day. Avoid overhead irrigation to keep leaves dry.",
+                "Water at the base of the plant early in the day. Avoid overhead irrigation to keep leaves dry.",
           ),
           TreatmentStepModel(
             title: "Apply Fungicide",
             description:
-            "Use a copper-based organic fungicide or chlorothalonil. Apply every 7–10 days per label instructions.",
+                "Use a copper-based organic fungicide or chlorothalonil. Apply every 7–10 days per label instructions.",
           ),
         ],
       );

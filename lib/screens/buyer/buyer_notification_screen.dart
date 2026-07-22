@@ -6,8 +6,6 @@ class BuyerNotificationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const NotificationScreen(
-      userRole: "buyer",
-    );
+    return const NotificationScreen(userRole: "buyer");
   }
 }

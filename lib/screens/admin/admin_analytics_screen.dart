@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/admin_analytics_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/admin/admin_analytics_shimmer.dart';
 
 class AdminAnalyticsScreen extends StatefulWidget {
@@ -44,8 +45,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          "Analytics",
+        title: Text(
+          context.watch<LanguageProvider>().t("analytics"),
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
@@ -84,14 +85,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isDark
-              ? const [
-            Color(0xFF123524),
-            Color(0xFF0E5A3C),
-          ]
-              : const [
-            Color(0xFF0E5A3C),
-            Color(0xFF157A52),
-          ],
+              ? const [Color(0xFF123524), Color(0xFF0E5A3C)]
+              : const [Color(0xFF0E5A3C), Color(0xFF157A52)],
         ),
         borderRadius: BorderRadius.circular(26),
         boxShadow: [
@@ -106,11 +101,20 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
       ),
       child: Row(
         children: [
-          _summaryItem("Users", provider.totalUsers.toString()),
+          _summaryItem(
+            context.watch<LanguageProvider>().t("users"),
+            provider.totalUsers.toString(),
+          ),
           _divider(),
-          _summaryItem("Crops", provider.totalCrops.toString()),
+          _summaryItem(
+            context.watch<LanguageProvider>().t("crops"),
+            provider.totalCrops.toString(),
+          ),
           _divider(),
-          _summaryItem("Deals", provider.completedDeals.toString()),
+          _summaryItem(
+            context.watch<LanguageProvider>().t("deals"),
+            provider.completedDeals.toString(),
+          ),
         ],
       ),
     ).animate().fadeIn(duration: 450.ms).slideY(begin: -0.12, end: 0);
@@ -129,10 +133,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
             ),
           ),
           const SizedBox(height: 5),
-          const Text(
-            " ",
-            style: TextStyle(fontSize: 0),
-          ),
+          const Text(" ", style: TextStyle(fontSize: 0)),
           Text(
             label,
             style: const TextStyle(
@@ -157,8 +158,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     final entries = provider.userGrowth.entries.toList();
 
     return _chartContainer(
-      title: "User Growth",
-      subtitle: "Monthly registered users",
+      title: context.watch<LanguageProvider>().t("userGrowth"),
+      subtitle: context.watch<LanguageProvider>().t("monthlyRegisteredUsers"),
       child: LineChart(
         LineChartData(
           minY: 0,
@@ -220,7 +221,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               ),
               spots: List.generate(
                 entries.length,
-                    (index) => FlSpot(index.toDouble(), entries[index].value),
+                (index) => FlSpot(index.toDouble(), entries[index].value),
               ),
             ),
           ],
@@ -234,8 +235,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     final entries = provider.cropCategories.entries.toList();
 
     return _chartContainer(
-      title: "Crop Categories",
-      subtitle: "Most listed crop types",
+      title: context.watch<LanguageProvider>().t("cropCategories"),
+      subtitle: context.watch<LanguageProvider>().t("mostListedCropTypes"),
       child: BarChart(
         BarChartData(
           borderData: FlBorderData(show: false),
@@ -276,7 +277,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           ),
           barGroups: List.generate(
             entries.length,
-                (index) => BarChartGroupData(
+            (index) => BarChartGroupData(
               x: index,
               barRods: [
                 BarChartRodData(
@@ -298,8 +299,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     final entries = provider.inquiryStats.entries.toList();
 
     return _chartContainer(
-      title: "Inquiry Status",
-      subtitle: "Buyer inquiry distribution",
+      title: context.watch<LanguageProvider>().t("inquiryStatus"),
+      subtitle: context.watch<LanguageProvider>().t("buyerInquiryDistribution"),
       child: PieChart(
         PieChartData(
           centerSpaceRadius: 42,
@@ -337,46 +338,49 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     required int delay,
   }) {
     return Container(
-      height: 285,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(26),
-        border: Border.all(
-          color: isDark ? Colors.white10 : Colors.transparent,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.22 : 0.055),
-            blurRadius: 18,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: primaryText,
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
+          height: 285,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: isDark ? darkCard : Colors.white,
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(
+              color: isDark ? Colors.white10 : Colors.transparent,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.22 : 0.055),
+                blurRadius: 18,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: TextStyle(
-              color: secondaryText,
-              fontWeight: FontWeight.w600,
-              fontSize: 12.5,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: primaryText,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: secondaryText,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12.5,
+                ),
+              ),
+              const SizedBox(height: 18),
+              Expanded(child: child),
+            ],
           ),
-          const SizedBox(height: 18),
-          Expanded(child: child),
-        ],
-      ),
-    ).animate().fadeIn(duration: 480.ms, delay: delay.ms).slideY(begin: 0.15, end: 0);
+        )
+        .animate()
+        .fadeIn(duration: 480.ms, delay: delay.ms)
+        .slideY(begin: 0.15, end: 0);
   }
 }

@@ -20,8 +20,7 @@ class AdminProfileOptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -33,9 +32,7 @@ class AdminProfileOptionTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: isDark ? darkCard : Colors.white,
             borderRadius: BorderRadius.circular(22),
-            border: isDark
-                ? Border.all(color: Colors.white10)
-                : null,
+            border: isDark ? Border.all(color: Colors.white10) : null,
             boxShadow: [
               BoxShadow(
                 color: isDark
@@ -55,10 +52,7 @@ class AdminProfileOptionTile extends StatelessWidget {
                   color: color.withOpacity(isDark ? 0.18 : 0.12),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                ),
+                child: Icon(icon, color: color),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -70,18 +64,14 @@ class AdminProfileOptionTile extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 15.5,
-                        color: isDark
-                            ? Colors.white
-                            : const Color(0xFF1F3328),
+                        color: isDark ? Colors.white : const Color(0xFF1F3328),
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: isDark
-                            ? Colors.white60
-                            : Colors.grey.shade600,
+                        color: isDark ? Colors.white60 : Colors.grey.shade600,
                         fontWeight: FontWeight.w600,
                         fontSize: 12.5,
                       ),
@@ -92,9 +82,7 @@ class AdminProfileOptionTile extends StatelessWidget {
               Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 16,
-                color: isDark
-                    ? Colors.white38
-                    : Colors.grey.shade400,
+                color: isDark ? Colors.white38 : Colors.grey.shade400,
               ),
             ],
           ),

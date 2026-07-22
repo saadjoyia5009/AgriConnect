@@ -52,10 +52,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             return FadeTransition(
               opacity: curved,
               child: ScaleTransition(
-                scale: Tween<double>(
-                  begin: 0.96,
-                  end: 1.0,
-                ).animate(curved),
+                scale: Tween<double>(begin: 0.96, end: 1.0).animate(curved),
                 child: child,
               ),
             );
@@ -69,16 +66,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  Widget _centerLayout(
-      Widget? currentChild,
-      List<Widget> previousChildren,
-      ) {
+  Widget _centerLayout(Widget? currentChild, List<Widget> previousChildren) {
     return Stack(
       alignment: Alignment.center,
-      children: [
-        ...previousChildren,
-        if (currentChild != null) currentChild,
-      ],
+      children: [...previousChildren, if (currentChild != null) currentChild],
     );
   }
 
@@ -105,10 +96,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               return FadeTransition(
                 opacity: curved,
                 child: ScaleTransition(
-                  scale: Tween<double>(
-                    begin: 0.96,
-                    end: 1.0,
-                  ).animate(curved),
+                  scale: Tween<double>(begin: 0.96, end: 1.0).animate(curved),
                   child: child,
                 ),
               );
@@ -117,10 +105,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               key: ValueKey(item.image),
               height: double.infinity,
               width: double.infinity,
-              child: Image.asset(
-                item.image,
-                fit: BoxFit.cover,
-              ),
+              child: Image.asset(item.image, fit: BoxFit.cover),
             ),
           ),
           Align(
@@ -139,10 +124,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 return FadeTransition(
                   opacity: curved,
                   child: ScaleTransition(
-                    scale: Tween<double>(
-                      begin: 0.96,
-                      end: 1.0,
-                    ).animate(curved),
+                    scale: Tween<double>(begin: 0.96, end: 1.0).animate(curved),
                     child: child,
                   ),
                 );
@@ -191,7 +173,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Row(
                           children: List.generate(
                             items.length,
-                                (index) => AnimatedContainer(
+                            (index) => AnimatedContainer(
                               duration: const Duration(milliseconds: 350),
                               curve: Curves.easeOutCubic,
                               margin: const EdgeInsets.only(right: 8),
@@ -227,30 +209,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               layoutBuilder: _centerLayout,
                               child: currentIndex == items.length - 1
                                   ? Text(
-                                lang.t("getStarted"),
-                                key: const ValueKey("start"),
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              )
+                                      lang.t("getStarted"),
+                                      key: const ValueKey("start"),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    )
                                   : Row(
-                                key: const ValueKey("next"),
-                                mainAxisAlignment:
-                                MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    lang.t("next"),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w800,
+                                      key: const ValueKey("next"),
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          lang.t("next"),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        const Icon(Icons.arrow_forward_rounded),
+                                      ],
                                     ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  const Icon(
-                                    Icons.arrow_forward_rounded,
-                                  ),
-                                ],
-                              ),
                             ),
                           ),
                         ),

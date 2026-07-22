@@ -1,28 +1,27 @@
+import 'dart:convert';
 
-  import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-  import 'package:http/http.dart' as http;
+import '../config/api_config.dart';
+import '../utils/token_storage.dart';
 
-  import '../config/api_config.dart';
-  import '../utils/token_storage.dart';
-
-  class ChatService {
+class ChatService {
   // =========================================================
   // COMMON HEADERS
   // =========================================================
 
   static Future<Map<String, String>> _getHeaders() async {
-  final token = await TokenStorage.getAccessToken();
+    final token = await TokenStorage.getAccessToken();
 
-  if (token == null || token.isEmpty) {
-  throw Exception("Authentication token not found");
-  }
+    if (token == null || token.isEmpty) {
+      throw Exception("Authentication token not found");
+    }
 
-  return {
-  "Content-Type": "application/json",
-  "Accept": "application/json",
-  "Authorization": "Bearer $token",
-  };
+    return {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "Bearer $token",
+    };
   }
 
   // =========================================================
@@ -31,53 +30,48 @@
   // =========================================================
 
   static Future<List<dynamic>> fetchConversations() async {
-  final url = Uri.parse(
-  "${ApiConfig.baseUrl}/chat/",
-  );
+    final url = Uri.parse("${ApiConfig.baseUrl}/chat/");
 
-  try {
-  final response = await http.get(
-  url,
-  headers: await _getHeaders(),
-  );
+    try {
+      final response = await http.get(url, headers: await _getHeaders());
 
-  if (response.statusCode == 200) {
-  final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
 
-  if (decoded is List) {
-  return decoded;
-  }
+        if (decoded is List) {
+          return decoded;
+        }
 
-  if (decoded is Map<String, dynamic>) {
-  if (decoded["results"] is List) {
-  return decoded["results"];
-  }
+        if (decoded is Map<String, dynamic>) {
+          if (decoded["results"] is List) {
+            return decoded["results"];
+          }
 
-  if (decoded["data"] is List) {
-  return decoded["data"];
-  }
+          if (decoded["data"] is List) {
+            return decoded["data"];
+          }
 
-  if (decoded["conversations"] is List) {
-  return decoded["conversations"];
-  }
-  }
+          if (decoded["conversations"] is List) {
+            return decoded["conversations"];
+          }
+        }
 
-  return [];
-  }
+        return [];
+      }
 
-  throw Exception(
-  _extractErrorMessage(
-  response.body,
-  fallback: "Failed to fetch conversations",
-  ),
-  );
-  } catch (error) {
-  if (error is Exception) {
-  rethrow;
-  }
+      throw Exception(
+        _extractErrorMessage(
+          response.body,
+          fallback: "Failed to fetch conversations",
+        ),
+      );
+    } catch (error) {
+      if (error is Exception) {
+        rethrow;
+      }
 
-  throw Exception("Unable to connect with chat server");
-  }
+      throw Exception("Unable to connect with chat server");
+    }
   }
 
   // =========================================================
@@ -87,55 +81,50 @@
   // =========================================================
 
   static Future<Map<String, dynamic>> createConversation({
-  required String inquiryId,
+    required String inquiryId,
   }) async {
-  if (inquiryId.trim().isEmpty) {
-  throw Exception("Inquiry ID is required");
-  }
+    if (inquiryId.trim().isEmpty) {
+      throw Exception("Inquiry ID is required");
+    }
 
-  final url = Uri.parse(
-  "${ApiConfig.baseUrl}/chat/",
-  );
+    final url = Uri.parse("${ApiConfig.baseUrl}/chat/");
 
-  try {
-  final response = await http.post(
-  url,
-  headers: await _getHeaders(),
-  body: jsonEncode({
-  "inquiry": inquiryId,
-  }),
-  );
+    try {
+      final response = await http.post(
+        url,
+        headers: await _getHeaders(),
+        body: jsonEncode({"inquiry": inquiryId}),
+      );
 
-  if (response.statusCode == 200 ||
-  response.statusCode == 201) {
-  final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final decoded = jsonDecode(response.body);
 
-  if (decoded is Map<String, dynamic>) {
-  final data = decoded["data"];
+        if (decoded is Map<String, dynamic>) {
+          final data = decoded["data"];
 
-  if (data is Map<String, dynamic>) {
-  return data;
-  }
+          if (data is Map<String, dynamic>) {
+            return data;
+          }
 
-  return decoded;
-  }
+          return decoded;
+        }
 
-  throw Exception("Invalid conversation response");
-  }
+        throw Exception("Invalid conversation response");
+      }
 
-  throw Exception(
-  _extractErrorMessage(
-  response.body,
-  fallback: "Failed to create conversation",
-  ),
-  );
-  } catch (error) {
-  if (error is Exception) {
-  rethrow;
-  }
+      throw Exception(
+        _extractErrorMessage(
+          response.body,
+          fallback: "Failed to create conversation",
+        ),
+      );
+    } catch (error) {
+      if (error is Exception) {
+        rethrow;
+      }
 
-  throw Exception("Unable to create conversation");
-  }
+      throw Exception("Unable to create conversation");
+    }
   }
 
   // =========================================================
@@ -144,59 +133,56 @@
   // =========================================================
 
   static Future<List<dynamic>> fetchMessages({
-  required String conversationId,
+    required String conversationId,
   }) async {
-  if (conversationId.trim().isEmpty) {
-  throw Exception("Conversation ID is required");
-  }
+    if (conversationId.trim().isEmpty) {
+      throw Exception("Conversation ID is required");
+    }
 
-  final url = Uri.parse(
-  "${ApiConfig.baseUrl}/chat/$conversationId/messages/",
-  );
+    final url = Uri.parse(
+      "${ApiConfig.baseUrl}/chat/$conversationId/messages/",
+    );
 
-  try {
-  final response = await http.get(
-  url,
-  headers: await _getHeaders(),
-  );
+    try {
+      final response = await http.get(url, headers: await _getHeaders());
 
-  if (response.statusCode == 200) {
-  final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
 
-  if (decoded is List) {
-  return decoded;
-  }
+        if (decoded is List) {
+          return decoded;
+        }
 
-  if (decoded is Map<String, dynamic>) {
-  if (decoded["results"] is List) {
-  return decoded["results"];
-  }
+        if (decoded is Map<String, dynamic>) {
+          if (decoded["results"] is List) {
+            return decoded["results"];
+          }
 
-  if (decoded["data"] is List) {
-  return decoded["data"];
-  }
+          if (decoded["data"] is List) {
+            return decoded["data"];
+          }
 
-  if (decoded["messages"] is List) {
-  return decoded["messages"];
-  }
-  }
+          if (decoded["messages"] is List) {
+            return decoded["messages"];
+          }
+        }
 
-  return [];
-  }
+        return [];
+      }
 
-  throw Exception(
-  _extractErrorMessage(
-  response.body,
-  fallback: "Failed to fetch messages",
-  ),
-  );
-  } catch (error) {
-  if (error is Exception) {
-  rethrow;
-  }
+      throw Exception(
+        _extractErrorMessage(
+          response.body,
+          fallback: "Failed to fetch messages",
+        ),
+      );
+    } catch (error) {
+      if (error is Exception) {
+        rethrow;
+      }
 
-  throw Exception("Unable to fetch chat messages");
-  }
+      throw Exception("Unable to fetch chat messages");
+    }
   }
 
   // =========================================================
@@ -205,62 +191,56 @@
   // =========================================================
 
   static Future<Map<String, dynamic>> sendMessage({
-  required String conversationId,
-  required String message,
+    required String conversationId,
+    required String message,
   }) async {
-  final cleanMessage = message.trim();
+    final cleanMessage = message.trim();
 
-  if (conversationId.trim().isEmpty) {
-  throw Exception("Conversation ID is required");
-  }
+    if (conversationId.trim().isEmpty) {
+      throw Exception("Conversation ID is required");
+    }
 
-  if (cleanMessage.isEmpty) {
-  throw Exception("Message cannot be empty");
-  }
+    if (cleanMessage.isEmpty) {
+      throw Exception("Message cannot be empty");
+    }
 
-  final url = Uri.parse(
-  "${ApiConfig.baseUrl}/chat/$conversationId/messages/",
-  );
+    final url = Uri.parse(
+      "${ApiConfig.baseUrl}/chat/$conversationId/messages/",
+    );
 
-  try {
-  final response = await http.post(
-  url,
-  headers: await _getHeaders(),
-  body: jsonEncode({
-  "text": cleanMessage,
-  }),
-  );
+    try {
+      final response = await http.post(
+        url,
+        headers: await _getHeaders(),
+        body: jsonEncode({"text": cleanMessage}),
+      );
 
-  if (response.statusCode == 200 ||
-  response.statusCode == 201) {
-  final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final decoded = jsonDecode(response.body);
 
-  if (decoded is Map<String, dynamic>) {
-  final data = decoded["data"];
+        if (decoded is Map<String, dynamic>) {
+          final data = decoded["data"];
 
-  if (data is Map<String, dynamic>) {
-  return data;
-  }
+          if (data is Map<String, dynamic>) {
+            return data;
+          }
 
-  return decoded;
-  }
+          return decoded;
+        }
 
-  throw Exception("Invalid message response");
-  }
+        throw Exception("Invalid message response");
+      }
 
-  throw Exception(
-  _extractErrorMessage(
-  response.body,
-  fallback: "Failed to send message",
-  ),
-  );
-  } catch (error) {
-  if (error is Exception) {
-  rethrow;
-  }
+      throw Exception(
+        _extractErrorMessage(response.body, fallback: "Failed to send message"),
+      );
+    } catch (error) {
+      if (error is Exception) {
+        rethrow;
+      }
 
-  throw Exception("Unable to send message");
-  }
+      throw Exception("Unable to send message");
+    }
   }
 
   // =========================================================
@@ -269,40 +249,34 @@
   // =========================================================
 
   static Future<void> markMessagesAsRead({
-  required String conversationId,
+    required String conversationId,
   }) async {
-  if (conversationId.trim().isEmpty) {
-  throw Exception("Conversation ID is required");
-  }
+    if (conversationId.trim().isEmpty) {
+      throw Exception("Conversation ID is required");
+    }
 
-  final url = Uri.parse(
-  "${ApiConfig.baseUrl}/chat/$conversationId/read/",
-  );
+    final url = Uri.parse("${ApiConfig.baseUrl}/chat/$conversationId/read/");
 
-  try {
-  final response = await http.patch(
-  url,
-  headers: await _getHeaders(),
-  );
+    try {
+      final response = await http.patch(url, headers: await _getHeaders());
 
-  if (response.statusCode == 200 ||
-  response.statusCode == 204) {
-  return;
-  }
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      }
 
-  throw Exception(
-  _extractErrorMessage(
-  response.body,
-  fallback: "Failed to mark messages as read",
-  ),
-  );
-  } catch (error) {
-  if (error is Exception) {
-  rethrow;
-  }
+      throw Exception(
+        _extractErrorMessage(
+          response.body,
+          fallback: "Failed to mark messages as read",
+        ),
+      );
+    } catch (error) {
+      if (error is Exception) {
+        rethrow;
+      }
 
-  throw Exception("Unable to update message status");
-  }
+      throw Exception("Unable to update message status");
+    }
   }
 
   // =========================================================
@@ -310,44 +284,44 @@
   // =========================================================
 
   static String _extractErrorMessage(
-  String responseBody, {
-  required String fallback,
+    String responseBody, {
+    required String fallback,
   }) {
-  try {
-  final decoded = jsonDecode(responseBody);
+    try {
+      final decoded = jsonDecode(responseBody);
 
-  if (decoded is Map<String, dynamic>) {
-  if (decoded["detail"] != null) {
-  return decoded["detail"].toString();
-  }
+      if (decoded is Map<String, dynamic>) {
+        if (decoded["detail"] != null) {
+          return decoded["detail"].toString();
+        }
 
-  if (decoded["message"] != null) {
-  return decoded["message"].toString();
-  }
+        if (decoded["message"] != null) {
+          return decoded["message"].toString();
+        }
 
-  if (decoded["error"] != null) {
-  return decoded["error"].toString();
-  }
+        if (decoded["error"] != null) {
+          return decoded["error"].toString();
+        }
 
-  if (decoded["non_field_errors"] is List &&
-  decoded["non_field_errors"].isNotEmpty) {
-  return decoded["non_field_errors"].first.toString();
-  }
+        if (decoded["non_field_errors"] is List &&
+            decoded["non_field_errors"].isNotEmpty) {
+          return decoded["non_field_errors"].first.toString();
+        }
 
-  for (final value in decoded.values) {
-  if (value is List && value.isNotEmpty) {
-  return value.first.toString();
-  }
+        for (final value in decoded.values) {
+          if (value is List && value.isNotEmpty) {
+            return value.first.toString();
+          }
 
-  if (value is String && value.isNotEmpty) {
-  return value;
-  }
-  }
-  }
-  } catch (_) {
-  // Response JSON format me nahi hai.
-  }
+          if (value is String && value.isNotEmpty) {
+            return value;
+          }
+        }
+      }
+    } catch (_) {
+      // Response JSON format me nahi hai.
+    }
 
-  return fallback;
+    return fallback;
   }
-  }
+}

@@ -4,10 +4,7 @@ import '../../../models/buyer_profile_model.dart';
 class BuyerProfileHeader extends StatelessWidget {
   final BuyerProfileModel profile;
 
-  const BuyerProfileHeader({
-    super.key,
-    required this.profile,
-  });
+  const BuyerProfileHeader({super.key, required this.profile});
 
   static const Color lightGreen = Color(0xff9ff2c1);
 
@@ -37,20 +34,21 @@ class BuyerProfileHeader extends StatelessWidget {
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w900,
-            color: isDark
-                ? Colors.white
-                : const Color(0xff10291D),
+            color: isDark ? Colors.white : const Color(0xff10291D),
           ),
         ),
         const SizedBox(height: 5),
-        Text(
-          profile.email,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: isDark
-                ? Colors.white70
-                : const Color(0xff5F675F),
-            fontWeight: FontWeight.w600,
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Text(
+            profile.email,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: isDark ? Colors.white70 : const Color(0xff5F675F),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],

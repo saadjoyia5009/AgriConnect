@@ -25,7 +25,8 @@ class ChatMessageModel {
       // conversation
       // conversation_id
       // chat_id
-      chatId: json["chat_id"]?.toString() ??
+      chatId:
+          json["chat_id"]?.toString() ??
           json["conversation_id"]?.toString() ??
           _extractId(json["conversation"]),
 
@@ -33,28 +34,24 @@ class ChatMessageModel {
       // sender_id: 4
       // sender: 4
       // sender: {"id": 4, "full_name": "..."}
-      senderId: json["sender_id"]?.toString() ??
-          _extractId(json["sender"]),
+      senderId: json["sender_id"]?.toString() ?? _extractId(json["sender"]),
 
       // Backend receiver optional ho sakta hai
-      receiverId: json["receiver_id"]?.toString() ??
-          _extractId(json["receiver"]),
+      receiverId:
+          json["receiver_id"]?.toString() ?? _extractId(json["receiver"]),
 
       // Django backend generally "text" send karega
-      message: json["text"]?.toString() ??
-          json["message"]?.toString() ??
-          "",
+      message: json["text"]?.toString() ?? json["message"]?.toString() ?? "",
 
-      createdAt: DateTime.tryParse(
-        json["created_at"]?.toString() ??
-            json["createdAt"]?.toString() ??
-            "",
-      ) ??
+      createdAt:
+          DateTime.tryParse(
+            json["created_at"]?.toString() ??
+                json["createdAt"]?.toString() ??
+                "",
+          ) ??
           DateTime.now(),
 
-      isRead: _parseBool(
-        json["is_read"] ?? json["isRead"],
-      ),
+      isRead: _parseBool(json["is_read"] ?? json["isRead"]),
     );
   }
 

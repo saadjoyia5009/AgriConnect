@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'core/responsive/app_breakpoints.dart';
 import 'providers/auth_provider.dart';
 import 'providers/crop_provider.dart';
 import 'providers/inquiry_provider.dart';
@@ -21,6 +22,7 @@ import 'providers/admin_analytics_provider.dart';
 import 'providers/admin_reports_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/language_provider.dart';
+import 'providers/buyer_language_provider.dart';
 
 import 'screens/splash/splash_screen.dart';
 import 'screens/onboarding/onboarding_screen_one.dart';
@@ -46,6 +48,7 @@ import 'screens/buyer/buyer_favorites_screen.dart';
 import 'screens/buyer/buyer_inquiries_screen.dart';
 import 'screens/buyer/buyer_profile_screen.dart';
 import 'screens/buyer/buyer_chats_screen.dart';
+import 'screens/buyer/buyer_language_scope.dart';
 
 import 'screens/admin/admin_main_screen.dart';
 import 'screens/admin/admin_users_screen.dart';
@@ -57,7 +60,6 @@ import 'screens/farmer/edit_profile_screen.dart';
 import 'screens/language/language_selection_screen.dart';
 import 'config/app_theme.dart';
 import 'providers/buyer_chat_provider.dart';
-
 
 class AgriConnectApp extends StatelessWidget {
   const AgriConnectApp({super.key});
@@ -78,44 +80,46 @@ class AgriConnectApp extends StatelessWidget {
     );
   }
 
-    Route<dynamic> _generateRoute(RouteSettings settings) {
-      final routes = <String, Widget>{
-        '/': const SplashScreen(),
-        '/language': const LanguageSelectionScreen(),
+  Route<dynamic> _generateRoute(RouteSettings settings) {
+    Widget buyerPage(Widget child) => BuyerLanguageScope(child: child);
 
-        '/onboarding1': const OnboardingScreenOne(),
-        '/onboarding2': const OnboardingScreenTwo(),
-        '/onboarding3': const OnboardingScreenThree(),
+    final routes = <String, Widget>{
+      '/': const SplashScreen(),
+      '/language': const LanguageSelectionScreen(),
 
-        '/login': const LoginScreen(),
-        '/forgotPassword': const ForgotPasswordScreen(),
+      '/onboarding1': const OnboardingScreenOne(),
+      '/onboarding2': const OnboardingScreenTwo(),
+      '/onboarding3': const OnboardingScreenThree(),
 
-        '/farmerDashboard': const FarmerDashboardScreen(),
-        '/myCrops': const MyCropsScreen(),
-        '/addCrop': const AddCropScreen(),
-        '/farmerInquiries': const FarmerInquiriesScreen(),
-        '/editCrop': const EditCropScreen(),
-        '/profile': const FarmerProfileScreen(),
-        '/weather': const WeatherForecastScreen(),
-        '/price-prediction': const PricePredictionScreen(),
-        '/disease-detection': const DiseaseDetectionScreen(),
-        '/farmerChats': const FarmerChatsScreen(),
-        '/notifications': const FarmerNotificationScreen(),
+      '/login': const LoginScreen(),
+      '/forgotPassword': const ForgotPasswordScreen(),
 
-        '/buyerDashboard': const BuyerDashboardScreen(),
-        '/buyerFavorites': const BuyerFavoritesScreen(),
-        '/buyer-inquiries': const BuyerInquiriesScreen(),
-        '/buyerProfile': const BuyerProfileScreen(),
-        '/buyerChats': const BuyerChatsScreen(),
+      '/farmerDashboard': const FarmerDashboardScreen(),
+      '/myCrops': const MyCropsScreen(),
+      '/addCrop': const AddCropScreen(),
+      '/farmerInquiries': const FarmerInquiriesScreen(),
+      '/editCrop': const EditCropScreen(),
+      '/profile': const FarmerProfileScreen(),
+      '/weather': const WeatherForecastScreen(),
+      '/price-prediction': const PricePredictionScreen(),
+      '/disease-detection': const DiseaseDetectionScreen(),
+      '/farmerChats': const FarmerChatsScreen(),
+      '/notifications': const FarmerNotificationScreen(),
 
-        '/adminDashboard': const AdminMainScreen(),
-        '/adminUsers': const AdminUsersScreen(),
-        '/adminCrops': const AdminCropsScreen(),
-        '/adminAnalytics': const AdminAnalyticsScreen(),
-        '/adminReports': const AdminReportsScreen(),
-        '/adminProfile': const AdminProfileScreen(),
-        '/editProfile': const EditProfileScreen(),
-      };
+      '/buyerDashboard': buyerPage(const BuyerDashboardScreen()),
+      '/buyerFavorites': buyerPage(const BuyerFavoritesScreen()),
+      '/buyer-inquiries': buyerPage(const BuyerInquiriesScreen()),
+      '/buyerProfile': buyerPage(const BuyerProfileScreen()),
+      '/buyerChats': buyerPage(const BuyerChatsScreen()),
+
+      '/adminDashboard': const AdminMainScreen(),
+      '/adminUsers': const AdminUsersScreen(),
+      '/adminCrops': const AdminCropsScreen(),
+      '/adminAnalytics': const AdminAnalyticsScreen(),
+      '/adminReports': const AdminReportsScreen(),
+      '/adminProfile': const AdminProfileScreen(),
+      '/editProfile': const EditProfileScreen(),
+    };
 
     return _animatedRoute(
       routes[settings.name] ?? const SplashScreen(),
@@ -127,15 +131,7 @@ class AgriConnectApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => ChatProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => BuyerChatProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ChatProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => BuyerChatProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => CropProvider()),
         ChangeNotifierProvider(create: (_) => InquiryProvider()),
@@ -153,14 +149,61 @@ class AgriConnectApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AdminAnalyticsProvider()),
         ChangeNotifierProvider(create: (_) => AdminReportsProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => LanguageProvider()..loadLanguage()),
+        ChangeNotifierProvider(
+          create: (_) =>
+              BuyerLanguageProvider(initialLocale: const Locale('en'))
+                ..loadLanguage(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LanguageProvider()..loadLanguage(),
+        ),
       ],
       child: Consumer2<ThemeProvider, LanguageProvider>(
         builder: (context, themeProvider, languageProvider, child) {
+          final fontFamily = languageProvider.isUrdu
+              ? 'NotoNastaliqUrdu'
+              : 'Poppins';
+          final lightTheme = AppTheme.lightTheme.copyWith(
+            textTheme: AppTheme.lightTheme.textTheme.apply(
+              fontFamily: fontFamily,
+            ),
+            primaryTextTheme: AppTheme.lightTheme.primaryTextTheme.apply(
+              fontFamily: fontFamily,
+            ),
+          );
+          final darkTheme = AppTheme.darkTheme.copyWith(
+            textTheme: AppTheme.darkTheme.textTheme.apply(
+              fontFamily: fontFamily,
+            ),
+            primaryTextTheme: AppTheme.darkTheme.primaryTextTheme.apply(
+              fontFamily: fontFamily,
+            ),
+          );
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             initialRoute: '/',
             onGenerateRoute: _generateRoute,
+            builder: (context, child) {
+              final page = child ?? const SizedBox.shrink();
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  if (!AppBreakpoints.isDesktopWidth(constraints.maxWidth)) {
+                    return page;
+                  }
+                  return ColoredBox(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: AppBreakpoints.maxContentWidth,
+                        ),
+                        child: page,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
 
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
@@ -169,13 +212,10 @@ class AgriConnectApp extends StatelessWidget {
             ],
 
             locale: languageProvider.locale,
-            supportedLocales: const [
-              Locale('en'),
-              Locale('ur'),
-            ],
+            supportedLocales: const [Locale('en'), Locale('ur')],
 
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
+            theme: lightTheme,
+            darkTheme: darkTheme,
             themeMode: themeProvider.themeMode,
           );
         },

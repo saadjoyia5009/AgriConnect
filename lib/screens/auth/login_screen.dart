@@ -111,13 +111,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (!success) {
-      final message = authProvider.errorMessage ?? "Login failed";
+      final message =
+          authProvider.errorMessage ??
+          context.read<LanguageProvider>().t("loginFailed");
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
       );
 
       return;

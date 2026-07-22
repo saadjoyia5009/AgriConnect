@@ -58,8 +58,8 @@ class CropTextField extends StatelessWidget {
   }
 
   static Widget labelWidget(String text, [BuildContext? context]) {
-    final isDark = context != null &&
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark =
+        context != null && Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -68,7 +68,9 @@ class CropTextField extends StatelessWidget {
         style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w800,
-          color: isDark ? Colors.white.withOpacity(0.86) : const Color(0xff333333),
+          color: isDark
+              ? Colors.white.withOpacity(0.86)
+              : const Color(0xff333333),
         ),
       ),
     );
@@ -80,8 +82,8 @@ class CropTextField extends StatelessWidget {
     IconData? icon,
     IconData? suffixIcon,
   }) {
-    final isDark = context != null &&
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark =
+        context != null && Theme.of(context).brightness == Brightness.dark;
 
     final iconColor = isDark ? Colors.white60 : const Color(0xff777777);
     final borderColor = isDark ? Colors.white24 : const Color(0xffd8e6de);
@@ -92,20 +94,10 @@ class CropTextField extends StatelessWidget {
         fontSize: 13,
         color: isDark ? Colors.white38 : const Color(0xff777777),
       ),
-      prefixIcon: icon == null
-          ? null
-          : Icon(
-        icon,
-        size: 18,
-        color: iconColor,
-      ),
+      prefixIcon: icon == null ? null : Icon(icon, size: 18, color: iconColor),
       suffixIcon: suffixIcon == null
           ? null
-          : Icon(
-        suffixIcon,
-        size: 18,
-        color: iconColor,
-      ),
+          : Icon(suffixIcon, size: 18, color: iconColor),
       filled: true,
       fillColor: isDark ? const Color(0xff1E1E1E) : const Color(0xfffbfcfb),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),

@@ -5,11 +5,7 @@ class FarmerTopBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final VoidCallback? onNotificationTap;
 
-  const FarmerTopBar({
-    super.key,
-    required this.title,
-    this.onNotificationTap,
-  });
+  const FarmerTopBar({super.key, required this.title, this.onNotificationTap});
 
   static const Color darkGreen = Color(0xFF0E5A3C);
 
@@ -29,11 +25,7 @@ class FarmerTopBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       leading: const Padding(
         padding: EdgeInsets.only(left: 14),
-        child: Icon(
-          Icons.agriculture_outlined,
-          color: Colors.white,
-          size: 24,
-        ),
+        child: Icon(Icons.agriculture_outlined, color: Colors.white, size: 24),
       ),
       title: Text(
         title,
@@ -49,8 +41,9 @@ class FarmerTopBar extends StatelessWidget implements PreferredSizeWidget {
           padding: const EdgeInsets.only(right: 16),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: onNotificationTap ??
-                    () {
+            onTap:
+                onNotificationTap ??
+                () {
                   Navigator.pushNamed(context, "/notifications");
                 },
             child: Stack(

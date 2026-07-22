@@ -13,25 +13,18 @@ class AdminCropShimmer extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? darkCard : Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: isDark
-            ? Border.all(color: Colors.white10)
-            : null,
+        border: isDark ? Border.all(color: Colors.white10) : null,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Shimmer.fromColors(
-      baseColor: isDark
-          ? const Color(0xFF1B2B23)
-          : Colors.grey.shade300,
-      highlightColor: isDark
-          ? const Color(0xFF263A30)
-          : Colors.grey.shade100,
+      baseColor: isDark ? const Color(0xFF1B2B23) : Colors.grey.shade300,
+      highlightColor: isDark ? const Color(0xFF263A30) : Colors.grey.shade100,
       child: ListView.builder(
         padding: const EdgeInsets.all(20),
         itemCount: 6,

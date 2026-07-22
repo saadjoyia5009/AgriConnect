@@ -27,9 +27,7 @@ class BuyerSectionHeader extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
-            color: isDark
-                ? Colors.white
-                : const Color(0xff1F2722),
+            color: isDark ? Colors.white : const Color(0xff1F2722),
           ),
         ),
         if (actionText != null)
@@ -40,9 +38,7 @@ class BuyerSectionHeader extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: isDark
-                    ? lightGreen
-                    : darkGreen,
+                color: isDark ? lightGreen : darkGreen,
               ),
             ),
           ),

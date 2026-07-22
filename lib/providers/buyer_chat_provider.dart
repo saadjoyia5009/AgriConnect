@@ -27,9 +27,7 @@ class BuyerChatProvider extends ChangeNotifier {
       final response = await ChatService.fetchConversations();
 
       final loadedConversations = response.map((item) {
-        return ChatConversationModel.fromJson(
-          Map<String, dynamic>.from(item),
-        );
+        return ChatConversationModel.fromJson(Map<String, dynamic>.from(item));
       }).toList();
 
       _conversations
@@ -38,9 +36,7 @@ class BuyerChatProvider extends ChangeNotifier {
 
       _filteredConversations = List.from(_conversations);
     } catch (error) {
-      errorMessage = error
-          .toString()
-          .replaceFirst('Exception: ', '');
+      errorMessage = error.toString().replaceFirst('Exception: ', '');
 
       if (errorMessage == null || errorMessage!.trim().isEmpty) {
         errorMessage = 'Failed to load chats';

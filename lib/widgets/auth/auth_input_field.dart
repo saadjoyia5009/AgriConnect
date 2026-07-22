@@ -7,6 +7,7 @@ class AuthInputField extends StatelessWidget {
   final bool obscureText;
   final TextInputType keyboardType;
   final Widget? suffixIcon;
+  final FocusNode? focusNode;
 
   const AuthInputField({
     super.key,
@@ -16,6 +17,7 @@ class AuthInputField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.suffixIcon,
+    this.focusNode,
   });
 
   static const Color darkGreen = Color(0xFF0E5A3C);
@@ -26,38 +28,25 @@ class AuthInputField extends StatelessWidget {
       data: ThemeData.light(),
       child: TextField(
         controller: controller,
+        focusNode: focusNode,
         obscureText: obscureText,
         keyboardType: keyboardType,
-        style: const TextStyle(
-          color: Colors.black,
-        ),
+        style: const TextStyle(color: Colors.black),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(
-            color: Colors.grey.shade600,
-          ),
-          prefixIcon: const Icon(
-            Icons.email_outlined,
-            color: darkGreen,
-          ),
+          hintStyle: TextStyle(color: Colors.grey.shade600),
+          prefixIcon: const Icon(Icons.email_outlined, color: darkGreen),
           suffixIcon: suffixIcon,
           filled: true,
           fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(
-              color: Colors.grey.shade300,
-            ),
+            borderSide: BorderSide(color: Colors.grey.shade300),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(
-              color: darkGreen,
-              width: 1.5,
-            ),
+            borderSide: const BorderSide(color: darkGreen, width: 1.5),
           ),
         ),
       ),

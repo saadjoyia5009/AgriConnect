@@ -31,18 +31,14 @@ class CropSubmitButton extends StatelessWidget {
         onPressed: isSubmitting ? null : onPressed,
         icon: isSubmitting
             ? const SizedBox(
-          height: 18,
-          width: 18,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: Colors.white,
-          ),
-        )
-            : Icon(
-          icon,
-          size: 18,
-          color: Colors.white,
-        ),
+                height: 18,
+                width: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : Icon(icon, size: 18, color: Colors.white),
         label: Text(
           isSubmitting ? loadingTitle : title,
           style: const TextStyle(
@@ -59,9 +55,7 @@ class CropSubmitButton extends StatelessWidget {
               : darkGreen.withOpacity(0.70),
           disabledForegroundColor: Colors.white70,
           elevation: isDark ? 0 : 2,
-          shadowColor: isDark
-              ? Colors.transparent
-              : Colors.black26,
+          shadowColor: isDark ? Colors.transparent : Colors.black26,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),

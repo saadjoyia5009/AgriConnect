@@ -12,10 +12,7 @@ import '../common/profile_image_picker.dart';
 class EditBuyerProfileScreen extends StatefulWidget {
   final BuyerProfileModel profile;
 
-  const EditBuyerProfileScreen({
-    super.key,
-    required this.profile,
-  });
+  const EditBuyerProfileScreen({super.key, required this.profile});
 
   @override
   State<EditBuyerProfileScreen> createState() => _EditBuyerProfileScreenState();
@@ -92,9 +89,9 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
       favoriteCrops: widget.profile.favoriteCrops,
     );
 
-    final success = await context
-        .read<BuyerProfileProvider>()
-        .updateProfile(updatedProfile);
+    final success = await context.read<BuyerProfileProvider>().updateProfile(
+      updatedProfile,
+    );
 
     if (!mounted) return;
 
@@ -120,10 +117,7 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
         elevation: 0,
         title: Text(
           context.watch<LanguageProvider>().t("editProfile"),
-          style: TextStyle(
-            color: accentColor,
-            fontWeight: FontWeight.w900,
-          ),
+          style: TextStyle(color: accentColor, fontWeight: FontWeight.w900),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -172,8 +166,9 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
                       onPressed: provider.isUpdating ? null : _updateProfile,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: darkGreen,
-                        disabledBackgroundColor:
-                        isDark ? darkGreen.withOpacity(0.45) : Colors.grey.shade400,
+                        disabledBackgroundColor: isDark
+                            ? darkGreen.withOpacity(0.45)
+                            : Colors.grey.shade400,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -181,13 +176,15 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
                       child: provider.isUpdating
                           ? const CircularProgressIndicator(color: Colors.white)
                           : Text(
-                        context.watch<LanguageProvider>().t("updateProfile"),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                        ),
-                      ),
+                              context.watch<LanguageProvider>().t(
+                                "updateProfile",
+                              ),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 16,
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -212,10 +209,7 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
             const SizedBox(height: 10),
             Text(
               context.watch<LanguageProvider>().t("tapImageChangeProfilePhoto"),
-              style: TextStyle(
-                fontSize: 12,
-                color: secondaryText,
-              ),
+              style: TextStyle(fontSize: 12, color: secondaryText),
             ),
           ],
         );
@@ -230,10 +224,7 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
   }) {
     return TextFormField(
       controller: controller,
-      style: TextStyle(
-        color: primaryText,
-        fontWeight: FontWeight.w600,
-      ),
+      style: TextStyle(color: primaryText, fontWeight: FontWeight.w600),
       cursorColor: accentColor,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
@@ -270,10 +261,7 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(
-            color: accentColor,
-            width: 1.3,
-          ),
+          borderSide: BorderSide(color: accentColor, width: 1.3),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),

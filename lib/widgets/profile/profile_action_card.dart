@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/language_provider.dart';
 
 import 'profile_action_tile.dart';
 
@@ -50,9 +52,9 @@ class ProfileActionCard extends StatelessWidget {
             children: [
               _iconBox(Icons.settings),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  "Account Settings",
+                  context.watch<LanguageProvider>().t("accountSettings"),
                   style: TextStyle(
                     color: darkGreen,
                     fontSize: 22,
@@ -66,14 +68,14 @@ class ProfileActionCard extends StatelessWidget {
 
           ProfileActionTile(
             icon: Icons.person,
-            title: "Edit Profile",
+            title: context.watch<LanguageProvider>().t("editProfile"),
             onTap: onEditProfile,
           ),
           _divider(),
 
           ProfileActionTile(
             icon: Icons.language,
-            title: "Language",
+            title: context.watch<LanguageProvider>().t("language"),
             trailingText: language,
             onTap: onLanguage,
           ),
@@ -81,36 +83,38 @@ class ProfileActionCard extends StatelessWidget {
 
           ProfileActionTile(
             icon: Icons.notifications,
-            title: "Notifications",
+            title: context.watch<LanguageProvider>().t("notifications"),
             onTap: onNotifications,
           ),
           _divider(),
 
           ProfileActionTile(
             icon: Icons.lock,
-            title: "Change Password",
+            title: context.watch<LanguageProvider>().t("changePassword"),
             onTap: onChangePassword,
           ),
           _divider(),
 
           ProfileActionTile(
             icon: Icons.dark_mode,
-            title: "Appearance",
-            trailingText: isDarkMode ? "Dark Mode" : "Light Mode",
+            title: context.watch<LanguageProvider>().t("appearance"),
+            trailingText: isDarkMode
+                ? context.watch<LanguageProvider>().t("darkMode")
+                : context.watch<LanguageProvider>().t("lightMode"),
             onTap: onAppearance,
           ),
           _divider(),
 
           ProfileActionTile(
             icon: Icons.headset_mic,
-            title: "Help & Support",
+            title: context.watch<LanguageProvider>().t("helpSupport"),
             onTap: onHelpSupport,
           ),
           _divider(),
 
           ProfileActionTile(
             icon: Icons.info,
-            title: "About AgriConnect",
+            title: context.watch<LanguageProvider>().t("aboutAgriConnect"),
             onTap: onAboutApp,
           ),
         ],
@@ -126,19 +130,11 @@ class ProfileActionCard extends StatelessWidget {
         color: const Color(0xffe8f5ee),
         borderRadius: BorderRadius.circular(14),
       ),
-      child: const Icon(
-        Icons.settings,
-        color: darkGreen,
-        size: 24,
-      ),
+      child: const Icon(Icons.settings, color: darkGreen, size: 24),
     );
   }
 
   Widget _divider() {
-    return Divider(
-      height: 1,
-      thickness: 1,
-      color: Colors.grey.shade300,
-    );
+    return Divider(height: 1, thickness: 1, color: Colors.grey.shade300);
   }
 }

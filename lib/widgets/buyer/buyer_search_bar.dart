@@ -4,11 +4,7 @@ class BuyerSearchBar extends StatelessWidget {
   final String hintText;
   final ValueChanged<String>? onChanged;
 
-  const BuyerSearchBar({
-    super.key,
-    required this.hintText,
-    this.onChanged,
-  });
+  const BuyerSearchBar({super.key, required this.hintText, this.onChanged});
 
   static const Color darkGreen = Color(0xff0F5C3A);
   static const Color darkCard = Color(0xFF15251E);
@@ -53,10 +49,7 @@ class BuyerSearchBar extends StatelessWidget {
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: darkGreen,
-            width: 1.3,
-          ),
+          borderSide: const BorderSide(color: darkGreen, width: 1.3),
         ),
       ),
     );

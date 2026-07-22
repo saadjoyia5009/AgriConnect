@@ -15,8 +15,8 @@ class AdminUsersProvider extends ChangeNotifier {
 
       final matchesSearch =
           user.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
-              user.email.toLowerCase().contains(searchQuery.toLowerCase()) ||
-              user.phone.toLowerCase().contains(searchQuery.toLowerCase());
+          user.email.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          user.phone.toLowerCase().contains(searchQuery.toLowerCase());
 
       return matchesFilter && matchesSearch;
     }).toList();

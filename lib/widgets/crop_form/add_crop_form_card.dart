@@ -157,13 +157,7 @@ class AddCropFormCard extends StatelessWidget {
                   child: CropDropdown(
                     label: lang.t('unit'),
                     value: selectedUnit,
-                    items: const [
-                      'kg',
-                      'ton',
-                      'box',
-                      'bundle',
-                      'bag',
-                    ],
+                    items: const ['kg', 'ton', 'box', 'bundle', 'bag'],
                     onChanged: onUnitChanged,
                   ),
                 ),
@@ -189,11 +183,7 @@ class AddCropFormCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                const Icon(
-                  Icons.my_location,
-                  size: 14,
-                  color: darkGreen,
-                ),
+                const Icon(Icons.my_location, size: 14, color: darkGreen),
                 const SizedBox(width: 4),
                 Text(
                   lang.t('useCurrentLocation'),
@@ -211,15 +201,16 @@ class AddCropFormCard extends StatelessWidget {
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
-              decoration: CropTextField.inputDecoration(
-                hint: lang.t('locationHint'),
-                icon: Icons.location_on_outlined,
-              ).copyWith(
-                fillColor: Theme.of(context).cardColor,
-                hintStyle: TextStyle(
-                  color: isDark ? Colors.white54 : Colors.grey.shade500,
-                ),
-              ),
+              decoration:
+                  CropTextField.inputDecoration(
+                    hint: lang.t('locationHint'),
+                    icon: Icons.location_on_outlined,
+                  ).copyWith(
+                    fillColor: Theme.of(context).cardColor,
+                    hintStyle: TextStyle(
+                      color: isDark ? Colors.white54 : Colors.grey.shade500,
+                    ),
+                  ),
             ),
             const SizedBox(height: 10),
             Container(
@@ -233,11 +224,7 @@ class AddCropFormCard extends StatelessWidget {
                 ),
               ),
               child: const Center(
-                child: Icon(
-                  Icons.location_on,
-                  color: Colors.red,
-                  size: 36,
-                ),
+                child: Icon(Icons.location_on, color: Colors.red, size: 36),
               ),
             ),
             const SizedBox(height: 18),

@@ -28,7 +28,7 @@ class PricePredictionProvider extends ChangeNotifier {
         unit: "per Ton",
         changePercent: "+5.2% vs last month",
         recommendation:
-        "Demand for $cropType is rising in the $marketLocation due to recent weather patterns affecting competing regions. Holding inventory for another 2 weeks could yield a 3–5% price increase.",
+            "Demand for $cropType is rising in the $marketLocation due to recent weather patterns affecting competing regions. Holding inventory for another 2 weeks could yield a 3–5% price increase.",
         confidence: 87,
         thirtyDayHigh: "\$272",
         recordedDate: "Oct 12, 2023",

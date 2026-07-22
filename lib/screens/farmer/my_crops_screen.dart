@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/responsive/responsive_layout.dart';
 import '../../providers/crop_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/crop_card.dart';
@@ -40,76 +41,86 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
         },
         child: const Icon(Icons.add),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _topBar(context),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(18, 20, 18, 90),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      lang.t("myCrops"),
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyLarge?.color,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
+      body: ResponsiveLayout(
+        child: SafeArea(
+          child: Column(
+            children: [
+              _topBar(context),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(18, 20, 18, 90),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        lang.t("myCrops"),
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 18),
-                    Row(
-                      children: [
-                        _filterChip(
-                          context,
-                          title: "All",
-                          displayTitle: lang.t("all"),
-                          count: cropProvider.allCount,
-                          selected: cropProvider.selectedFilter == "All",
-                        ),
-                        const SizedBox(width: 10),
-                        _filterChip(
-                          context,
-                          title: "Active",
-                          displayTitle: lang.t("active"),
-                          count: cropProvider.activeCount,
-                          selected: cropProvider.selectedFilter == "Active",
-                        ),
-                        const SizedBox(width: 10),
-                        _filterChip(
-                          context,
-                          title: "Sold Out",
-                          displayTitle: lang.t("soldOut"),
-                          count: cropProvider.soldOutCount,
-                          selected: cropProvider.selectedFilter == "Sold Out",
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 22),
-                    ListView.builder(
-                      itemCount: cropProvider.crops.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final crop = cropProvider.crops[index];
+                      const SizedBox(height: 18),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: [
+                          _filterChip(
+                            context,
+                            title: "All",
+                            displayTitle: lang.t("all"),
+                            count: cropProvider.allCount,
+                            selected: cropProvider.selectedFilter == "All",
+                          ),
+                          _filterChip(
+                            context,
+                            title: "Active",
+                            displayTitle: lang.t("active"),
+                            count: cropProvider.activeCount,
+                            selected: cropProvider.selectedFilter == "Active",
+                          ),
+                          _filterChip(
+                            context,
+                            title: "Sold Out",
+                            displayTitle: lang.t("soldOut"),
+                            count: cropProvider.soldOutCount,
+                            selected: cropProvider.selectedFilter == "Sold Out",
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 22),
+                      ResponsiveGrid(
+                        mobileColumns: 1,
+                        tabletColumns: 2,
+                        desktopColumns: 3,
+                        wideDesktopColumns: 4,
+                        childAspectRatio: .72,
+                        children: List.generate(cropProvider.crops.length, (
+                          index,
+                        ) {
+                          final crop = cropProvider.crops[index];
 
-                        return MyCropCard(
-                          crop: crop,
-                          onEdit: () {
-                            Navigator.pushNamed(context, '/editCrop', arguments: crop);
-                          },
-                          onDelete: () {
-                            cropProvider.deleteCrop(crop.id);
-                          },
-                        );
-                      },
-                    ),
-                  ],
+                          return MyCropCard(
+                            crop: crop,
+                            onEdit: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/editCrop',
+                                arguments: crop,
+                              );
+                            },
+                            onDelete: () {
+                              cropProvider.deleteCrop(crop.id);
+                            },
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -154,12 +165,12 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
   }
 
   Widget _filterChip(
-      BuildContext context, {
-        required String title,
-        required String displayTitle,
-        required int count,
-        required bool selected,
-      }) {
+    BuildContext context, {
+    required String title,
+    required String displayTitle,
+    required int count,
+    required bool selected,
+  }) {
     final cropProvider = Provider.of<CropProvider>(context, listen: false);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 

@@ -47,9 +47,7 @@ class InquiryProvider extends ChangeNotifier {
 
   InquiryModel? getInquiryById(String id) {
     try {
-      return _inquiries.firstWhere(
-            (item) => item.id == id,
-      );
+      return _inquiries.firstWhere((item) => item.id == id);
     } catch (_) {
       return null;
     }
@@ -74,19 +72,14 @@ class InquiryProvider extends ChangeNotifier {
 
       final loadedInquiries = response
           .whereType<Map>()
-          .map(
-            (item) => InquiryModel.fromJson(
-          Map<String, dynamic>.from(item),
-        ),
-      )
+          .map((item) => InquiryModel.fromJson(Map<String, dynamic>.from(item)))
           .toList();
 
       _inquiries
         ..clear()
         ..addAll(loadedInquiries);
     } catch (error) {
-      _errorMessage =
-      "Unable to load inquiries: ${_cleanError(error)}";
+      _errorMessage = "Unable to load inquiries: ${_cleanError(error)}";
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -104,9 +97,7 @@ class InquiryProvider extends ChangeNotifier {
       final response = await InquiryService.acceptInquiry(id);
       final responseData = response["data"];
 
-      final index = _inquiries.indexWhere(
-            (item) => item.id == id,
-      );
+      final index = _inquiries.indexWhere((item) => item.id == id);
 
       if (index == -1) return;
 
@@ -115,13 +106,10 @@ class InquiryProvider extends ChangeNotifier {
           Map<String, dynamic>.from(responseData),
         );
       } else {
-        _inquiries[index] = _inquiries[index].copyWith(
-          status: "Accepted",
-        );
+        _inquiries[index] = _inquiries[index].copyWith(status: "Accepted");
       }
     } catch (error) {
-      _errorMessage =
-      "Unable to accept inquiry: ${_cleanError(error)}";
+      _errorMessage = "Unable to accept inquiry: ${_cleanError(error)}";
     } finally {
       _isActionLoading = false;
       notifyListeners();
@@ -139,9 +127,7 @@ class InquiryProvider extends ChangeNotifier {
       final response = await InquiryService.rejectInquiry(id);
       final responseData = response["data"];
 
-      final index = _inquiries.indexWhere(
-            (item) => item.id == id,
-      );
+      final index = _inquiries.indexWhere((item) => item.id == id);
 
       if (index == -1) return;
 
@@ -150,13 +136,10 @@ class InquiryProvider extends ChangeNotifier {
           Map<String, dynamic>.from(responseData),
         );
       } else {
-        _inquiries[index] = _inquiries[index].copyWith(
-          status: "Rejected",
-        );
+        _inquiries[index] = _inquiries[index].copyWith(status: "Rejected");
       }
     } catch (error) {
-      _errorMessage =
-      "Unable to reject inquiry: ${_cleanError(error)}";
+      _errorMessage = "Unable to reject inquiry: ${_cleanError(error)}";
     } finally {
       _isActionLoading = false;
       notifyListeners();
@@ -171,9 +154,6 @@ class InquiryProvider extends ChangeNotifier {
   }
 
   String _cleanError(Object error) {
-    return error
-        .toString()
-        .replaceFirst("Exception: ", "")
-        .trim();
+    return error.toString().replaceFirst("Exception: ", "").trim();
   }
 }

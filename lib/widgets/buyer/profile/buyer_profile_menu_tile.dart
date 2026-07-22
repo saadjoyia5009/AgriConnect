@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class BuyerProfileMenuTile extends StatelessWidget {
   final IconData icon;
   final String title;
+  final String? subtitle;
   final VoidCallback onTap;
   final Color iconColor;
 
@@ -10,6 +11,7 @@ class BuyerProfileMenuTile extends StatelessWidget {
     super.key,
     required this.icon,
     required this.title,
+    this.subtitle,
     required this.onTap,
     this.iconColor = const Color(0xff0F5C3A),
   });
@@ -26,34 +28,36 @@ class BuyerProfileMenuTile extends StatelessWidget {
         color: isDark ? darkCard : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark
-              ? Colors.white10
-              : const Color(0xffDCE7DD),
+          color: isDark ? Colors.white10 : const Color(0xffDCE7DD),
         ),
       ),
       child: ListTile(
         onTap: onTap,
-        leading: Icon(
-          icon,
-          color: iconColor,
-        ),
+        leading: Icon(icon, color: iconColor),
         title: Text(
           title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontWeight: FontWeight.w800,
-            color: isDark
-                ? Colors.white
-                : const Color(0xff10291D),
+            color: isDark ? Colors.white : const Color(0xff10291D),
           ),
         ),
+        subtitle: subtitle == null
+            ? null
+            : Text(
+                subtitle!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isDark ? Colors.white60 : const Color(0xff5F675F),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
         trailing: Icon(
           Icons.arrow_forward_ios,
           size: 15,
-          color: isDark
-              ? Colors.white54
-              : const Color(0xff7A837C),
+          color: isDark ? Colors.white54 : const Color(0xff7A837C),
         ),
       ),
     );

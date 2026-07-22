@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import 'login_screen.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
@@ -14,7 +15,7 @@ class ResetPasswordScreen extends StatefulWidget {
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final TextEditingController newPasswordController = TextEditingController();
   final TextEditingController confirmPasswordController =
-  TextEditingController();
+      TextEditingController();
 
   bool hideNewPassword = true;
   bool hideConfirmPassword = true;
@@ -40,18 +41,25 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Password reset successfully")),
+        SnackBar(
+          content: Text(
+            context.read<LanguageProvider>().t("passwordResetSuccessfully"),
+          ),
+        ),
       );
 
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const LoginScreen()),
-            (route) => false,
+        (route) => false,
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authProvider.errorMessage ?? "Password reset failed"),
+          content: Text(
+            authProvider.errorMessage ??
+                context.read<LanguageProvider>().t("passwordResetFailed"),
+          ),
         ),
       );
     }
@@ -69,10 +77,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 15,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
         ),
         const SizedBox(height: 8),
         TextField(
@@ -91,9 +96,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             ),
             filled: true,
             fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: Colors.grey.shade300),
@@ -136,7 +139,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   color: darkGreen,
                   borderRadius: BorderRadius.circular(28),
                 ),
-                child: const Column(
+                child: Column(
                   children: [
                     Icon(
                       Icons.lock_reset_rounded,
@@ -145,7 +148,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      "Reset Password",
+                      context.watch<LanguageProvider>().t("resetPassword"),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 28,
@@ -154,12 +157,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      "Create a new password for your account",
+                      context.watch<LanguageProvider>().t("createNewPassword"),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 15,
-                      ),
+                      style: TextStyle(color: Colors.white70, fontSize: 15),
                     ),
                   ],
                 ),
@@ -168,8 +168,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               const SizedBox(height: 35),
 
               _passwordField(
-                label: "New Password",
-                hint: "Enter new password",
+                label: context.watch<LanguageProvider>().t("newPassword"),
+                hint: context.watch<LanguageProvider>().t("enterNewPassword"),
                 controller: newPasswordController,
                 obscureText: hideNewPassword,
                 onToggle: () {
@@ -181,10 +181,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
               const SizedBox(height: 12),
 
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "• At least 8 characters\n• Include uppercase & lowercase letters\n• Include a number\n• Include a special character",
+                  context.watch<LanguageProvider>().t("passwordRequirements"),
                   style: TextStyle(
                     color: Colors.grey,
                     fontSize: 13,
@@ -196,8 +196,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               const SizedBox(height: 22),
 
               _passwordField(
-                label: "Confirm Password",
-                hint: "Confirm new password",
+                label: context.watch<LanguageProvider>().t("confirmPassword"),
+                hint: context.watch<LanguageProvider>().t("confirmNewPassword"),
                 controller: confirmPasswordController,
                 obscureText: hideConfirmPassword,
                 onToggle: () {
@@ -222,14 +222,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                   child: authProvider.isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                    "Reset Password",
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                      : Text(
+                          context.watch<LanguageProvider>().t("resetPassword"),
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
 
@@ -240,11 +240,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (_) => const LoginScreen()),
-                        (route) => false,
+                    (route) => false,
                   );
                 },
-                child: const Text(
-                  "Back to Login",
+                child: Text(
+                  context.watch<LanguageProvider>().t("backToLogin"),
                   style: TextStyle(
                     color: darkGreen,
                     fontWeight: FontWeight.w700,

@@ -73,7 +73,12 @@ class _AddCropScreenState extends State<AddCropScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Image could not be selected: $error'),
+          content: Text(
+            context
+                .read<LanguageProvider>()
+                .t('imageSelectionFailed')
+                .replaceAll('{value}', error.toString()),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -91,8 +96,7 @@ class _AddCropScreenState extends State<AddCropScreen> {
     if (pickedDate == null || !mounted) return;
 
     setState(() {
-      harvestDate =
-      '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
+      harvestDate = '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
     });
   }
 
@@ -148,9 +152,7 @@ class _AddCropScreenState extends State<AddCropScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          success
-              ? lang.t('cropListedSuccessfully')
-              : lang.t('failedListCrop'),
+          success ? lang.t('cropListedSuccessfully') : lang.t('failedListCrop'),
         ),
         backgroundColor: success ? darkGreen : Colors.red,
       ),
@@ -262,9 +264,7 @@ class _AddCropScreenState extends State<AddCropScreen> {
         color: Theme.of(context).cardColor,
         border: Border(
           bottom: BorderSide(
-            color: isDark
-                ? Colors.white12
-                : const Color(0xffe4eee8),
+            color: isDark ? Colors.white12 : const Color(0xffe4eee8),
           ),
         ),
       ),
@@ -274,11 +274,8 @@ class _AddCropScreenState extends State<AddCropScreen> {
             onTap: isSubmitting
                 ? null
                 : () {
-              Navigator.pushReplacementNamed(
-                context,
-                '/myCrops',
-              );
-            },
+                    Navigator.pushReplacementNamed(context, '/myCrops');
+                  },
             child: Icon(
               Icons.arrow_back,
               color: Theme.of(context).iconTheme.color,

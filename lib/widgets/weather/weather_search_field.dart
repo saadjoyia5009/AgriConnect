@@ -36,9 +36,7 @@ class WeatherSearchField extends StatelessWidget {
         ),
         filled: true,
         fillColor: isDark ? const Color(0xFF15251E) : Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
       ),
     );
   }

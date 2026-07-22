@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/crop_model.dart';
 import '../../providers/language_provider.dart';
+import '../../core/responsive/app_breakpoints.dart';
 
 class BuyerCropCard extends StatelessWidget {
   final CropModel crop;
@@ -31,8 +32,10 @@ class BuyerCropCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 200,
-        margin: const EdgeInsets.only(right: 14),
+        width: AppBreakpoints.isMobile(context) ? 200 : double.infinity,
+        margin: AppBreakpoints.isMobile(context)
+            ? const EdgeInsetsDirectional.only(end: 14)
+            : EdgeInsets.zero,
         decoration: BoxDecoration(
           color: isDark ? darkCard : Colors.white,
           borderRadius: BorderRadius.circular(14),
@@ -68,7 +71,9 @@ class BuyerCropCard extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xff1E1E1E) : Colors.white,
+                          color: isDark
+                              ? const Color(0xff1E1E1E)
+                              : Colors.white,
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: isDark ? Colors.white12 : Colors.transparent,
@@ -79,7 +84,9 @@ class BuyerCropCard extends StatelessWidget {
                           size: 20,
                           color: isFavorite
                               ? Colors.red
-                              : (isDark ? Colors.white70 : const Color(0xff9AA39C)),
+                              : (isDark
+                                    ? Colors.white70
+                                    : const Color(0xff9AA39C)),
                         ),
                       ),
                     ),
@@ -134,7 +141,9 @@ class BuyerCropCard extends StatelessWidget {
                         Icon(
                           Icons.location_on_outlined,
                           size: 15,
-                          color: isDark ? Colors.white60 : const Color(0xff6B7280),
+                          color: isDark
+                              ? Colors.white60
+                              : const Color(0xff6B7280),
                         ),
                         const SizedBox(width: 4),
                         Expanded(
@@ -143,7 +152,9 @@ class BuyerCropCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: isDark ? Colors.white70 : const Color(0xff5F675F),
+                              color: isDark
+                                  ? Colors.white70
+                                  : const Color(0xff5F675F),
                               fontSize: 12,
                             ),
                           ),
@@ -168,7 +179,9 @@ class BuyerCropCard extends StatelessWidget {
                                 TextSpan(
                                   text: lang.tDynamic(crop.unit),
                                   style: TextStyle(
-                                    color: isDark ? Colors.white70 : const Color(0xff5F675F),
+                                    color: isDark
+                                        ? Colors.white70
+                                        : const Color(0xff5F675F),
                                     fontSize: 13,
                                   ),
                                 ),

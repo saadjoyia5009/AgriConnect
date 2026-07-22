@@ -5,6 +5,7 @@ import '../../models/chat_conversation_model.dart';
 import '../../providers/buyer_chat_provider.dart';
 import '../chat/chat_detail_screen.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
 
 class BuyerChatsScreen extends StatefulWidget {
@@ -44,15 +45,21 @@ class _BuyerChatsScreenState extends State<BuyerChatsScreen> {
   void _openChat(ChatConversationModel conversation) {
     if (conversation.id.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Conversation ID not found")),
+        SnackBar(
+          content: Text(
+            context.read<LanguageProvider>().t("conversationIdNotFound"),
+          ),
+        ),
       );
       return;
     }
 
     if (!conversation.canChat) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Chat is available after inquiry acceptance"),
+        SnackBar(
+          content: Text(
+            context.read<LanguageProvider>().t("chatAfterAcceptance"),
+          ),
         ),
       );
       return;
@@ -62,9 +69,9 @@ class _BuyerChatsScreenState extends State<BuyerChatsScreen> {
 
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            "Logged-in user information not found. Please login again.",
+            context.read<LanguageProvider>().t("loginInformationNotFound"),
           ),
         ),
       );
@@ -75,10 +82,13 @@ class _BuyerChatsScreenState extends State<BuyerChatsScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => ChatDetailScreen(
-          chatId: conversation.id,
+          conversationId: conversation.id,
+          inquiryId: conversation.inquiryId,
           currentUserId: userId.toString(),
-          receiverId: conversation.farmerId,
-          receiverName: conversation.farmerName,
+          otherUserId: conversation.farmerId,
+          otherUserName: conversation.farmerName,
+          cropName: conversation.cropName,
+          cropImageUrl: conversation.cropImage,
         ),
       ),
     ).then((_) {
@@ -117,8 +127,8 @@ class _BuyerChatsScreenState extends State<BuyerChatsScreen> {
         centerTitle: true,
         backgroundColor: primaryGreen,
         foregroundColor: Colors.white,
-        title: const Text(
-          "Chats",
+        title: Text(
+          context.watch<LanguageProvider>().t("chats"),
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
         ),
       ),
@@ -182,7 +192,7 @@ class _BuyerChatsScreenState extends State<BuyerChatsScreen> {
         },
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
-          hintText: "Search farmer or crop...",
+          hintText: context.watch<LanguageProvider>().t("searchFarmerCrop"),
           prefixIcon: const Icon(Icons.search, color: primaryGreen),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
@@ -313,7 +323,9 @@ class _BuyerChatsScreenState extends State<BuyerChatsScreen> {
                         Expanded(
                           child: Text(
                             conversation.lastMessage.isEmpty
-                                ? "Start conversation"
+                                ? context.watch<LanguageProvider>().t(
+                                    "startConversation",
+                                  )
                                 : conversation.lastMessage,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -414,12 +426,12 @@ class _BuyerChatsScreenState extends State<BuyerChatsScreen> {
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 30),
-        children: const [
-          SizedBox(height: 140),
-          Icon(Icons.forum_outlined, size: 65, color: primaryGreen),
-          SizedBox(height: 18),
+        children: [
+          const SizedBox(height: 140),
+          const Icon(Icons.forum_outlined, size: 65, color: primaryGreen),
+          const SizedBox(height: 18),
           Text(
-            "No active chats",
+            context.watch<LanguageProvider>().t("noActiveChats"),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: primaryGreen,
@@ -427,9 +439,9 @@ class _BuyerChatsScreenState extends State<BuyerChatsScreen> {
               fontWeight: FontWeight.w900,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
-            "Farmer ke inquiry accept karne ke baad chat yahan show hogi.",
+            context.watch<LanguageProvider>().t("buyerChatEmptySubtitle"),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Color(0xFF69756E),
@@ -453,8 +465,8 @@ class _BuyerChatsScreenState extends State<BuyerChatsScreen> {
           const SizedBox(height: 130),
           const Icon(Icons.error_outline, color: Colors.redAccent, size: 58),
           const SizedBox(height: 18),
-          const Text(
-            "Unable to load chats",
+          Text(
+            context.watch<LanguageProvider>().t("unableLoadChats"),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: primaryGreen,
@@ -473,7 +485,7 @@ class _BuyerChatsScreenState extends State<BuyerChatsScreen> {
             child: ElevatedButton.icon(
               onPressed: _refreshChats,
               icon: const Icon(Icons.refresh),
-              label: const Text("Retry"),
+              label: Text(context.watch<LanguageProvider>().t("retry")),
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryGreen,
                 foregroundColor: Colors.white,

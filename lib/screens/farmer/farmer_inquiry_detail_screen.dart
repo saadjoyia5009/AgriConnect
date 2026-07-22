@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../models/inquiry_model.dart';
 import '../../providers/inquiry_provider.dart';
 import '../../providers/language_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../chat/chat_detail_screen.dart';
 
 class FarmerInquiryDetailScreen extends StatelessWidget {
   final String inquiryId;
@@ -105,9 +107,40 @@ class FarmerInquiryDetailScreen extends StatelessWidget {
               borderColor: isDark ? Colors.white12 : null,
               onTap: () {
                 if (inquiry.status.toLowerCase() == "accepted") {
-                  _showSnack(context, lang.t("chatConnectedLater"));
+                  final currentUserId =
+                      context.read<AuthProvider>().userId?.toString() ?? '';
+                  if (currentUserId.isEmpty) {
+                    _showSnack(
+                      context,
+                      context.read<LanguageProvider>().t(
+                        "loginInformationNotFound",
+                      ),
+                    );
+                    return;
+                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ChatDetailScreen(
+                        conversationId: inquiry.conversationId,
+                        inquiryId: inquiry.id,
+                        currentUserId: currentUserId,
+                        otherUserId: inquiry.buyerId,
+                        otherUserName: inquiry.buyerName,
+                        cropName: inquiry.cropName,
+                        cropImageUrl: inquiry.cropImage,
+                        quantity: inquiry.requestedQuantity,
+                        offeredPrice: inquiry.proposedPrice,
+                        cropUnit: inquiry.cropUnit,
+                        status: inquiry.status,
+                      ),
+                    ),
+                  );
                 } else {
-                  _showSnack(context, "Chat is only available for accepted inquiries.");
+                  _showSnack(
+                    context,
+                    context.read<LanguageProvider>().t("chatAcceptedOnly"),
+                  );
                 }
               },
             ),

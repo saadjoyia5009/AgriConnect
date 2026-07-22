@@ -42,20 +42,20 @@ class CropModel {
       id: json["id"]?.toString() ?? "",
 
       farmerId:
-      json["farmer_id"]?.toString() ??
+          json["farmer_id"]?.toString() ??
           json["farmerId"]?.toString() ??
           json["farmer"]?.toString() ??
           "",
 
       farmerName:
-      json["farmer_name"]?.toString() ??
+          json["farmer_name"]?.toString() ??
           json["farmerName"]?.toString() ??
           "",
 
       name: json["name"]?.toString() ?? "",
 
       imageUrl:
-      json["image"]?.toString() ??
+          json["image"]?.toString() ??
           json["image_url"]?.toString() ??
           json["imageUrl"]?.toString() ??
           "",
@@ -63,9 +63,7 @@ class CropModel {
       quantity: json["quantity"]?.toString() ?? "",
 
       price:
-      json["price_per_unit"]?.toString() ??
-          json["price"]?.toString() ??
-          "",
+          json["price_per_unit"]?.toString() ?? json["price"]?.toString() ?? "",
 
       unit: json["unit"]?.toString() ?? "",
 
@@ -73,36 +71,29 @@ class CropModel {
 
       status: json["status"]?.toString() ?? "active",
 
-      isOrganic:
-      json["is_organic"] ??
-          json["isOrganic"] ??
-          false,
+      isOrganic: json["is_organic"] ?? json["isOrganic"] ?? false,
 
       isReadyToShip:
-      json["is_delivery_available"] ??
+          json["is_delivery_available"] ??
           json["is_ready_to_ship"] ??
           json["isReadyToShip"] ??
           false,
 
       location:
-      json["farm_location"]?.toString() ??
+          json["farm_location"]?.toString() ??
           json["location"]?.toString() ??
           "",
 
-      description:
-      json["description"]?.toString() ??
-          "",
+      description: json["description"]?.toString() ?? "",
 
       harvestDate:
-      json["estimated_harvest_date"]?.toString() ??
+          json["estimated_harvest_date"]?.toString() ??
           json["harvest_date"]?.toString() ??
           json["harvestDate"]?.toString() ??
           "",
 
       isPremiumGrade:
-      json["is_premium_grade"] ??
-          json["isPremiumGrade"] ??
-          false,
+          json["is_premium_grade"] ?? json["isPremiumGrade"] ?? false,
     );
   }
 

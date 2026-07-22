@@ -2,10 +2,7 @@ class TreatmentStepModel {
   final String title;
   final String description;
 
-  TreatmentStepModel({
-    required this.title,
-    required this.description,
-  });
+  TreatmentStepModel({required this.title, required this.description});
 }
 
 class DiseaseDetectionModel {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animations/animations.dart';
 
+import '../../data/pakistan_cities.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/auth/auth_background.dart';
@@ -22,6 +23,12 @@ class _SignupScreenState extends State<SignupScreen> {
   final emailController = TextEditingController();
   final phoneController = TextEditingController();
   final passwordController = TextEditingController();
+  final locationController = TextEditingController();
+  final citySearchController = TextEditingController();
+  final citySearchFocusNode = FocusNode();
+  final manualLocationFocusNode = FocusNode();
+  String? selectedCity;
+  bool enterLocationManually = false;
 
   static const Color darkGreen = Color(0xFF0E5A3C);
 
@@ -31,32 +38,39 @@ class _SignupScreenState extends State<SignupScreen> {
     emailController.dispose();
     phoneController.dispose();
     passwordController.dispose();
+    locationController.dispose();
+    citySearchController.dispose();
+    citySearchFocusNode.dispose();
+    manualLocationFocusNode.dispose();
     super.dispose();
   }
 
-    void _goToLogin() {
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 500),
-          reverseTransitionDuration: const Duration(milliseconds: 350),
-          pageBuilder: (_, __, ___) => const LoginScreen(),
-          transitionsBuilder: (_, animation, secondaryAnimation, child) {
-            return FadeThroughTransition(
-              animation: animation,
-              secondaryAnimation: secondaryAnimation,
-              child: child,
-            );
-          },
-        ),
-      );
-    }
+  void _goToLogin() {
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 500),
+        reverseTransitionDuration: const Duration(milliseconds: 350),
+        pageBuilder: (_, __, ___) => const LoginScreen(),
+        transitionsBuilder: (_, animation, secondaryAnimation, child) {
+          return FadeThroughTransition(
+            animation: animation,
+            secondaryAnimation: secondaryAnimation,
+            child: child,
+          );
+        },
+      ),
+    );
+  }
 
   Future<void> _signup(AuthProvider authProvider, LanguageProvider lang) async {
     final name = nameController.text.trim();
     final email = emailController.text.trim();
     final phone = phoneController.text.trim();
     final password = passwordController.text.trim();
+    final address = enterLocationManually
+        ? locationController.text.trim()
+        : (selectedCity ?? '').trim();
 
     if (name.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -68,11 +82,22 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
+    if (address.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(lang.t("locationRequired")),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final success = await authProvider.signup(
       name: name,
       email: email,
       phone: phone,
       password: password,
+      address: address,
     );
 
     if (!mounted) return;
@@ -88,9 +113,9 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text(
-          "Account created successfully. Please verify your email.",
+          context.read<LanguageProvider>().t("accountCreatedVerifyEmail"),
         ),
         backgroundColor: Colors.green,
       ),
@@ -98,11 +123,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (_) => VerifyEmailOtpScreen(
-          email: email,
-        ),
-      ),
+      MaterialPageRoute(builder: (_) => VerifyEmailOtpScreen(email: email)),
     );
   }
 
@@ -205,6 +226,21 @@ class _SignupScreenState extends State<SignupScreen> {
 
                         const SizedBox(height: 14),
 
+                        _label(lang.t("location")),
+                        const SizedBox(height: 8),
+                        _locationSelector(lang),
+                        if (enterLocationManually) ...[
+                          const SizedBox(height: 10),
+                          AuthInputField(
+                            controller: locationController,
+                            focusNode: manualLocationFocusNode,
+                            hintText: lang.t("enterLocation"),
+                            icon: Icons.edit_location_alt_outlined,
+                          ),
+                        ],
+
+                        const SizedBox(height: 14),
+
                         _label(lang.t("password")),
                         const SizedBox(height: 8),
                         AuthInputField(
@@ -221,9 +257,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 14),
-
                         _label(lang.t("selectRole")),
                         const SizedBox(height: 8),
                         AuthRoleDropdown(
@@ -345,5 +379,130 @@ class _SignupScreenState extends State<SignupScreen> {
         color: Color(0xFF26332D),
       ),
     );
+  }
+
+  Widget _locationSelector(LanguageProvider lang) {
+    return Theme(
+      data: ThemeData.light(),
+      child: InkWell(
+        onTap: () => _showCitySelector(lang),
+        borderRadius: BorderRadius.circular(14),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            prefixIcon: const Icon(Icons.location_city, color: darkGreen),
+            suffixIcon: const Icon(Icons.arrow_drop_down, color: darkGreen),
+          ),
+          child: Text(
+            enterLocationManually
+                ? lang.t('otherEnterManually')
+                : selectedCity ?? lang.t('selectCity'),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: selectedCity == null && !enterLocationManually
+                  ? Colors.grey.shade600
+                  : Colors.black,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showCitySelector(LanguageProvider lang) async {
+    citySearchController.clear();
+
+    final selection = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final cities = PakistanCities.values.where((city) {
+            return city.toLowerCase().contains(
+              citySearchController.text.trim().toLowerCase(),
+            );
+          }).toList();
+
+          return AlertDialog(
+            title: Text(lang.t('selectCity')),
+            contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+            content: SizedBox(
+              width: double.maxFinite,
+              height: MediaQuery.sizeOf(context).height * .55,
+              child: Column(
+                children: [
+                  TextField(
+                    controller: citySearchController,
+                    focusNode: citySearchFocusNode,
+                    autofocus: true,
+                    onChanged: (_) => setDialogState(() {}),
+                    decoration: InputDecoration(
+                      hintText: lang.t('searchCity'),
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(
+                      Icons.edit_location_alt_outlined,
+                      color: darkGreen,
+                    ),
+                    title: Text(lang.t('otherEnterManually')),
+                    onTap: () =>
+                        Navigator.pop(dialogContext, PakistanCities.other),
+                  ),
+                  const Divider(height: 1),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: cities.length,
+                      itemBuilder: (context, index) {
+                        final city = cities[index];
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(
+                            Icons.location_on_outlined,
+                            color: darkGreen,
+                          ),
+                          title: Text(city),
+                          trailing: selectedCity == city
+                              ? const Icon(Icons.check, color: darkGreen)
+                              : null,
+                          onTap: () => Navigator.pop(dialogContext, city),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    if (!mounted || selection == null) return;
+
+    final isManual = selection == PakistanCities.other;
+    setState(() {
+      enterLocationManually = isManual;
+      selectedCity = isManual ? null : selection;
+      if (!isManual) locationController.clear();
+    });
+
+    if (isManual) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) manualLocationFocusNode.requestFocus();
+      });
+    }
   }
 }

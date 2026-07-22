@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/theme_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/admin/admin_profile_option_tile.dart';
 
 class AdminProfileScreen extends StatelessWidget {
@@ -30,8 +31,8 @@ class AdminProfileScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          "Admin Profile",
+        title: Text(
+          context.watch<LanguageProvider>().t("adminProfile"),
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
@@ -44,22 +45,24 @@ class AdminProfileScreen extends StatelessWidget {
 
           AdminProfileOptionTile(
             icon: Icons.admin_panel_settings_rounded,
-            title: "Admin Role",
-            subtitle: "View admin permissions and access",
+            title: context.watch<LanguageProvider>().t("adminRole"),
+            subtitle: context.watch<LanguageProvider>().t("adminRoleSubtitle"),
             color: isDark ? lightGreen : darkGreen,
             onTap: () {
               _showInfoDialog(
                 context,
-                "Admin Role",
-                "Admin can manage users, crop listings, reports, analytics, and overall AgriConnect platform activity.",
+                context.read<LanguageProvider>().t("adminRole"),
+                context.read<LanguageProvider>().t("adminRoleDescription"),
               );
             },
           ),
 
           AdminProfileOptionTile(
             icon: isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-            title: "App Theme",
-            subtitle: isDark ? "Dark mode enabled" : "Light mode enabled",
+            title: context.watch<LanguageProvider>().t("appTheme"),
+            subtitle: isDark
+                ? context.watch<LanguageProvider>().t("darkModeEnabled")
+                : context.watch<LanguageProvider>().t("lightModeEnabled"),
             color: isDark ? lightGreen : darkGreen,
             onTap: () {
               _showThemeSheet(context, themeProvider);
@@ -68,8 +71,10 @@ class AdminProfileScreen extends StatelessWidget {
 
           AdminProfileOptionTile(
             icon: Icons.security_rounded,
-            title: "Security",
-            subtitle: "Update or recover admin password",
+            title: context.watch<LanguageProvider>().t("security"),
+            subtitle: context.watch<LanguageProvider>().t(
+              "adminSecuritySubtitle",
+            ),
             color: Colors.blue,
             onTap: () {
               Navigator.pushNamed(context, '/forgotPassword');
@@ -78,8 +83,10 @@ class AdminProfileScreen extends StatelessWidget {
 
           AdminProfileOptionTile(
             icon: Icons.notifications_active_rounded,
-            title: "Notifications",
-            subtitle: "View system alerts and updates",
+            title: context.watch<LanguageProvider>().t("notifications"),
+            subtitle: context.watch<LanguageProvider>().t(
+              "adminNotificationsSubtitle",
+            ),
             color: Colors.orange,
             onTap: () {
               Navigator.pushNamed(context, '/notifications');
@@ -88,14 +95,18 @@ class AdminProfileScreen extends StatelessWidget {
 
           AdminProfileOptionTile(
             icon: Icons.info_rounded,
-            title: "About AgriConnect",
-            subtitle: "View project and system information",
+            title: context.watch<LanguageProvider>().t("aboutAgriConnect"),
+            subtitle: context.watch<LanguageProvider>().t(
+              "aboutAgriConnectSubtitle",
+            ),
             color: Colors.purple,
             onTap: () {
               _showInfoDialog(
                 context,
-                "About AgriConnect",
-                "AgriConnect is an AI-powered farmer marketplace that connects farmers directly with buyers and supports crop price prediction, disease detection, notifications, and admin monitoring.",
+                context.read<LanguageProvider>().t("aboutAgriConnect"),
+                context.read<LanguageProvider>().t(
+                  "aboutAgriConnectDescription",
+                ),
               );
             },
           ),
@@ -109,16 +120,13 @@ class AdminProfileScreen extends StatelessWidget {
                 Navigator.pushNamedAndRemoveUntil(
                   context,
                   '/login',
-                      (route) => false,
+                  (route) => false,
                 );
               },
               icon: const Icon(Icons.logout_rounded),
-              label: const Text(
-                "Logout",
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 16,
-                ),
+              label: Text(
+                context.watch<LanguageProvider>().t("logout"),
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.redAccent,
@@ -135,10 +143,7 @@ class AdminProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showThemeSheet(
-      BuildContext context,
-      ThemeProvider themeProvider,
-      ) {
+  void _showThemeSheet(BuildContext context, ThemeProvider themeProvider) {
     final isDark = _isDark(context);
 
     showModalBottomSheet(
@@ -154,7 +159,7 @@ class AdminProfileScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "Choose Theme",
+                context.watch<LanguageProvider>().t("chooseTheme"),
                 style: TextStyle(
                   color: isDark ? Colors.white : const Color(0xFF123524),
                   fontSize: 18,
@@ -166,7 +171,7 @@ class AdminProfileScreen extends StatelessWidget {
               _themeOption(
                 context: context,
                 icon: Icons.light_mode_rounded,
-                title: "Light Mode",
+                title: context.watch<LanguageProvider>().t("lightMode"),
                 selected: themeProvider.themeMode == ThemeMode.light,
                 onTap: () async {
                   await themeProvider.setLightMode();
@@ -177,7 +182,7 @@ class AdminProfileScreen extends StatelessWidget {
               _themeOption(
                 context: context,
                 icon: Icons.dark_mode_rounded,
-                title: "Dark Mode",
+                title: context.watch<LanguageProvider>().t("darkMode"),
                 selected: themeProvider.themeMode == ThemeMode.dark,
                 onTap: () async {
                   await themeProvider.setDarkMode();
@@ -188,7 +193,7 @@ class AdminProfileScreen extends StatelessWidget {
               _themeOption(
                 context: context,
                 icon: Icons.phone_iphone_rounded,
-                title: "System Default",
+                title: context.watch<LanguageProvider>().t("systemDefault"),
                 selected: themeProvider.themeMode == ThemeMode.system,
                 onTap: () async {
                   await themeProvider.setSystemMode();
@@ -227,19 +232,12 @@ class AdminProfileScreen extends StatelessWidget {
         ),
       ),
       trailing: selected
-          ? Icon(
-        Icons.check_circle,
-        color: isDark ? lightGreen : darkGreen,
-      )
+          ? Icon(Icons.check_circle, color: isDark ? lightGreen : darkGreen)
           : null,
     );
   }
 
-  void _showInfoDialog(
-      BuildContext context,
-      String title,
-      String message,
-      ) {
+  void _showInfoDialog(BuildContext context, String title, String message) {
     final isDark = _isDark(context);
 
     showDialog(
@@ -269,7 +267,7 @@ class AdminProfileScreen extends StatelessWidget {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                "Okay",
+                context.read<LanguageProvider>().t("okay"),
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   color: isDark ? lightGreen : darkGreen,
@@ -290,14 +288,8 @@ class AdminProfileScreen extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isDark
-              ? const [
-            Color(0xFF123524),
-            Color(0xFF0E5A3C),
-          ]
-              : const [
-            Color(0xFF0E5A3C),
-            Color(0xFF157A52),
-          ],
+              ? const [Color(0xFF123524), Color(0xFF0E5A3C)]
+              : const [Color(0xFF0E5A3C), Color(0xFF157A52)],
         ),
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
@@ -329,12 +321,12 @@ class AdminProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "AgriConnect Admin",
+                  context.watch<LanguageProvider>().t("agriConnectAdmin"),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -351,7 +343,7 @@ class AdminProfileScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  "System Administrator",
+                  context.watch<LanguageProvider>().t("systemAdministrator"),
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,

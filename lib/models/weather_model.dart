@@ -54,7 +54,9 @@ class WeatherModel {
     final humidity = _toInt(current['humidity']);
     final wind = _toDouble(current['wind_speed']);
     final condition =
-        current['description']?.toString() ?? current['weather_main']?.toString() ?? 'Normal Weather';
+        current['description']?.toString() ??
+        current['weather_main']?.toString() ??
+        'Normal Weather';
     final weatherMain = current['weather_main']?.toString() ?? '';
     final clouds = _toInt(current['clouds']);
 
@@ -87,7 +89,9 @@ class WeatherModel {
       forecast: forecastJson.map((item) {
         final itemTemp = _toDouble(item['temperature']);
         final itemCondition =
-            item['description']?.toString() ?? item['weather_main']?.toString() ?? 'Normal Weather';
+            item['description']?.toString() ??
+            item['weather_main']?.toString() ??
+            'Normal Weather';
 
         return WeatherForecastModel(
           day: _formatDay(item['time']?.toString() ?? ''),
@@ -109,7 +113,9 @@ class WeatherModel {
     if (value.contains('rain')) return '🌧️';
     if (value.contains('drizzle')) return '🌦️';
     if (value.contains('thunder')) return '⛈️';
-    if (value.contains('mist') || value.contains('fog') || value.contains('haze')) {
+    if (value.contains('mist') ||
+        value.contains('fog') ||
+        value.contains('haze')) {
       return '🌫️';
     }
 
@@ -169,9 +175,9 @@ class WeatherModel {
     return value
         .split(' ')
         .map((word) {
-      if (word.isEmpty) return word;
-      return word[0].toUpperCase() + word.substring(1).toLowerCase();
-    })
+          if (word.isEmpty) return word;
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
         .join(' ');
   }
 

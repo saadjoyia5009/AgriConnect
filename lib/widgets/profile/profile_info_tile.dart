@@ -27,15 +27,11 @@ class ProfileInfoTile extends StatelessWidget {
 
     final titleColor = isDark
         ? Colors.white
-        : (isSetting
-        ? const Color(0xff202525)
-        : const Color(0xff4f5955));
+        : (isSetting ? const Color(0xff202525) : const Color(0xff4f5955));
 
     final valueColor = isDark
         ? Colors.grey.shade300
-        : (isSetting
-        ? const Color(0xff4f5955)
-        : const Color(0xff202525));
+        : (isSetting ? const Color(0xff4f5955) : const Color(0xff202525));
 
     return InkWell(
       onTap: onTap,
@@ -49,11 +45,7 @@ class ProfileInfoTile extends StatelessWidget {
               backgroundColor: isDark
                   ? const Color(0xFF2A2A2A)
                   : const Color(0xfff0f1f0),
-              child: Icon(
-                icon,
-                color: darkGreen,
-                size: 24,
-              ),
+              child: Icon(icon, color: darkGreen, size: 24),
             ),
             const SizedBox(width: 18),
             Expanded(
@@ -65,8 +57,7 @@ class ProfileInfoTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: isSetting ? 18 : 14,
                       color: titleColor,
-                      fontWeight:
-                      isSetting ? FontWeight.w700 : FontWeight.w600,
+                      fontWeight: isSetting ? FontWeight.w700 : FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 5),
@@ -76,8 +67,7 @@ class ProfileInfoTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: isSetting ? 13 : 17,
                       color: valueColor,
-                      fontWeight:
-                      isSetting ? FontWeight.w500 : FontWeight.w800,
+                      fontWeight: isSetting ? FontWeight.w500 : FontWeight.w800,
                     ),
                   ),
                 ],
@@ -87,9 +77,7 @@ class ProfileInfoTile extends StatelessWidget {
               Icon(
                 Icons.chevron_right,
                 size: 30,
-                color: isDark
-                    ? Colors.grey.shade400
-                    : const Color(0xff333333),
+                color: isDark ? Colors.grey.shade400 : const Color(0xff333333),
               ),
           ],
         ),

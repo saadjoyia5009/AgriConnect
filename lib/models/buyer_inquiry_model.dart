@@ -41,57 +41,44 @@ class BuyerInquiryModel {
   });
 
   factory BuyerInquiryModel.fromJson(Map<String, dynamic> json) {
-    final rawConversationId = json["conversation_id"];
+    final rawConversationId = json["conversation_id"] ?? json["conversation"];
 
     return BuyerInquiryModel(
       id: json["id"]?.toString() ?? "",
 
-      cropId:
-      json["crop_id"]?.toString() ??
-          json["crop"]?.toString() ??
-          "",
+      cropId: json["crop_id"]?.toString() ?? json["crop"]?.toString() ?? "",
 
       farmerId:
-      json["farmer_id"]?.toString() ??
-          json["farmer"]?.toString() ??
-          "",
+          json["farmer_id"]?.toString() ?? _extractId(json["farmer"]) ?? "",
 
-      buyerId:
-      json["buyer_id"]?.toString() ??
-          json["buyer"]?.toString() ??
-          "",
+      buyerId: json["buyer_id"]?.toString() ?? _extractId(json["buyer"]) ?? "",
 
       cropName: json["crop_name"]?.toString() ?? "",
       farmerName: json["farmer_name"]?.toString() ?? "",
 
       imageUrl:
-      json["image_url"]?.toString() ??
-          json["crop_image"]?.toString() ??
-          "",
+          json["image_url"]?.toString() ?? json["crop_image"]?.toString() ?? "",
 
       cropUnit: json["crop_unit"]?.toString() ?? "",
 
       quantity:
-      json["quantity_requested"]?.toString() ??
+          json["quantity_requested"]?.toString() ??
           json["quantity"]?.toString() ??
           "",
 
       offerPrice:
-      json["offered_price"]?.toString() ??
+          json["offered_price"]?.toString() ??
           json["offer_price"]?.toString() ??
           "",
 
       deliveryDate: json["delivery_date"]?.toString() ?? "",
 
-      date:
-      json["created_at"]?.toString() ??
-          json["date"]?.toString() ??
-          "",
+      date: json["created_at"]?.toString() ?? json["date"]?.toString() ?? "",
 
       status: json["status"]?.toString() ?? "pending",
       message: json["message"]?.toString() ?? "",
 
-      conversationId: rawConversationId?.toString(),
+      conversationId: _extractId(rawConversationId),
 
       canChat: json["can_chat"] == true,
     );
@@ -190,5 +177,11 @@ class BuyerInquiryModel {
       "conversation_id": conversationId,
       "can_chat": canChat,
     };
+  }
+
+  static String? _extractId(dynamic value) {
+    if (value == null) return null;
+    if (value is Map) return value["id"]?.toString();
+    return value.toString();
   }
 }

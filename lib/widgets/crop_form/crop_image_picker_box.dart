@@ -41,38 +41,36 @@ class CropImagePickerBox extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: _hasImage()
             ? Stack(
-          fit: StackFit.expand,
-          children: [
-            _buildImage(),
-            Container(
-              color: Colors.black.withOpacity(
-                isDark ? 0.38 : 0.25,
-              ),
-            ),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                fit: StackFit.expand,
                 children: [
-                  const Icon(
-                    Icons.camera_alt,
-                    color: Colors.white,
-                    size: 30,
+                  _buildImage(),
+                  Container(
+                    color: Colors.black.withOpacity(isDark ? 0.38 : 0.25),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    lang.t('tapChangeImage'),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 16,
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          lang.t('tapChangeImage'),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
-              ),
-            ),
-          ],
-        )
+              )
             : _emptyView(context),
       ),
     );

@@ -6,10 +6,7 @@ import '../../../providers/language_provider.dart';
 class BuyerProfileStats extends StatelessWidget {
   final BuyerProfileModel profile;
 
-  const BuyerProfileStats({
-    super.key,
-    required this.profile,
-  });
+  const BuyerProfileStats({super.key, required this.profile});
 
   static const Color darkGreen = Color(0xff0F5C3A);
   static const Color darkCard = Color(0xFF15251E);
@@ -27,11 +24,7 @@ class BuyerProfileStats extends StatelessWidget {
           profile.totalInquiries.toString(),
         ),
         const SizedBox(width: 10),
-        _statBox(
-          context,
-          lang.t("deals"),
-          profile.acceptedDeals.toString(),
-        ),
+        _statBox(context, lang.t("deals"), profile.acceptedDeals.toString()),
         const SizedBox(width: 10),
         _statBox(
           context,
@@ -42,11 +35,7 @@ class BuyerProfileStats extends StatelessWidget {
     );
   }
 
-  Widget _statBox(
-      BuildContext context,
-      String title,
-      String value,
-      ) {
+  Widget _statBox(BuildContext context, String title, String value) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Expanded(
@@ -56,9 +45,7 @@ class BuyerProfileStats extends StatelessWidget {
           color: isDark ? darkCard : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isDark
-                ? Colors.white10
-                : const Color(0xffDCE7DD),
+            color: isDark ? Colors.white10 : const Color(0xffDCE7DD),
           ),
         ),
         child: Column(
@@ -68,9 +55,7 @@ class BuyerProfileStats extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w900,
-                color: isDark
-                    ? lightGreen
-                    : darkGreen,
+                color: isDark ? lightGreen : darkGreen,
               ),
             ),
             const SizedBox(height: 4),
@@ -79,9 +64,7 @@ class BuyerProfileStats extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
-                color: isDark
-                    ? Colors.white70
-                    : const Color(0xff5F675F),
+                color: isDark ? Colors.white70 : const Color(0xff5F675F),
                 fontWeight: FontWeight.w700,
               ),
             ),
