@@ -99,6 +99,8 @@ class BuyerFavoriteCropCard extends StatelessWidget {
                 children: [
                   Text(
                     crop.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w900,
@@ -117,6 +119,8 @@ class BuyerFavoriteCropCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           crop.location,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 12,
                             color: isDark ? Colors.white70 : Colors.black87,
@@ -157,18 +161,23 @@ class BuyerFavoriteCropCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: onInquireTap,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: darkGreen,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(7),
+                      Flexible(
+                        child: ElevatedButton(
+                          onPressed: onInquireTap,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: darkGreen,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(7),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          lang.t("inquire"),
-                          style: const TextStyle(fontWeight: FontWeight.w800),
+                          child: Text(
+                            lang.t("inquire"),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w800),
+                          ),
                         ),
                       ),
                     ],

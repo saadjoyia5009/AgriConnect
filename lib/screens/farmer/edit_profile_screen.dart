@@ -150,8 +150,13 @@ class _EditProfileScreenState
     context.watch<ProfileProvider>();
 
     return Scaffold(
+<<<<<<< HEAD
       backgroundColor:
       Theme.of(context).scaffoldBackgroundColor,
+=======
+      resizeToAvoidBottomInset: true,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+>>>>>>> a7184f939208b40e38b381254f5d6df0598fd6c8
       appBar: AppBar(
         backgroundColor: darkGreen,
         foregroundColor: Colors.white,
@@ -163,6 +168,7 @@ class _EditProfileScreenState
           ),
         ),
       ),
+<<<<<<< HEAD
       body: SingleChildScrollView(
         keyboardDismissBehavior:
         ScrollViewKeyboardDismissBehavior.onDrag,
@@ -281,11 +287,113 @@ class _EditProfileScreenState
                       fontSize: 17,
                       fontWeight:
                       FontWeight.w800,
+=======
+      body: SafeArea(
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: EdgeInsets.fromLTRB(
+            22,
+            22,
+            22,
+            22 + MediaQuery.viewInsetsOf(context).bottom,
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                const CircleAvatar(
+                  radius: 55,
+                  backgroundImage: NetworkImage(
+                    "https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=300",
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                _inputField(
+                  controller: nameController,
+                  label: lang.t("userName"),
+                  icon: Icons.person_outline,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return lang.t("pleaseEnterUserName");
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 18),
+
+                _inputField(
+                  controller: emailController,
+                  label: lang.t("emailAddress"),
+                  icon: Icons.email_outlined,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return lang.t("pleaseEnterEmail");
+                    }
+                    if (!value.contains("@")) {
+                      return lang.t("pleaseEnterValidEmail");
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 18),
+
+                _inputField(
+                  controller: phoneController,
+                  label: lang.t("phoneNumber"),
+                  icon: Icons.phone_outlined,
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return lang.t("pleaseEnterPhoneNumber");
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 18),
+
+                _inputField(
+                  controller: locationController,
+                  label: lang.t("location"),
+                  icon: Icons.location_on_outlined,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return lang.t("pleaseEnterLocation");
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 35),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _saveProfile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: darkGreen,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Text(
+                      lang.t("saveChanges"),
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                      ),
+>>>>>>> a7184f939208b40e38b381254f5d6df0598fd6c8
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

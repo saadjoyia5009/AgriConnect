@@ -62,6 +62,8 @@ class BuyerProfileStats extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,
                 color: isDark ? Colors.white70 : const Color(0xff5F675F),

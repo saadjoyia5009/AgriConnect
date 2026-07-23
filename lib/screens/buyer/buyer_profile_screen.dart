@@ -77,62 +77,71 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: isDark ? const Color(0xFF15251E) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                lang.t("chooseTheme"),
-                style: TextStyle(
-                  color: primaryText,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
+        return SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              20,
+              18,
+              20,
+              24 + MediaQuery.viewInsetsOf(context).bottom,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  lang.t("chooseTheme"),
+                  style: TextStyle(
+                    color: primaryText,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 14),
+                const SizedBox(height: 14),
 
-              ListTile(
-                leading: Icon(Icons.light_mode_outlined, color: accentColor),
-                title: Text(
-                  lang.t("lightMode"),
-                  style: TextStyle(color: primaryText),
+                ListTile(
+                  leading: Icon(Icons.light_mode_outlined, color: accentColor),
+                  title: Text(
+                    lang.t("lightMode"),
+                    style: TextStyle(color: primaryText),
+                  ),
+                  onTap: () {
+                    themeProvider.setLightMode();
+                    Navigator.pop(context);
+                  },
                 ),
-                onTap: () {
-                  themeProvider.setLightMode();
-                  Navigator.pop(context);
-                },
-              ),
 
-              ListTile(
-                leading: Icon(Icons.dark_mode_outlined, color: accentColor),
-                title: Text(
-                  lang.t("darkMode"),
-                  style: TextStyle(color: primaryText),
+                ListTile(
+                  leading: Icon(Icons.dark_mode_outlined, color: accentColor),
+                  title: Text(
+                    lang.t("darkMode"),
+                    style: TextStyle(color: primaryText),
+                  ),
+                  onTap: () {
+                    themeProvider.setDarkMode();
+                    Navigator.pop(context);
+                  },
                 ),
-                onTap: () {
-                  themeProvider.setDarkMode();
-                  Navigator.pop(context);
-                },
-              ),
 
-              ListTile(
-                leading: Icon(Icons.phone_iphone, color: accentColor),
-                title: Text(
-                  lang.t("systemDefault"),
-                  style: TextStyle(color: primaryText),
+                ListTile(
+                  leading: Icon(Icons.phone_iphone, color: accentColor),
+                  title: Text(
+                    lang.t("systemDefault"),
+                    style: TextStyle(color: primaryText),
+                  ),
+                  onTap: () {
+                    themeProvider.setSystemMode();
+                    Navigator.pop(context);
+                  },
                 ),
-                onTap: () {
-                  themeProvider.setSystemMode();
-                  Navigator.pop(context);
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -144,6 +153,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
 
     showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       backgroundColor: isDark ? const Color(0xFF15251E) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -159,8 +169,13 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
                     : TextDirection.ltr,
                 child: SafeArea(
                   top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      18,
+                      20,
+                      24 + MediaQuery.viewInsetsOf(context).bottom,
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -206,6 +221,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
         value: language,
         child: Consumer<BuyerLanguageProvider>(
           builder: (context, currentLanguage, _) => AlertDialog(
+            scrollable: true,
             title: Text(currentLanguage.t('helpSupport')),
             content: Text(currentLanguage.t('aboutAgriConnectDescription')),
             actions: [

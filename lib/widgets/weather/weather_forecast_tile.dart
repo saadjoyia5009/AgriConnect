@@ -36,6 +36,8 @@ class WeatherForecastTile extends StatelessWidget {
           Expanded(
             child: Text(
               item.day,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(fontWeight: FontWeight.w700, color: primaryText),
             ),
           ),
@@ -45,8 +47,19 @@ class WeatherForecastTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(item.condition, style: TextStyle(color: primaryText)),
-                Text(item.highTemp, style: TextStyle(color: secondaryText)),
+                Text(
+                  item.condition,
+                  textAlign: TextAlign.end,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: primaryText),
+                ),
+                Text(
+                  item.highTemp,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: secondaryText),
+                ),
                 Text(
                   context
                       .watch<LanguageProvider>()
@@ -56,6 +69,8 @@ class WeatherForecastTile extends StatelessWidget {
                     color: accentColor,
                     fontWeight: FontWeight.w700,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

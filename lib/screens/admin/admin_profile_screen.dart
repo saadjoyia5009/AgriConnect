@@ -148,59 +148,68 @@ class AdminProfileScreen extends StatelessWidget {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: isDark ? darkCard : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 26),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                context.watch<LanguageProvider>().t("chooseTheme"),
-                style: TextStyle(
-                  color: isDark ? Colors.white : const Color(0xFF123524),
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
+        return SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              20,
+              18,
+              20,
+              26 + MediaQuery.viewInsetsOf(context).bottom,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  context.watch<LanguageProvider>().t("chooseTheme"),
+                  style: TextStyle(
+                    color: isDark ? Colors.white : const Color(0xFF123524),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              _themeOption(
-                context: context,
-                icon: Icons.light_mode_rounded,
-                title: context.watch<LanguageProvider>().t("lightMode"),
-                selected: themeProvider.themeMode == ThemeMode.light,
-                onTap: () async {
-                  await themeProvider.setLightMode();
-                  if (context.mounted) Navigator.pop(context);
-                },
-              ),
+                _themeOption(
+                  context: context,
+                  icon: Icons.light_mode_rounded,
+                  title: context.watch<LanguageProvider>().t("lightMode"),
+                  selected: themeProvider.themeMode == ThemeMode.light,
+                  onTap: () async {
+                    await themeProvider.setLightMode();
+                    if (context.mounted) Navigator.pop(context);
+                  },
+                ),
 
-              _themeOption(
-                context: context,
-                icon: Icons.dark_mode_rounded,
-                title: context.watch<LanguageProvider>().t("darkMode"),
-                selected: themeProvider.themeMode == ThemeMode.dark,
-                onTap: () async {
-                  await themeProvider.setDarkMode();
-                  if (context.mounted) Navigator.pop(context);
-                },
-              ),
+                _themeOption(
+                  context: context,
+                  icon: Icons.dark_mode_rounded,
+                  title: context.watch<LanguageProvider>().t("darkMode"),
+                  selected: themeProvider.themeMode == ThemeMode.dark,
+                  onTap: () async {
+                    await themeProvider.setDarkMode();
+                    if (context.mounted) Navigator.pop(context);
+                  },
+                ),
 
-              _themeOption(
-                context: context,
-                icon: Icons.phone_iphone_rounded,
-                title: context.watch<LanguageProvider>().t("systemDefault"),
-                selected: themeProvider.themeMode == ThemeMode.system,
-                onTap: () async {
-                  await themeProvider.setSystemMode();
-                  if (context.mounted) Navigator.pop(context);
-                },
-              ),
-            ],
+                _themeOption(
+                  context: context,
+                  icon: Icons.phone_iphone_rounded,
+                  title: context.watch<LanguageProvider>().t("systemDefault"),
+                  selected: themeProvider.themeMode == ThemeMode.system,
+                  onTap: () async {
+                    await themeProvider.setSystemMode();
+                    if (context.mounted) Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -244,6 +253,7 @@ class AdminProfileScreen extends StatelessWidget {
       context: context,
       builder: (_) {
         return AlertDialog(
+          scrollable: true,
           backgroundColor: isDark ? darkCard : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(22),
@@ -327,6 +337,8 @@ class AdminProfileScreen extends StatelessWidget {
               children: [
                 Text(
                   context.watch<LanguageProvider>().t("agriConnectAdmin"),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -336,6 +348,9 @@ class AdminProfileScreen extends StatelessWidget {
                 SizedBox(height: 5),
                 Text(
                   "admin@agriconnect.com",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textDirection: TextDirection.ltr,
                   style: TextStyle(
                     color: Colors.white70,
                     fontWeight: FontWeight.w600,
@@ -344,6 +359,8 @@ class AdminProfileScreen extends StatelessWidget {
                 SizedBox(height: 8),
                 Text(
                   context.watch<LanguageProvider>().t("systemAdministrator"),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,

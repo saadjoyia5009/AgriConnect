@@ -116,10 +116,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFFF7FAF7),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(22),
+          padding: EdgeInsets.fromLTRB(
+            22,
+            22,
+            22,
+            22 + MediaQuery.viewInsetsOf(context).bottom,
+          ),
           child: Column(
             children: [
               Align(

@@ -86,14 +86,15 @@ class AdminUserCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Row(
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
                       children: [
                         _chip(
                           context,
                           user.role,
                           isFarmer ? darkGreen : Colors.blue,
                         ),
-                        const SizedBox(width: 8),
                         _chip(
                           context,
                           user.isActive

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animations/animations.dart';
+import 'dart:math' as math;
 
 import '../../data/pakistan_cities.dart';
 import '../../providers/auth_provider.dart';
@@ -146,6 +147,7 @@ class _SignupScreenState extends State<SignupScreen> {
     final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.transparent,
       body: AuthBackground(
         child: SizedBox.expand(
@@ -153,9 +155,11 @@ class _SignupScreenState extends State<SignupScreen> {
             child: Center(
               child: SingleChildScrollView(
                 physics: const ClampingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 24,
+                padding: EdgeInsets.fromLTRB(
+                  24,
+                  24,
+                  24,
+                  24 + MediaQuery.viewInsetsOf(context).bottom,
                 ),
                 child: RepaintBoundary(
                   child: Container(
@@ -451,6 +455,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
     final selection = await showDialog<String>(
       context: context,
+<<<<<<< HEAD
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
@@ -481,6 +486,48 @@ class _SignupScreenState extends State<SignupScreen> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
+=======
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final mediaQuery = MediaQuery.of(context);
+          final availableHeight =
+              mediaQuery.size.height -
+              mediaQuery.viewInsets.bottom -
+              mediaQuery.padding.vertical -
+              180;
+          final dialogHeight = math.min(
+            mediaQuery.size.height * .55,
+            math.max(160.0, availableHeight),
+          );
+          final cities = PakistanCities.values.where((city) {
+            return city.toLowerCase().contains(
+              citySearchController.text.trim().toLowerCase(),
+            );
+          }).toList();
+
+          return AlertDialog(
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 24,
+            ),
+            title: Text(lang.t('selectCity')),
+            contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+            content: SizedBox(
+              width: double.maxFinite,
+              height: dialogHeight,
+              child: Column(
+                children: [
+                  TextField(
+                    controller: citySearchController,
+                    focusNode: citySearchFocusNode,
+                    autofocus: true,
+                    onChanged: (_) => setDialogState(() {}),
+                    decoration: InputDecoration(
+                      hintText: lang.t('searchCity'),
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+>>>>>>> a7184f939208b40e38b381254f5d6df0598fd6c8
                       ),
                     ),
 
