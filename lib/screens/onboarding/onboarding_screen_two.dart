@@ -74,136 +74,156 @@ class _OnboardingScreenTwoState extends State<OnboardingScreenTwo>
     final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
-      body: FadeTransition(
-        opacity: _fade,
-        child: Stack(
-          children: [
-            ScaleTransition(
-              scale: _imageScale,
-              child: SizedBox(
-                height: double.infinity,
-                width: double.infinity,
-                child: Image.asset(
-                  'assets/images/onboarding2.jpeg',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: SlideTransition(
-                position: _cardSlide,
-                child: Container(
-                  width: double.infinity,
-                  constraints: BoxConstraints(
-                    minHeight: 245,
-                    maxHeight: MediaQuery.of(context).size.height * 0.42,
-                  ),
-                  padding: const EdgeInsets.fromLTRB(22, 34, 22, 28),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(36),
-                      topRight: Radius.circular(36),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final landscape = constraints.maxWidth > constraints.maxHeight;
+            final panelHeight =
+                constraints.maxHeight *
+                (landscape
+                    ? .78
+                    : constraints.maxHeight < 620
+                    ? .62
+                    : .48);
+            return FadeTransition(
+              opacity: _fade,
+              child: Stack(
+                children: [
+                  ScaleTransition(
+                    scale: _imageScale,
+                    child: SizedBox(
+                      height: double.infinity,
+                      width: double.infinity,
+                      child: Image.asset(
+                        'assets/images/onboarding2.jpeg',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                  child: SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          lang.t("onboardingSmartInsightsTitle"),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: darkGreen,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w900,
+
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: SlideTransition(
+                      position: _cardSlide,
+                      child: Container(
+                        width: double.infinity,
+                        constraints: BoxConstraints(maxHeight: panelHeight),
+                        padding: EdgeInsets.fromLTRB(
+                          constraints.maxWidth < 360 ? 16 : 22,
+                          constraints.maxHeight < 620 ? 20 : 34,
+                          constraints.maxWidth < 360 ? 16 : 22,
+                          20,
+                        ),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(36),
+                            topRight: Radius.circular(36),
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          lang.t("onboardingSmartInsightsSubtitle"),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Color(0xFF333333),
-                            fontSize: 15.5,
-                            height: 1.45,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        const SizedBox(height: 28),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                _dot(),
-                                const SizedBox(width: 8),
-                                _activeDot(),
-                                const SizedBox(width: 8),
-                                _dot(),
-                              ],
-                            ),
-                            TweenAnimationBuilder<double>(
-                              tween: Tween(begin: 0.95, end: 1),
-                              duration: const Duration(milliseconds: 700),
-                              curve: Curves.elasticOut,
-                              builder: (context, scale, child) {
-                                return Transform.scale(
-                                  scale: scale,
-                                  child: child,
-                                );
-                              },
-                              child: SizedBox(
-                                height: 52,
-                                width: 124,
-                                child: ElevatedButton(
-                                  onPressed: () => _goNext(context),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: darkGreen,
-                                    foregroundColor: Colors.white,
-                                    elevation: 12,
-                                    shadowColor: darkGreen.withValues(
-                                      alpha: 0.35,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(28),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          lang.t("next"),
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w800,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      const Icon(
-                                        Icons.arrow_forward_rounded,
-                                        size: 22,
-                                      ),
-                                    ],
-                                  ),
+                        child: SingleChildScrollView(
+                          physics: const ClampingScrollPhysics(),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                lang.t("onboardingSmartInsightsTitle"),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: darkGreen,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w900,
                                 ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 10),
+                              Text(
+                                lang.t("onboardingSmartInsightsSubtitle"),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Color(0xFF333333),
+                                  fontSize: 15.5,
+                                  height: 1.45,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              const SizedBox(height: 28),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      _dot(),
+                                      const SizedBox(width: 8),
+                                      _activeDot(),
+                                      const SizedBox(width: 8),
+                                      _dot(),
+                                    ],
+                                  ),
+                                  TweenAnimationBuilder<double>(
+                                    tween: Tween(begin: 0.95, end: 1),
+                                    duration: const Duration(milliseconds: 700),
+                                    curve: Curves.elasticOut,
+                                    builder: (context, scale, child) {
+                                      return Transform.scale(
+                                        scale: scale,
+                                        child: child,
+                                      );
+                                    },
+                                    child: SizedBox(
+                                      height: 52,
+                                      width: 124,
+                                      child: ElevatedButton(
+                                        onPressed: () => _goNext(context),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: darkGreen,
+                                          foregroundColor: Colors.white,
+                                          elevation: 12,
+                                          shadowColor: darkGreen.withValues(
+                                            alpha: 0.35,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              28,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                lang.t("next"),
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w800,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            const Icon(
+                                              Icons.arrow_forward_rounded,
+                                              size: 22,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

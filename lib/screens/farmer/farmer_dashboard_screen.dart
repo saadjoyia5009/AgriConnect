@@ -373,17 +373,22 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
 
   Widget _sectionHeader(String title) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w900,
-            color: _textColor,
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: _textColor,
+            ),
           ),
         ),
+        const SizedBox(width: 12),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               context.watch<LanguageProvider>().t("viewAll"),
@@ -402,46 +407,54 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   }
 
   Widget _quickActionsGrid(LanguageProvider lang) {
-    return GridView.count(
-      crossAxisCount: 4,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 10,
-      childAspectRatio: 0.66,
-      children: [
-        _quickAction(
-          icon: Icons.add_rounded,
-          title: lang.t("addCrop"),
-          subtitle: context.watch<LanguageProvider>().t("manageCrops"),
-          screen: const AddCropScreen(),
-          bgColor: const Color(0xffeef8ef),
-          iconColor: const Color(0xff25b968),
-        ),
-        _quickAction(
-          icon: Icons.trending_up_rounded,
-          title: lang.t("pricePrediction"),
-          subtitle: context.watch<LanguageProvider>().t("checkPrices"),
-          screen: const PricePredictionScreen(),
-          bgColor: const Color(0xffeef8f2),
-          iconColor: mediumGreen,
-        ),
-        _quickAction(
-          icon: Icons.health_and_safety_rounded,
-          title: lang.t("diseaseDetection"),
-          subtitle: context.watch<LanguageProvider>().t("findIssues"),
-          screen: const DiseaseDetectionScreen(),
-          bgColor: const Color(0xfffff4e5),
-          iconColor: orangeColor,
-        ),
-        _quickAction(
-          icon: Icons.cloud_outlined,
-          title: lang.t("weather"),
-          subtitle: context.watch<LanguageProvider>().t("planDay"),
-          screen: const WeatherForecastScreen(),
-          bgColor: const Color(0xffeef7ff),
-          iconColor: blueColor,
-        ),
-      ],
+    final actions = [
+      _quickAction(
+        icon: Icons.add_rounded,
+        title: lang.t("addCrop"),
+        subtitle: context.watch<LanguageProvider>().t("manageCrops"),
+        screen: const AddCropScreen(),
+        bgColor: const Color(0xffeef8ef),
+        iconColor: const Color(0xff25b968),
+      ),
+      _quickAction(
+        icon: Icons.trending_up_rounded,
+        title: lang.t("pricePrediction"),
+        subtitle: context.watch<LanguageProvider>().t("checkPrices"),
+        screen: const PricePredictionScreen(),
+        bgColor: const Color(0xffeef8f2),
+        iconColor: mediumGreen,
+      ),
+      _quickAction(
+        icon: Icons.health_and_safety_rounded,
+        title: lang.t("diseaseDetection"),
+        subtitle: context.watch<LanguageProvider>().t("findIssues"),
+        screen: const DiseaseDetectionScreen(),
+        bgColor: const Color(0xfffff4e5),
+        iconColor: orangeColor,
+      ),
+      _quickAction(
+        icon: Icons.cloud_outlined,
+        title: lang.t("weather"),
+        subtitle: context.watch<LanguageProvider>().t("planDay"),
+        screen: const WeatherForecastScreen(),
+        bgColor: const Color(0xffeef7ff),
+        iconColor: blueColor,
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 600 ? 4 : 2;
+        return GridView.count(
+          crossAxisCount: columns,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: columns == 2 ? .92 : .72,
+          children: actions,
+        );
+      },
     );
   }
 
@@ -498,7 +511,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  maxLines: 2,
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 11.5,
@@ -512,7 +525,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                   child: Text(
                     subtitle,
                     textAlign: TextAlign.center,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 10,

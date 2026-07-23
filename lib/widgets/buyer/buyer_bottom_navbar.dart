@@ -35,31 +35,41 @@ class BuyerBottomNavBar extends StatelessWidget {
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-          child: GNav(
-            selectedIndex: currentIndex,
-            onTabChange: onTap,
-            gap: 6,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeOutExpo,
-            rippleColor: Colors.transparent,
-            hoverColor: Colors.transparent,
-            tabBackgroundColor: isDark
-                ? darkGreen.withOpacity(0.35)
-                : lightGreen,
-            color: isDark ? Colors.white60 : Colors.grey,
-            activeColor: isDark ? lightGreen : darkGreen,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-            tabs: [
-              GButton(icon: Icons.home_outlined, text: lang.t("home")),
-              GButton(icon: Icons.favorite_border, text: lang.t("favorites")),
-              GButton(icon: Icons.forum_outlined, text: lang.t("chats")),
-              GButton(
-                icon: Icons.chat_bubble_outline,
-                text: lang.t("inquiries"),
-              ),
-
-              GButton(icon: Icons.person_outline, text: lang.t("profile")),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 360;
+              return GNav(
+                selectedIndex: currentIndex,
+                onTabChange: onTap,
+                gap: compact ? 3 : 6,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeOutExpo,
+                rippleColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                tabBackgroundColor: isDark
+                    ? darkGreen.withOpacity(0.35)
+                    : lightGreen,
+                color: isDark ? Colors.white60 : Colors.grey,
+                activeColor: isDark ? lightGreen : darkGreen,
+                padding: EdgeInsets.symmetric(
+                  horizontal: compact ? 7 : 12,
+                  vertical: compact ? 12 : 14,
+                ),
+                tabs: [
+                  GButton(icon: Icons.home_outlined, text: lang.t("home")),
+                  GButton(
+                    icon: Icons.favorite_border,
+                    text: lang.t("favorites"),
+                  ),
+                  GButton(icon: Icons.forum_outlined, text: lang.t("chats")),
+                  GButton(
+                    icon: Icons.chat_bubble_outline,
+                    text: lang.t("inquiries"),
+                  ),
+                  GButton(icon: Icons.person_outline, text: lang.t("profile")),
+                ],
+              );
+            },
           ),
         ),
       ),
