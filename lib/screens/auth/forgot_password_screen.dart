@@ -90,12 +90,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
     final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const ClampingScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 22),
+            padding: EdgeInsets.fromLTRB(
+              26,
+              22,
+              26,
+              22 + MediaQuery.viewInsetsOf(context).bottom,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

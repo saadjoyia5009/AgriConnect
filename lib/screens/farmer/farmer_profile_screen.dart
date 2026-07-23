@@ -25,74 +25,76 @@ class FarmerProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xfff9fbfa),
       bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 4),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            FarmerProfileHeader(authProvider: authProvider),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 22, 18, 28),
-              child: Column(
-                children: [
-                  PersonalInformationCard(authProvider: authProvider),
-                  const SizedBox(height: 24),
-                  ProfileActionCard(
-                    language: languageProvider.isUrdu ? "Urdu" : "English",
-                    isDarkMode: themeProvider.isDarkMode,
-                    onEditProfile: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const EditProfileScreen(),
-                        ),
-                      );
-                    },
-                    onLanguage: () {
-                      _showLanguageSheet(context, languageProvider);
-                    },
-                    onNotifications: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            context.read<LanguageProvider>().t(
-                              "notificationsComingSoon",
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              FarmerProfileHeader(authProvider: authProvider),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 22, 18, 28),
+                child: Column(
+                  children: [
+                    PersonalInformationCard(authProvider: authProvider),
+                    const SizedBox(height: 24),
+                    ProfileActionCard(
+                      language: languageProvider.isUrdu ? "Urdu" : "English",
+                      isDarkMode: themeProvider.isDarkMode,
+                      onEditProfile: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const EditProfileScreen(),
+                          ),
+                        );
+                      },
+                      onLanguage: () {
+                        _showLanguageSheet(context, languageProvider);
+                      },
+                      onNotifications: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              context.read<LanguageProvider>().t(
+                                "notificationsComingSoon",
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                    onChangePassword: () {
-                      _showChangePasswordDialog(context, authProvider);
-                    },
-                    onAppearance: () async {
-                      await themeProvider.toggleTheme();
-                    },
-                    onHelpSupport: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            context.read<LanguageProvider>().t(
-                              "helpSupportComingSoon",
+                        );
+                      },
+                      onChangePassword: () {
+                        _showChangePasswordDialog(context, authProvider);
+                      },
+                      onAppearance: () async {
+                        await themeProvider.toggleTheme();
+                      },
+                      onHelpSupport: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              context.read<LanguageProvider>().t(
+                                "helpSupportComingSoon",
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                    onAboutApp: () {
-                      _showAboutAppDialog(context);
-                    },
-                  ),
-                  const SizedBox(height: 28),
-                  ProfileLogoutButton(
-                    onTap: () {
-                      authProvider.logout();
-                      Navigator.pushReplacementNamed(context, '/login');
-                    },
-                  ),
-                  const SizedBox(height: 18),
-                ],
+                        );
+                      },
+                      onAboutApp: () {
+                        _showAboutAppDialog(context);
+                      },
+                    ),
+                    const SizedBox(height: 28),
+                    ProfileLogoutButton(
+                      onTap: () {
+                        authProvider.logout();
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
+                    ),
+                    const SizedBox(height: 18),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -104,38 +106,47 @@ class FarmerProfileScreen extends StatelessWidget {
   ) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(22, 20, 22, 28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                context.watch<LanguageProvider>().t("selectLanguage"),
-                style: TextStyle(
-                  color: darkGreen,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
+        return SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              22,
+              20,
+              22,
+              28 + MediaQuery.viewInsetsOf(context).bottom,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  context.watch<LanguageProvider>().t("selectLanguage"),
+                  style: TextStyle(
+                    color: darkGreen,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 18),
-              _languageTile(
-                context,
-                languageProvider,
-                languageName: "English",
-                languageCode: "en",
-              ),
-              _languageTile(
-                context,
-                languageProvider,
-                languageName: "Urdu",
-                languageCode: "ur",
-              ),
-            ],
+                const SizedBox(height: 18),
+                _languageTile(
+                  context,
+                  languageProvider,
+                  languageName: "English",
+                  languageCode: "en",
+                ),
+                _languageTile(
+                  context,
+                  languageProvider,
+                  languageName: "Urdu",
+                  languageCode: "ur",
+                ),
+              ],
+            ),
           ),
         );
       },

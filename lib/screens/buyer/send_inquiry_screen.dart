@@ -224,6 +224,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
     final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: isDark ? darkBackground : lightBackground,
       appBar: AppBar(
         backgroundColor: isDark ? darkBackground : lightBackground,
@@ -238,102 +239,111 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Consumer<BuyerInquiryProvider>(
-        builder: (context, provider, _) {
-          return SingleChildScrollView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: const EdgeInsets.all(18),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  _cropSummaryCard(crop),
-                  const SizedBox(height: 20),
-                  _inputField(
-                    controller: _quantityController,
-                    label: lang.t("requiredQuantity"),
-                    hint: lang.t("requiredQuantityHint"),
-                    icon: Icons.inventory_2_outlined,
-                    validator: _validateQuantity,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'^\d*\.?\d{0,2}'),
-                      ),
-                    ],
-                    suffixText: crop.unit,
-                  ),
-                  const SizedBox(height: 14),
-                  _inputField(
-                    controller: _offerPriceController,
-                    label: lang.t("offeredPrice"),
-                    hint: lang.t("offeredPriceHint"),
-                    icon: Icons.sell_outlined,
-                    validator: _validateOfferPrice,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'^\d*\.?\d{0,2}'),
-                      ),
-                    ],
-                    prefixText: "Rs. ",
-                    suffixText: "/ ${crop.unit}",
-                  ),
-                  const SizedBox(height: 14),
-                  _inputField(
-                    controller: _deliveryDateController,
-                    label: lang.t("expectedDeliveryDate"),
-                    hint: lang.t("dateFormatHint"),
-                    icon: Icons.calendar_month_outlined,
-                    validator: _validateDeliveryDate,
-                    readOnly: true,
-                    onTap: _selectDeliveryDate,
-                  ),
-                  const SizedBox(height: 14),
-                  _messageField(),
-                  const SizedBox(height: 26),
-                  SizedBox(
-                    height: 54,
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: provider.isSubmitting ? null : _submitInquiry,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: darkGreen,
-                        disabledBackgroundColor: isDark
-                            ? darkGreen.withOpacity(0.45)
-                            : Colors.grey.shade400,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: provider.isSubmitting
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2.5,
-                              ),
-                            )
-                          : Text(
-                              lang.t("submitInquiry"),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
+      body: SafeArea(
+        child: Consumer<BuyerInquiryProvider>(
+          builder: (context, provider, _) {
+            return SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.fromLTRB(
+                18,
+                18,
+                18,
+                18 + MediaQuery.viewInsetsOf(context).bottom,
               ),
-            ),
-          );
-        },
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    _cropSummaryCard(crop),
+                    const SizedBox(height: 20),
+                    _inputField(
+                      controller: _quantityController,
+                      label: lang.t("requiredQuantity"),
+                      hint: lang.t("requiredQuantityHint"),
+                      icon: Icons.inventory_2_outlined,
+                      validator: _validateQuantity,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}'),
+                        ),
+                      ],
+                      suffixText: crop.unit,
+                    ),
+                    const SizedBox(height: 14),
+                    _inputField(
+                      controller: _offerPriceController,
+                      label: lang.t("offeredPrice"),
+                      hint: lang.t("offeredPriceHint"),
+                      icon: Icons.sell_outlined,
+                      validator: _validateOfferPrice,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}'),
+                        ),
+                      ],
+                      prefixText: "Rs. ",
+                      suffixText: "/ ${crop.unit}",
+                    ),
+                    const SizedBox(height: 14),
+                    _inputField(
+                      controller: _deliveryDateController,
+                      label: lang.t("expectedDeliveryDate"),
+                      hint: lang.t("dateFormatHint"),
+                      icon: Icons.calendar_month_outlined,
+                      validator: _validateDeliveryDate,
+                      readOnly: true,
+                      onTap: _selectDeliveryDate,
+                    ),
+                    const SizedBox(height: 14),
+                    _messageField(),
+                    const SizedBox(height: 26),
+                    SizedBox(
+                      height: 54,
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: provider.isSubmitting
+                            ? null
+                            : _submitInquiry,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: darkGreen,
+                          disabledBackgroundColor: isDark
+                              ? darkGreen.withOpacity(0.45)
+                              : Colors.grey.shade400,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: provider.isSubmitting
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                            : Text(
+                                lang.t("submitInquiry"),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

@@ -55,36 +55,46 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0E5A3C),
-      body: Center(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: ScaleTransition(
-            scale: _scaleAnimation,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.eco, color: Colors.white, size: 85),
-                const SizedBox(height: 20),
-                Text(
-                  context.watch<LanguageProvider>().t("appName"),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 33,
-                    fontWeight: FontWeight.bold,
-                  ),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: ScaleTransition(
+                scale: _scaleAnimation,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.eco, color: Colors.white, size: 85),
+                    const SizedBox(height: 20),
+                    Text(
+                      context.watch<LanguageProvider>().t("appName"),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 33,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      context.watch<LanguageProvider>().t("growingTogether"),
+                      textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Color(0xFFB7D8C8),
+                        fontSize: 16,
+                        height: 1.5,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  context.watch<LanguageProvider>().t("growingTogether"),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(0xFFB7D8C8),
-                    fontSize: 16,
-                    height: 1.5,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),

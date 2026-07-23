@@ -111,6 +111,7 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: isDark ? darkBackground : lightBackground,
       appBar: AppBar(
         backgroundColor: isDark ? darkBackground : lightBackground,
@@ -125,73 +126,83 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Consumer<BuyerProfileProvider>(
-        builder: (context, provider, _) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(18),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  _profileImage(),
-                  const SizedBox(height: 24),
-                  _textField(
-                    controller: _nameController,
-                    label: context.watch<LanguageProvider>().t("fullName"),
-                    icon: Icons.person_outline,
-                  ),
-                  const SizedBox(height: 14),
-                  _textField(
-                    controller: _emailController,
-                    label: context.watch<LanguageProvider>().t("email"),
-                    icon: Icons.email_outlined,
-                  ),
-                  const SizedBox(height: 14),
-                  _textField(
-                    controller: _phoneController,
-                    label: context.watch<LanguageProvider>().t("phone"),
-                    icon: Icons.phone_outlined,
-                  ),
-                  const SizedBox(height: 14),
-                  _textField(
-                    controller: _locationController,
-                    label: context.watch<LanguageProvider>().t("location"),
-                    icon: Icons.location_on_outlined,
-                  ),
-                  const SizedBox(height: 28),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 54,
-                    child: ElevatedButton(
-                      onPressed: provider.isUpdating ? null : _updateProfile,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: darkGreen,
-                        disabledBackgroundColor: isDark
-                            ? darkGreen.withOpacity(0.45)
-                            : Colors.grey.shade400,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: provider.isUpdating
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : Text(
-                              context.watch<LanguageProvider>().t(
-                                "updateProfile",
-                              ),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 16,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
+      body: SafeArea(
+        child: Consumer<BuyerProfileProvider>(
+          builder: (context, provider, _) {
+            return SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.fromLTRB(
+                18,
+                18,
+                18,
+                18 + MediaQuery.viewInsetsOf(context).bottom,
               ),
-            ),
-          );
-        },
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    _profileImage(),
+                    const SizedBox(height: 24),
+                    _textField(
+                      controller: _nameController,
+                      label: context.watch<LanguageProvider>().t("fullName"),
+                      icon: Icons.person_outline,
+                    ),
+                    const SizedBox(height: 14),
+                    _textField(
+                      controller: _emailController,
+                      label: context.watch<LanguageProvider>().t("email"),
+                      icon: Icons.email_outlined,
+                    ),
+                    const SizedBox(height: 14),
+                    _textField(
+                      controller: _phoneController,
+                      label: context.watch<LanguageProvider>().t("phone"),
+                      icon: Icons.phone_outlined,
+                    ),
+                    const SizedBox(height: 14),
+                    _textField(
+                      controller: _locationController,
+                      label: context.watch<LanguageProvider>().t("location"),
+                      icon: Icons.location_on_outlined,
+                    ),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 54,
+                      child: ElevatedButton(
+                        onPressed: provider.isUpdating ? null : _updateProfile,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: darkGreen,
+                          disabledBackgroundColor: isDark
+                              ? darkGreen.withOpacity(0.45)
+                              : Colors.grey.shade400,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: provider.isUpdating
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : Text(
+                                context.watch<LanguageProvider>().t(
+                                  "updateProfile",
+                                ),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 16,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

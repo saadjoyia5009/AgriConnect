@@ -84,9 +84,9 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
     }
   }
 
-  Widget _otpBox(int index) {
+  Widget _otpBox(int index, double width) {
     return SizedBox(
-      width: 48,
+      width: width,
       height: 58,
       child: TextField(
         controller: _controllers[index],
@@ -126,10 +126,16 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
     final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFFF7FAF7),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(22),
+          padding: EdgeInsets.fromLTRB(
+            22,
+            22,
+            22,
+            22 + MediaQuery.viewInsetsOf(context).bottom,
+          ),
           child: Column(
             children: [
               Align(
@@ -178,6 +184,9 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
 
               Text(
                 widget.email,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textDirection: TextDirection.ltr,
                 style: const TextStyle(
                   color: darkGreen,
                   fontSize: 16,
@@ -187,9 +196,20 @@ class _VerifyEmailOtpScreenState extends State<VerifyEmailOtpScreen> {
 
               const SizedBox(height: 28),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(6, _otpBox),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final boxWidth = ((constraints.maxWidth - 40) / 6).clamp(
+                    36.0,
+                    48.0,
+                  );
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(
+                      6,
+                      (index) => _otpBox(index, boxWidth),
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 24),

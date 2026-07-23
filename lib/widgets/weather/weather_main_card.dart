@@ -68,6 +68,8 @@ class WeatherMainCard extends StatelessWidget {
                       children: [
                         Text(
                           weather.temperature,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 44,
                             fontWeight: FontWeight.bold,
@@ -76,6 +78,8 @@ class WeatherMainCard extends StatelessWidget {
                         ),
                         Text(
                           weather.condition,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
@@ -156,10 +160,16 @@ class WeatherMainCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             title,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: Colors.white, fontSize: 12),
           ),
           Text(
             value,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 13,

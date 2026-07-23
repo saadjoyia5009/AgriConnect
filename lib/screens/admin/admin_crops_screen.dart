@@ -197,6 +197,7 @@ class _AdminCropsScreenState extends State<AdminCropsScreen> {
         final dialogIsDark = Theme.of(context).brightness == Brightness.dark;
 
         return AlertDialog(
+          scrollable: true,
           backgroundColor: dialogIsDark ? darkCard : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(22),

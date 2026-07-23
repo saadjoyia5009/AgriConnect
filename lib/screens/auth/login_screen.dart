@@ -131,6 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.transparent,
       body: AuthBackground(
         child: SizedBox.expand(
@@ -138,9 +139,11 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Center(
               child: SingleChildScrollView(
                 physics: const ClampingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 24,
+                padding: EdgeInsets.fromLTRB(
+                  24,
+                  24,
+                  24,
+                  24 + MediaQuery.viewInsetsOf(context).bottom,
                 ),
                 child: RepaintBoundary(
                   child: Container(

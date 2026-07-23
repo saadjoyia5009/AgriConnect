@@ -221,6 +221,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
         value: language,
         child: Consumer<BuyerLanguageProvider>(
           builder: (context, currentLanguage, _) => AlertDialog(
+            scrollable: true,
             title: Text(currentLanguage.t('helpSupport')),
             content: Text(currentLanguage.t('aboutAgriConnectDescription')),
             actions: [

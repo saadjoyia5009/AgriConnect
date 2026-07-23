@@ -62,8 +62,10 @@ class FarmerProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 380;
+
     return Container(
-      height: 300,
+      height: compact ? 280 : 300,
       width: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -105,9 +107,9 @@ class FarmerProfileHeader extends StatelessWidget {
           ),
 
           Positioned(
-            left: 26,
-            right: 26,
-            top: 115,
+            left: compact ? 18 : 26,
+            right: compact ? 18 : 26,
+            top: compact ? 105 : 115,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -115,10 +117,10 @@ class FarmerProfileHeader extends StatelessWidget {
                   clipBehavior: Clip.none,
                   children: [
                     CircleAvatar(
-                      radius: 72,
+                      radius: compact ? 58 : 72,
                       backgroundColor: Colors.white,
                       child: CircleAvatar(
-                        radius: 66,
+                        radius: compact ? 53 : 66,
                         backgroundImage: _profileImage(),
                       ),
                     ),
@@ -149,7 +151,7 @@ class FarmerProfileHeader extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(width: 28),
+                SizedBox(width: compact ? 14 : 28),
 
                 Expanded(
                   child: Column(
@@ -201,14 +203,18 @@ class FarmerProfileHeader extends StatelessWidget {
                               size: 18,
                             ),
                             SizedBox(width: 8),
-                            Text(
-                              context.watch<LanguageProvider>().t(
-                                "verifiedFarmer",
-                              ),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
+                            Flexible(
+                              child: Text(
+                                context.watch<LanguageProvider>().t(
+                                  "verifiedFarmer",
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
                             ),
                           ],

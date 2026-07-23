@@ -136,6 +136,9 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           const Text(" ", style: TextStyle(fontSize: 0)),
           Text(
             label,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: Colors.white70,
               fontWeight: FontWeight.w700,
@@ -359,6 +362,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
             children: [
               Text(
                 title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: primaryText,
                   fontSize: 18,
@@ -368,6 +373,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               const SizedBox(height: 4),
               Text(
                 subtitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: secondaryText,
                   fontWeight: FontWeight.w600,
