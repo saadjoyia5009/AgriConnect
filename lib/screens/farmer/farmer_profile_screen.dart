@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
+import '../../providers/profile_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../widgets/farmer_bottom_navbar.dart';
 import '../../widgets/profile/farmer_profile_header.dart';
@@ -11,70 +12,172 @@ import '../../widgets/profile/profile_action_card.dart';
 import '../../widgets/profile/profile_logout_button.dart';
 import 'edit_profile_screen.dart';
 
-class FarmerProfileScreen extends StatelessWidget {
+class FarmerProfileScreen extends StatefulWidget {
   const FarmerProfileScreen({super.key});
 
+  @override
+  State<FarmerProfileScreen> createState() {
+    return _FarmerProfileScreenState();
+  }
+}
+
+class _FarmerProfileScreenState
+    extends State<FarmerProfileScreen> {
   static const Color darkGreen = Color(0xff075739);
 
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      context.read<ProfileProvider>().fetchProfile();
+    });
+  }
+
+  Future<void> _refreshProfile() async {
+    await context.read<ProfileProvider>().fetchProfile();
+  }
+
+  Future<void> _openEditProfile() async {
+    final profileProvider =
+    context.read<ProfileProvider>();
+
+    if (profileProvider.profile == null) return;
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const EditProfileScreen(),
+      ),
+    );
+
+    if (!mounted) return;
+
+    await profileProvider.fetchProfile();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final languageProvider = Provider.of<LanguageProvider>(context);
+    final themeProvider =
+    context.watch<ThemeProvider>();
+
+    final languageProvider =
+    context.watch<LanguageProvider>();
+
+    final profileProvider =
+    context.watch<ProfileProvider>();
+
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: const Color(0xfff9fbfa),
-      bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 4),
-      body: SingleChildScrollView(
+      backgroundColor: isDark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xfff9fbfa),
+      bottomNavigationBar:
+      const FarmerBottomNavbar(currentIndex: 4),
+      body: SafeArea(
+        top: false,
+        child: _buildContent(
+          context,
+          profileProvider,
+          themeProvider,
+          languageProvider,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(
+      BuildContext context,
+      ProfileProvider profileProvider,
+      ThemeProvider themeProvider,
+      LanguageProvider languageProvider,
+      ) {
+    if (
+    profileProvider.isLoading &&
+        profileProvider.profile == null
+    ) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: darkGreen,
+        ),
+      );
+    }
+
+    if (
+    profileProvider.errorMessage != null &&
+        profileProvider.profile == null
+    ) {
+      return _errorView(profileProvider);
+    }
+
+    final profile = profileProvider.profile;
+
+    if (profile == null) {
+      return _errorView(profileProvider);
+    }
+
+    return RefreshIndicator(
+      color: darkGreen,
+      onRefresh: _refreshProfile,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           children: [
-            FarmerProfileHeader(authProvider: authProvider),
+            FarmerProfileHeader(
+              profile: profile,
+              onCameraTap: _openEditProfile,
+            ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(18, 22, 18, 28),
+              padding: const EdgeInsets.fromLTRB(
+                18,
+                22,
+                18,
+                28,
+              ),
               child: Column(
                 children: [
-                  PersonalInformationCard(authProvider: authProvider),
+                  PersonalInformationCard(
+                    profile: profile,
+                  ),
                   const SizedBox(height: 24),
                   ProfileActionCard(
-                    language: languageProvider.isUrdu ? "Urdu" : "English",
-                    isDarkMode: themeProvider.isDarkMode,
-                    onEditProfile: () {
-                      Navigator.push(
+                    language: languageProvider.isUrdu
+                        ? "Urdu"
+                        : "English",
+                    isDarkMode:
+                    themeProvider.isDarkMode,
+                    onEditProfile: _openEditProfile,
+                    onLanguage: () {
+                      _showLanguageSheet(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const EditProfileScreen(),
-                        ),
+                        languageProvider,
                       );
                     },
-                    onLanguage: () {
-                      _showLanguageSheet(context, languageProvider);
-                    },
                     onNotifications: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            context.read<LanguageProvider>().t(
-                              "notificationsComingSoon",
-                            ),
-                          ),
-                        ),
+                      Navigator.pushNamed(
+                        context,
+                        "/notifications",
                       );
                     },
                     onChangePassword: () {
-                      _showChangePasswordDialog(context, authProvider);
+                      _showChangePasswordDialog(
+                        context,
+                        context.read<AuthProvider>(),
+                      );
                     },
                     onAppearance: () async {
                       await themeProvider.toggleTheme();
                     },
                     onHelpSupport: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            context.read<LanguageProvider>().t(
-                              "helpSupportComingSoon",
-                            ),
-                          ),
-                        ),
+                      _showSnackBar(
+                        context,
+                        context
+                            .read<LanguageProvider>()
+                            .t("helpSupportComingSoon"),
                       );
                     },
                     onAboutApp: () {
@@ -83,10 +186,7 @@ class FarmerProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 28),
                   ProfileLogoutButton(
-                    onTap: () {
-                      authProvider.logout();
-                      Navigator.pushReplacementNamed(context, '/login');
-                    },
+                    onTap: _logout,
                   ),
                   const SizedBox(height: 18),
                 ],
@@ -98,25 +198,111 @@ class FarmerProfileScreen extends StatelessWidget {
     );
   }
 
+  Widget _errorView(
+      ProfileProvider profileProvider,
+      ) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    return RefreshIndicator(
+      color: darkGreen,
+      onRefresh: _refreshProfile,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        children: [
+          SizedBox(
+            height:
+            MediaQuery.sizeOf(context).height * 0.22,
+          ),
+          Icon(
+            Icons.person_off_outlined,
+            color: isDark
+                ? Colors.red.shade200
+                : Colors.red,
+            size: 65,
+          ),
+          const SizedBox(height: 18),
+          Text(
+            profileProvider.errorMessage ??
+                "Unable to load profile.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Theme.of(context)
+                  .textTheme
+                  .bodyLarge
+                  ?.color,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Center(
+            child: ElevatedButton.icon(
+              onPressed: profileProvider.fetchProfile,
+              icon: const Icon(Icons.refresh),
+              label: const Text("Retry"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: darkGreen,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _logout() async {
+    final authProvider =
+    context.read<AuthProvider>();
+
+    final profileProvider =
+    context.read<ProfileProvider>();
+
+    await authProvider.logout();
+    profileProvider.clearProfile();
+
+    if (!mounted) return;
+
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      "/login",
+          (route) => false,
+    );
+  }
+
   void _showLanguageSheet(
-    BuildContext context,
-    LanguageProvider languageProvider,
-  ) {
+      BuildContext context,
+      LanguageProvider languageProvider,
+      ) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark
+          ? Theme.of(context).cardColor
+          : Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
-      builder: (_) {
+      builder: (sheetContext) {
         return Padding(
-          padding: const EdgeInsets.fromLTRB(22, 20, 22, 28),
+          padding: const EdgeInsets.fromLTRB(
+            22,
+            20,
+            22,
+            28,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                context.watch<LanguageProvider>().t("selectLanguage"),
-                style: TextStyle(
+                languageProvider.t("selectLanguage"),
+                style: const TextStyle(
                   color: darkGreen,
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
@@ -124,13 +310,13 @@ class FarmerProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               _languageTile(
-                context,
+                sheetContext,
                 languageProvider,
                 languageName: "English",
                 languageCode: "en",
               ),
               _languageTile(
-                context,
+                sheetContext,
                 languageProvider,
                 languageName: "Urdu",
                 languageCode: "ur",
@@ -143,47 +329,72 @@ class FarmerProfileScreen extends StatelessWidget {
   }
 
   Widget _languageTile(
-    BuildContext context,
-    LanguageProvider languageProvider, {
-    required String languageName,
-    required String languageCode,
-  }) {
-    final isSelected = languageProvider.locale.languageCode == languageCode;
+      BuildContext sheetContext,
+      LanguageProvider languageProvider, {
+        required String languageName,
+        required String languageCode,
+      }) {
+    final isSelected =
+        languageProvider.locale.languageCode ==
+            languageCode;
 
     return ListTile(
       onTap: () async {
-        await languageProvider.changeLanguage(languageCode);
-        Navigator.pop(context);
+        await languageProvider.changeLanguage(
+          languageCode,
+        );
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context
-                  .read<LanguageProvider>()
-                  .t("languageChanged")
-                  .replaceAll('{value}', languageName),
-            ),
+        if (!sheetContext.mounted) return;
+
+        Navigator.pop(sheetContext);
+
+        if (!mounted) return;
+
+        _showSnackBar(
+          context,
+          languageProvider
+              .t("languageChanged")
+              .replaceAll(
+            "{value}",
+            languageName,
           ),
         );
       },
       leading: Icon(
         Icons.language,
-        color: isSelected ? darkGreen : Colors.grey,
+        color: isSelected
+            ? darkGreen
+            : Colors.grey,
       ),
       title: Text(
         languageName,
         style: TextStyle(
-          fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
-          color: isSelected ? darkGreen : const Color(0xff202525),
+          fontWeight: isSelected
+              ? FontWeight.w900
+              : FontWeight.w600,
+          color: isSelected
+              ? darkGreen
+              : Theme.of(sheetContext)
+              .textTheme
+              .bodyLarge
+              ?.color,
         ),
       ),
       trailing: isSelected
-          ? const Icon(Icons.check_circle, color: darkGreen)
+          ? const Icon(
+        Icons.check_circle,
+        color: darkGreen,
+      )
           : null,
     );
   }
 
-  void _showAboutAppDialog(BuildContext context) {
+  void _showAboutAppDialog(
+      BuildContext context,
+      ) {
+    final languageProvider =
+    context.read<LanguageProvider>();
+
     showAboutDialog(
       context: context,
       applicationName: "AgriConnect",
@@ -194,28 +405,46 @@ class FarmerProfileScreen extends StatelessWidget {
         size: 35,
       ),
       children: [
-        Text(context.watch<LanguageProvider>().t("farmerAppDescription")),
+        Text(
+          languageProvider.t(
+            "farmerAppDescription",
+          ),
+        ),
       ],
     );
   }
 
   void _showChangePasswordDialog(
-    BuildContext context,
-    AuthProvider authProvider,
-  ) {
-    final currentController = TextEditingController();
-    final newController = TextEditingController();
-    final confirmController = TextEditingController();
+      BuildContext context,
+      AuthProvider authProvider,
+      ) {
+    final currentController =
+    TextEditingController();
+
+    final newController =
+    TextEditingController();
+
+    final confirmController =
+    TextEditingController();
+
+    final languageProvider =
+    context.read<LanguageProvider>();
 
     showDialog(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
           scrollable: true,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+          insetPadding:
+          const EdgeInsets.symmetric(
+            horizontal: 20,
+          ),
           title: Text(
-            context.read<LanguageProvider>().t("changePassword"),
-            style: TextStyle(fontWeight: FontWeight.w900, color: darkGreen),
+            languageProvider.t("changePassword"),
+            style: const TextStyle(
+              fontWeight: FontWeight.w900,
+              color: darkGreen,
+            ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -224,10 +453,12 @@ class FarmerProfileScreen extends StatelessWidget {
                 controller: currentController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  labelText: context.read<LanguageProvider>().t(
+                  labelText: languageProvider.t(
                     "currentPassword",
                   ),
-                  prefixIcon: Icon(Icons.lock_outline),
+                  prefixIcon: const Icon(
+                    Icons.lock_outline,
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -235,8 +466,12 @@ class FarmerProfileScreen extends StatelessWidget {
                 controller: newController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  labelText: context.read<LanguageProvider>().t("newPassword"),
-                  prefixIcon: Icon(Icons.lock_reset),
+                  labelText: languageProvider.t(
+                    "newPassword",
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.lock_reset,
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -244,18 +479,24 @@ class FarmerProfileScreen extends StatelessWidget {
                 controller: confirmController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  labelText: context.read<LanguageProvider>().t(
+                  labelText: languageProvider.t(
                     "confirmPassword",
                   ),
-                  prefixIcon: Icon(Icons.verified_outlined),
+                  prefixIcon: const Icon(
+                    Icons.verified_outlined,
+                  ),
                 ),
               ),
             ],
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(context.read<LanguageProvider>().t("cancel")),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: Text(
+                languageProvider.t("cancel"),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -263,35 +504,52 @@ class FarmerProfileScreen extends StatelessWidget {
                 foregroundColor: Colors.white,
               ),
               onPressed: () {
-                if (newController.text.trim().isEmpty ||
-                    confirmController.text.trim().isEmpty) {
+                final currentPassword =
+                currentController.text.trim();
+
+                final newPassword =
+                newController.text.trim();
+
+                final confirmPassword =
+                confirmController.text.trim();
+
+                if (
+                currentPassword.isEmpty ||
+                    newPassword.isEmpty ||
+                    confirmPassword.isEmpty
+                ) {
                   _showSnackBar(
                     context,
-                    context.read<LanguageProvider>().t(
+                    languageProvider.t(
                       "pleaseEnterNewPassword",
                     ),
                   );
                   return;
                 }
 
-                if (newController.text.trim() !=
-                    confirmController.text.trim()) {
+                if (
+                newPassword != confirmPassword
+                ) {
                   _showSnackBar(
                     context,
-                    context.read<LanguageProvider>().t("passwordsDoNotMatch"),
+                    languageProvider.t(
+                      "passwordsDoNotMatch",
+                    ),
                   );
                   return;
                 }
 
-                final success = authProvider.changePassword(
-                  currentPassword: currentController.text.trim(),
-                  newPassword: newController.text.trim(),
+                final success =
+                authProvider.changePassword(
+                  currentPassword:
+                  currentPassword,
+                  newPassword: newPassword,
                 );
 
                 if (!success) {
                   _showSnackBar(
                     context,
-                    context.read<LanguageProvider>().t(
+                    languageProvider.t(
                       "currentPasswordIncorrect",
                     ),
                   );
@@ -299,24 +557,36 @@ class FarmerProfileScreen extends StatelessWidget {
                 }
 
                 Navigator.pop(dialogContext);
+
                 _showSnackBar(
                   context,
-                  context.read<LanguageProvider>().t(
+                  languageProvider.t(
                     "passwordUpdatedSuccessfully",
                   ),
                 );
               },
-              child: Text(context.read<LanguageProvider>().t("update")),
+              child: Text(
+                languageProvider.t("update"),
+              ),
             ),
           ],
         );
       },
-    );
+    ).whenComplete(() {
+      currentController.dispose();
+      newController.dispose();
+      confirmController.dispose();
+    });
   }
 
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+  void _showSnackBar(
+      BuildContext context,
+      String message,
+      ) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
   }
 }

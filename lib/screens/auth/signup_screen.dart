@@ -8,7 +8,6 @@ import '../../providers/language_provider.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_input_field.dart';
 import '../../widgets/auth/auth_role_dropdown.dart';
-import 'verify_email_otp_screen.dart';
 import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -25,8 +24,10 @@ class _SignupScreenState extends State<SignupScreen> {
   final passwordController = TextEditingController();
   final locationController = TextEditingController();
   final citySearchController = TextEditingController();
+
   final citySearchFocusNode = FocusNode();
   final manualLocationFocusNode = FocusNode();
+
   String? selectedCity;
   bool enterLocationManually = false;
 
@@ -63,36 +64,39 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Future<void> _signup(AuthProvider authProvider, LanguageProvider lang) async {
+  Future<void> _signup(
+      AuthProvider authProvider,
+      LanguageProvider lang,
+      ) async {
     final name = nameController.text.trim();
-    final email = emailController.text.trim();
+    final email = emailController.text.trim().toLowerCase();
     final phone = phoneController.text.trim();
     final password = passwordController.text.trim();
+
     final address = enterLocationManually
         ? locationController.text.trim()
         : (selectedCity ?? '').trim();
 
-    if (name.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(lang.t("fillAllFields")),
-          backgroundColor: Colors.red,
-        ),
+    if (name.isEmpty ||
+        email.isEmpty ||
+        phone.isEmpty ||
+        password.isEmpty) {
+      _showMessage(
+        lang.t("fillAllFields"),
+        backgroundColor: Colors.red,
       );
       return;
     }
 
     if (address.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(lang.t("locationRequired")),
-          backgroundColor: Colors.red,
-        ),
+      _showMessage(
+        lang.t("locationRequired"),
+        backgroundColor: Colors.red,
       );
       return;
     }
 
-    final success = await authProvider.signup(
+    final signupSuccess = await authProvider.signup(
       name: name,
       email: email,
       phone: phone,
@@ -102,28 +106,37 @@ class _SignupScreenState extends State<SignupScreen> {
 
     if (!mounted) return;
 
-    if (!success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authProvider.errorMessage ?? lang.t("signupFailed")),
-          backgroundColor: Colors.red,
-        ),
+    if (!signupSuccess) {
+      _showMessage(
+        authProvider.errorMessage ?? lang.t("signupFailed"),
+        backgroundColor: Colors.red,
       );
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          context.read<LanguageProvider>().t("accountCreatedVerifyEmail"),
-        ),
-        backgroundColor: Colors.green,
-      ),
+    _showMessage(
+      "Account created successfully. Please login.",
+      backgroundColor: Colors.green,
     );
 
-    Navigator.pushReplacement(
+    Navigator.pushNamedAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => VerifyEmailOtpScreen(email: email)),
+      '/login',
+          (route) => false,
+    );
+  }
+
+  void _showMessage(
+      String message, {
+        required Color backgroundColor,
+      }) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: backgroundColor,
+      ),
     );
   }
 
@@ -229,6 +242,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         _label(lang.t("location")),
                         const SizedBox(height: 8),
                         _locationSelector(lang),
+
                         if (enterLocationManually) ...[
                           const SizedBox(height: 10),
                           AuthInputField(
@@ -257,7 +271,9 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                           ),
                         ),
+
                         const SizedBox(height: 14),
+
                         _label(lang.t("selectRole")),
                         const SizedBox(height: 8),
                         AuthRoleDropdown(
@@ -285,20 +301,20 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                             child: authProvider.isLoading
                                 ? const SizedBox(
-                                    height: 22,
-                                    width: 22,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2.4,
-                                    ),
-                                  )
+                              height: 22,
+                              width: 22,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.4,
+                              ),
+                            )
                                 : Text(
-                                    lang.t("signup"),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
+                              lang.t("signup"),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
                           ),
                         ),
 
@@ -351,7 +367,11 @@ class _SignupScreenState extends State<SignupScreen> {
               color: darkGreen,
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(Icons.eco, color: Colors.white, size: 28),
+            child: const Icon(
+              Icons.eco,
+              color: Colors.white,
+              size: 28,
+            ),
           ),
           const SizedBox(width: 14),
           Flexible(
@@ -391,13 +411,23 @@ class _SignupScreenState extends State<SignupScreen> {
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderSide: BorderSide(
+                color: Colors.grey.shade300,
+              ),
             ),
-            prefixIcon: const Icon(Icons.location_city, color: darkGreen),
-            suffixIcon: const Icon(Icons.arrow_drop_down, color: darkGreen),
+            prefixIcon: const Icon(
+              Icons.location_city,
+              color: darkGreen,
+            ),
+            suffixIcon: const Icon(
+              Icons.arrow_drop_down,
+              color: darkGreen,
+            ),
           ),
           child: Text(
             enterLocationManually
@@ -421,87 +451,111 @@ class _SignupScreenState extends State<SignupScreen> {
 
     final selection = await showDialog<String>(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          final cities = PakistanCities.values.where((city) {
-            return city.toLowerCase().contains(
-              citySearchController.text.trim().toLowerCase(),
-            );
-          }).toList();
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final cities = PakistanCities.values.where((city) {
+              return city.toLowerCase().contains(
+                citySearchController.text.trim().toLowerCase(),
+              );
+            }).toList();
 
-          return AlertDialog(
-            title: Text(lang.t('selectCity')),
-            contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-            content: SizedBox(
-              width: double.maxFinite,
-              height: MediaQuery.sizeOf(context).height * .55,
-              child: Column(
-                children: [
-                  TextField(
-                    controller: citySearchController,
-                    focusNode: citySearchFocusNode,
-                    autofocus: true,
-                    onChanged: (_) => setDialogState(() {}),
-                    decoration: InputDecoration(
-                      hintText: lang.t('searchCity'),
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
+            return AlertDialog(
+              title: Text(lang.t('selectCity')),
+              contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              content: SizedBox(
+                width: double.maxFinite,
+                height: MediaQuery.sizeOf(context).height * 0.55,
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: citySearchController,
+                      focusNode: citySearchFocusNode,
+                      autofocus: true,
+                      onChanged: (_) {
+                        setDialogState(() {});
+                      },
+                      decoration: InputDecoration(
+                        hintText: lang.t('searchCity'),
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(
-                      Icons.edit_location_alt_outlined,
-                      color: darkGreen,
-                    ),
-                    title: Text(lang.t('otherEnterManually')),
-                    onTap: () =>
-                        Navigator.pop(dialogContext, PakistanCities.other),
-                  ),
-                  const Divider(height: 1),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: cities.length,
-                      itemBuilder: (context, index) {
-                        final city = cities[index];
-                        return ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(
-                            Icons.location_on_outlined,
-                            color: darkGreen,
-                          ),
-                          title: Text(city),
-                          trailing: selectedCity == city
-                              ? const Icon(Icons.check, color: darkGreen)
-                              : null,
-                          onTap: () => Navigator.pop(dialogContext, city),
+
+                    const SizedBox(height: 10),
+
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(
+                        Icons.edit_location_alt_outlined,
+                        color: darkGreen,
+                      ),
+                      title: Text(lang.t('otherEnterManually')),
+                      onTap: () {
+                        Navigator.pop(
+                          dialogContext,
+                          PakistanCities.other,
                         );
                       },
                     ),
-                  ),
-                ],
+
+                    const Divider(height: 1),
+
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: cities.length,
+                        itemBuilder: (context, index) {
+                          final city = cities[index];
+
+                          return ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(
+                              Icons.location_on_outlined,
+                              color: darkGreen,
+                            ),
+                            title: Text(city),
+                            trailing: selectedCity == city
+                                ? const Icon(
+                              Icons.check,
+                              color: darkGreen,
+                            )
+                                : null,
+                            onTap: () {
+                              Navigator.pop(dialogContext, city);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-      ),
+            );
+          },
+        );
+      },
     );
 
     if (!mounted || selection == null) return;
 
     final isManual = selection == PakistanCities.other;
+
     setState(() {
       enterLocationManually = isManual;
       selectedCity = isManual ? null : selection;
-      if (!isManual) locationController.clear();
+
+      if (!isManual) {
+        locationController.clear();
+      }
     });
 
     if (isManual) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) manualLocationFocusNode.requestFocus();
+        if (mounted) {
+          manualLocationFocusNode.requestFocus();
+        }
       });
     }
   }

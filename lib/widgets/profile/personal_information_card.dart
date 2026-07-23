@@ -1,72 +1,95 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../models/user_profile_model.dart';
 import '../../providers/language_provider.dart';
 
-import '../../providers/auth_provider.dart';
-
 class PersonalInformationCard extends StatelessWidget {
-  final AuthProvider authProvider;
+  final UserProfileModel profile;
 
-  const PersonalInformationCard({super.key, required this.authProvider});
+  const PersonalInformationCard({
+    super.key,
+    required this.profile,
+  });
 
   static const Color darkGreen = Color(0xff075739);
 
   @override
   Widget build(BuildContext context) {
-    return _card(
-      children: [
-        _cardTitle(
-          icon: Icons.person,
-          title: context.watch<LanguageProvider>().t("personalInformation"),
-        ),
-        const SizedBox(height: 12),
-        _infoRow(
-          icon: Icons.email,
-          title: context.watch<LanguageProvider>().t("emailAddress"),
-          value: authProvider.email.isEmpty
-              ? context.watch<LanguageProvider>().t("noEmailFound")
-              : authProvider.email,
-        ),
-        _divider(),
-        _infoRow(
-          icon: Icons.phone,
-          title: context.watch<LanguageProvider>().t("phoneNumber"),
-          value: authProvider.phone.isEmpty
-              ? context.watch<LanguageProvider>().t("noPhoneFound")
-              : authProvider.phone,
-        ),
-        _divider(),
-        _infoRow(
-          icon: Icons.location_on,
-          title: context.watch<LanguageProvider>().t("location"),
-          value: authProvider.location.isEmpty
-              ? context.watch<LanguageProvider>().t("noLocationFound")
-              : authProvider.location,
-        ),
-      ],
-    );
-  }
+    final lang = context.watch<LanguageProvider>();
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
 
-  Widget _card({required List<Widget> children}) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
+      padding: const EdgeInsets.fromLTRB(
+        22,
+        22,
+        22,
+        20,
+      ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDark
+              ? Colors.white10
+              : const Color(0xffe3ebe6),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(
+              alpha: isDark ? 0.18 : 0.06,
+            ),
             blurRadius: 22,
             offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Column(children: children),
+      child: Column(
+        children: [
+          _cardTitle(
+            context: context,
+            icon: Icons.person,
+            title: lang.t("personalInformation"),
+          ),
+          const SizedBox(height: 12),
+          _infoRow(
+            context: context,
+            icon: Icons.email,
+            title: lang.t("emailAddress"),
+            value: profile.email.trim().isEmpty
+                ? lang.t("noEmailFound")
+                : profile.email,
+          ),
+          _divider(context),
+          _infoRow(
+            context: context,
+            icon: Icons.phone,
+            title: lang.t("phoneNumber"),
+            value: profile.phone.trim().isEmpty
+                ? lang.t("noPhoneFound")
+                : profile.phone,
+          ),
+          _divider(context),
+          _infoRow(
+            context: context,
+            icon: Icons.location_on,
+            title: lang.t("location"),
+            value: profile.address.trim().isEmpty
+                ? lang.t("noLocationFound")
+                : profile.address,
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _cardTitle({required IconData icon, required String title}) {
+  Widget _cardTitle({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+  }) {
     return Row(
       children: [
         _iconBox(icon),
@@ -86,24 +109,33 @@ class PersonalInformationCard extends StatelessWidget {
   }
 
   Widget _infoRow({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required String value,
   }) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      padding: const EdgeInsets.symmetric(
+        vertical: 14,
+      ),
       child: Row(
         children: [
           _iconBox(icon),
           const SizedBox(width: 18),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Color(0xff4f5955),
+                  style: TextStyle(
+                    color: isDark
+                        ? Colors.white60
+                        : const Color(0xff4f5955),
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
@@ -111,9 +143,13 @@ class PersonalInformationCard extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(
                   value,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xff202525),
+                  style: TextStyle(
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.color,
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                   ),
@@ -134,11 +170,24 @@ class PersonalInformationCard extends StatelessWidget {
         color: const Color(0xffe8f5ee),
         borderRadius: BorderRadius.circular(14),
       ),
-      child: Icon(icon, color: darkGreen, size: 23),
+      child: Icon(
+        icon,
+        color: darkGreen,
+        size: 23,
+      ),
     );
   }
 
-  Widget _divider() {
-    return Divider(height: 1, thickness: 1, color: Colors.grey.shade300);
+  Widget _divider(BuildContext context) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: isDark
+          ? Colors.white12
+          : Colors.grey.shade300,
+    );
   }
 }
