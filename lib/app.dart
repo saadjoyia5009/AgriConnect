@@ -2,10 +2,8 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-
 import 'config/app_theme.dart';
 import 'core/responsive/app_breakpoints.dart';
-
 import 'providers/admin_analytics_provider.dart';
 import 'providers/admin_crops_provider.dart';
 import 'providers/admin_dashboard_provider.dart';
@@ -16,7 +14,6 @@ import 'providers/buyer_chat_provider.dart';
 import 'providers/buyer_favorite_provider.dart';
 import 'providers/buyer_inquiry_provider.dart';
 import 'providers/buyer_language_provider.dart';
-import 'providers/buyer_profile_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/crop_provider.dart';
 import 'providers/disease_detection_provider.dart';
@@ -202,9 +199,6 @@ class AgriConnectApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => BuyerInquiryProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => BuyerProfileProvider(),
         ),
         ChangeNotifierProvider(
           create: (_) => ChatProvider(),
