@@ -25,39 +25,47 @@ class AuthService {
     required String password,
   }) async {
     try {
+      final cleanEmail = email.trim().toLowerCase();
+
       final response = await ApiService.post("/login/", {
-        "email": email,
+        "email": cleanEmail,
         "password": password,
       });
 
-      final tokens = response["tokens"];
+      final dynamic tokensData = response["tokens"];
 
-      if (tokens != null &&
-          tokens["access"] != null &&
-          tokens["refresh"] != null) {
+      if (tokensData is Map &&
+          tokensData["access"] != null &&
+          tokensData["refresh"] != null) {
         await TokenStorage.saveTokens(
-          tokens["access"].toString(),
-          tokens["refresh"].toString(),
+          tokensData["access"].toString(),
+          tokensData["refresh"].toString(),
         );
+      } else {
+        throw Exception("Login tokens were not received from server.");
       }
 
-      final userData = response["user"];
-      final int? parsedUserId = userData is Map
-          ? int.tryParse(userData["id"]?.toString() ?? "")
-          : null;
+      final dynamic rawUserData = response["user"];
+      final Map<String, dynamic> userData = rawUserData is Map
+          ? Map<String, dynamic>.from(rawUserData)
+          : <String, dynamic>{};
+
+      final int? parsedUserId = int.tryParse(
+        userData["id"]?.toString() ?? "",
+      );
 
       return AuthResponse(
         success: true,
         message: response["message"]?.toString() ?? "Login successful",
-        username: userData?["username"]?.toString(),
-        email: userData?["email"]?.toString() ?? email,
-        role: userData?["role"]?.toString(),
+        username: userData["username"]?.toString(),
+        email: userData["email"]?.toString() ?? cleanEmail,
+        role: userData["role"]?.toString(),
         userId: parsedUserId,
       );
     } catch (e) {
       return AuthResponse(
         success: false,
-        message: e.toString().replaceAll("Exception:", "").trim(),
+        message: _cleanErrorMessage(e),
       );
     }
   }
@@ -72,33 +80,49 @@ class AuthService {
     required String address,
   }) async {
     try {
-      await TokenStorage.clearTokens(); // add this
+      final cleanUsername = username.trim();
+      final cleanEmail = email.trim().toLowerCase();
+      final cleanRole = role.trim().toLowerCase();
+      final cleanPhone = phone.trim();
+      final cleanAddress = address.trim();
+
+      /*
+       * Signup se pehle purane tokens clear karna useful hai,
+       * taa ke previous user ki session accidentally active na rahe.
+       */
+      await TokenStorage.clearTokens();
 
       final response = await ApiService.post("/register/", {
-        "username": username,
-        "email": email,
+        "username": cleanUsername,
+        "email": cleanEmail,
         "password": password,
         "password2": password2,
-        "role": role,
-        "phone": phone,
-        "address": address,
+        "role": cleanRole,
+        "phone": cleanPhone,
+        "address": cleanAddress,
       });
 
-      final data = response["data"];
+      final dynamic rawData = response["data"];
+      final Map<String, dynamic> data = rawData is Map
+          ? Map<String, dynamic>.from(rawData)
+          : <String, dynamic>{};
 
       return AuthResponse(
         success: true,
         message:
-            response["message"]?.toString() ??
-            "Account created successfully. Please verify your email.",
-        username: data?["username"]?.toString() ?? username,
-        email: data?["email"]?.toString() ?? email,
-        role: data?["role"]?.toString() ?? role,
+        response["message"]?.toString() ??
+            "Account created successfully. Please login.",
+        username: data["username"]?.toString() ?? cleanUsername,
+        email: data["email"]?.toString() ?? cleanEmail,
+        role: data["role"]?.toString() ?? cleanRole,
+        userId: int.tryParse(
+          data["id"]?.toString() ?? "",
+        ),
       );
     } catch (e) {
       return AuthResponse(
         success: false,
-        message: e.toString().replaceAll("Exception:", "").trim(),
+        message: _cleanErrorMessage(e),
       );
     }
   }
@@ -108,42 +132,51 @@ class AuthService {
     required String otp,
   }) async {
     try {
+      final cleanEmail = email.trim().toLowerCase();
+      final cleanOtp = otp.trim();
+
       final response = await ApiService.post("/verify-email-otp/", {
-        "email": email,
-        "otp": otp,
+        "email": cleanEmail,
+        "otp": cleanOtp,
       });
 
       return AuthResponse(
         success: true,
         message:
-            response["message"]?.toString() ?? "Email verified successfully",
-        email: email,
+        response["message"]?.toString() ??
+            "Email verified successfully",
+        email: cleanEmail,
       );
     } catch (e) {
       return AuthResponse(
         success: false,
-        message: e.toString().replaceAll("Exception:", "").trim(),
+        message: _cleanErrorMessage(e),
       );
     }
   }
 
-  Future<AuthResponse> forgotPassword({required String email}) async {
+  Future<AuthResponse> forgotPassword({
+    required String email,
+  }) async {
     try {
+      final cleanEmail = email.trim().toLowerCase();
+
       final response = await ApiService.post("/forgot-password/", {
-        "email": email,
+        "email": cleanEmail,
       });
 
       return AuthResponse(
         success: true,
         message: response["otp"] != null
             ? "OTP: ${response["otp"]}"
-            : response["message"]?.toString() ?? "OTP sent successfully",
-        email: email,
+            : response["message"]?.toString() ??
+            "OTP sent successfully",
+        email: cleanEmail,
       );
     } catch (e) {
       return AuthResponse(
         success: false,
-        message: e.toString().replaceAll("Exception:", "").trim(),
+        message: _cleanErrorMessage(e),
       );
     }
   }
@@ -153,20 +186,25 @@ class AuthService {
     required String otp,
   }) async {
     try {
+      final cleanEmail = email.trim().toLowerCase();
+      final cleanOtp = otp.trim();
+
       final response = await ApiService.post("/verify-reset-otp/", {
-        "email": email,
-        "otp": otp,
+        "email": cleanEmail,
+        "otp": cleanOtp,
       });
 
       return AuthResponse(
         success: true,
-        message: response["message"]?.toString() ?? "OTP verified successfully",
-        email: email,
+        message:
+        response["message"]?.toString() ??
+            "OTP verified successfully",
+        email: cleanEmail,
       );
     } catch (e) {
       return AuthResponse(
         success: false,
-        message: e.toString().replaceAll("Exception:", "").trim(),
+        message: _cleanErrorMessage(e),
       );
     }
   }
@@ -178,9 +216,12 @@ class AuthService {
     required String confirmPassword,
   }) async {
     try {
+      final cleanEmail = email.trim().toLowerCase();
+      final cleanOtp = otp.trim();
+
       final response = await ApiService.post("/reset-password/", {
-        "email": email,
-        "otp": otp,
+        "email": cleanEmail,
+        "otp": cleanOtp,
         "new_password": newPassword,
         "confirm_password": confirmPassword,
       });
@@ -188,18 +229,26 @@ class AuthService {
       return AuthResponse(
         success: true,
         message:
-            response["message"]?.toString() ?? "Password reset successfully",
-        email: email,
+        response["message"]?.toString() ??
+            "Password reset successfully",
+        email: cleanEmail,
       );
     } catch (e) {
       return AuthResponse(
         success: false,
-        message: e.toString().replaceAll("Exception:", "").trim(),
+        message: _cleanErrorMessage(e),
       );
     }
   }
 
   Future<void> logout() async {
     await TokenStorage.clearTokens();
+  }
+
+  String _cleanErrorMessage(Object error) {
+    return error
+        .toString()
+        .replaceFirst("Exception:", "")
+        .trim();
   }
 }

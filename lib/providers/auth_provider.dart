@@ -12,7 +12,7 @@ class AuthProvider extends ChangeNotifier {
 
   String selectedRole = "Farmer";
 
-  String _userName = "Farmer User";
+  String _userName = "";
   String _email = "";
   String _phone = "";
   String _password = "";
@@ -50,40 +50,52 @@ class AuthProvider extends ChangeNotifier {
   }
 
   String _backendRole(String role) {
-    return role.toLowerCase();
+    return role.trim().toLowerCase();
   }
 
-  Future<bool> login({required String email, required String password}) async {
+  Future<bool> login({
+    required String email,
+    required String password,
+  }) async {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
 
-    final response = await _authService.login(email: email, password: password);
+    try {
+      final response = await _authService.login(
+        email: email.trim().toLowerCase(),
+        password: password,
+      );
 
-    isLoading = false;
+      if (response.success) {
+        _userName = (response.username ?? "").trim();
+        _email = (response.email ?? email).trim();
+        _role = (response.role ?? "").trim().toLowerCase();
+        _password = password;
+        _userId = response.userId;
 
-    if (response.success) {
-      _userName = response.username ?? "User";
-      _email = response.email ?? email;
-      _role = (response.role ?? selectedRole).toLowerCase();
-      _password = password;
-      _userId = response.userId;
+        /*
+         * Phone aur location login response mein available hon
+         * to AuthService response model mein unhein map karke yahan set karein.
+         *
+         * Filhal fake/default values set nahi ki ja rahi hain.
+         */
+        _phone = "";
+        _location = "";
 
-      if (_phone.trim().isEmpty) {
-        _phone = "No phone added";
+        errorMessage = null;
+        return true;
       }
 
-      if (_location.trim().isEmpty) {
-        _location = "Sahiwal, Punjab";
-      }
-
+      errorMessage = response.message;
+      return false;
+    } catch (error) {
+      errorMessage = "Login failed. Please check your internet connection.";
+      return false;
+    } finally {
+      isLoading = false;
       notifyListeners();
-      return true;
     }
-
-    errorMessage = response.message;
-    notifyListeners();
-    return false;
   }
 
   Future<bool> signup({
@@ -93,45 +105,54 @@ class AuthProvider extends ChangeNotifier {
     required String password,
     required String address,
   }) async {
+    final cleanName = name.trim();
+    final cleanEmail = email.trim().toLowerCase();
+    final cleanPhone = phone.trim();
     final cleanAddress = address.trim();
+
     isLoading = true;
     errorMessage = null;
     notifyListeners();
 
-    final response = await _authService.register(
-      username: name,
-      email: email,
-      password: password,
-      password2: password,
-      role: _backendRole(selectedRole),
-      phone: phone,
-      address: cleanAddress,
-    );
+    try {
+      final response = await _authService.register(
+        username: cleanName,
+        email: cleanEmail,
+        password: password,
+        password2: password,
+        role: _backendRole(selectedRole),
+        phone: cleanPhone,
+        address: cleanAddress,
+      );
 
-    isLoading = false;
+      if (response.success) {
+        /*
+         * Signup ke baad user ko login state mein nahi rakhenge.
+         * User manually login karega.
+         */
+        _clearAuthenticatedUserData();
 
-    if (response.success) {
-      _userName = response.username ?? name;
-      _email = response.email ?? email;
-      _phone = phone;
-      _location = cleanAddress;
-      _password = password;
-      _role = (response.role ?? _backendRole(selectedRole)).toLowerCase();
+        errorMessage = null;
+        return true;
+      }
 
+      errorMessage = response.message;
+      return false;
+    } catch (error) {
+      errorMessage =
+      "Account creation failed. Please check your internet connection.";
+      return false;
+    } finally {
+      isLoading = false;
       notifyListeners();
-      return true;
     }
-
-    errorMessage = response.message;
-    notifyListeners();
-    return false;
   }
 
   Future<bool> verifyEmailOtp({
     required String email,
     required String otp,
   }) async {
-    final cleanEmail = email.trim();
+    final cleanEmail = email.trim().toLowerCase();
     final cleanOtp = otp.trim();
 
     if (cleanEmail.isEmpty) {
@@ -141,7 +162,7 @@ class AuthProvider extends ChangeNotifier {
     }
 
     if (cleanOtp.length != 6) {
-      errorMessage = "Please enter valid 6 digit OTP";
+      errorMessage = "Please enter a valid 6 digit OTP.";
       notifyListeners();
       return false;
     }
@@ -150,27 +171,36 @@ class AuthProvider extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
 
-    final response = await _authService.verifyEmailOtp(
-      email: cleanEmail,
-      otp: cleanOtp,
-    );
+    try {
+      final response = await _authService.verifyEmailOtp(
+        email: cleanEmail,
+        otp: cleanOtp,
+      );
 
-    isLoading = false;
+      if (response.success) {
+        errorMessage = null;
+        return true;
+      }
 
-    if (response.success) {
       errorMessage = response.message;
+      return false;
+    } catch (error) {
+      errorMessage =
+      "OTP verification failed. Please check your internet connection.";
+      return false;
+    } finally {
+      isLoading = false;
       notifyListeners();
-      return true;
     }
-
-    errorMessage = response.message;
-    notifyListeners();
-    return false;
   }
 
-  Future<bool> forgotPassword({required String email}) async {
-    if (email.trim().isEmpty) {
-      errorMessage = "Please enter your email";
+  Future<bool> forgotPassword({
+    required String email,
+  }) async {
+    final cleanEmail = email.trim().toLowerCase();
+
+    if (cleanEmail.isEmpty) {
+      errorMessage = "Please enter your email.";
       notifyListeners();
       return false;
     }
@@ -179,24 +209,33 @@ class AuthProvider extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
 
-    final response = await _authService.forgotPassword(email: email.trim());
+    try {
+      final response = await _authService.forgotPassword(
+        email: cleanEmail,
+      );
 
-    isLoading = false;
+      if (response.success) {
+        _resetEmail = cleanEmail;
+        _resetOtp = "";
+        errorMessage = null;
+        return true;
+      }
 
-    if (response.success) {
-      _resetEmail = email.trim();
-      _resetOtp = "";
       errorMessage = response.message;
+      return false;
+    } catch (error) {
+      errorMessage =
+      "Unable to send OTP. Please check your internet connection.";
+      return false;
+    } finally {
+      isLoading = false;
       notifyListeners();
-      return true;
     }
-
-    errorMessage = response.message;
-    notifyListeners();
-    return false;
   }
 
-  Future<bool> verifyOtp({required String otp}) async {
+  Future<bool> verifyOtp({
+    required String otp,
+  }) async {
     final cleanOtp = otp.trim();
 
     if (_resetEmail.trim().isEmpty) {
@@ -206,7 +245,7 @@ class AuthProvider extends ChangeNotifier {
     }
 
     if (cleanOtp.length != 6) {
-      errorMessage = "Please enter valid 6 digit OTP";
+      errorMessage = "Please enter a valid 6 digit OTP.";
       notifyListeners();
       return false;
     }
@@ -215,30 +254,36 @@ class AuthProvider extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
 
-    final response = await _authService.verifyResetOtp(
-      email: _resetEmail,
-      otp: cleanOtp,
-    );
+    try {
+      final response = await _authService.verifyResetOtp(
+        email: _resetEmail,
+        otp: cleanOtp,
+      );
 
-    isLoading = false;
+      if (response.success) {
+        _resetOtp = cleanOtp;
+        errorMessage = null;
+        return true;
+      }
 
-    if (response.success) {
-      _resetOtp = cleanOtp;
+      errorMessage = response.message;
+      return false;
+    } catch (error) {
+      errorMessage =
+      "OTP verification failed. Please check your internet connection.";
+      return false;
+    } finally {
+      isLoading = false;
       notifyListeners();
-      return true;
     }
-
-    errorMessage = response.message;
-    notifyListeners();
-    return false;
   }
 
   Future<bool> resetPassword({
     required String newPassword,
     required String confirmPassword,
   }) async {
-    final password = newPassword.trim();
-    final confirm = confirmPassword.trim();
+    final cleanPassword = newPassword.trim();
+    final cleanConfirmPassword = confirmPassword.trim();
 
     if (_resetEmail.trim().isEmpty) {
       errorMessage = "Email not found. Please request OTP again.";
@@ -252,20 +297,20 @@ class AuthProvider extends ChangeNotifier {
       return false;
     }
 
-    if (password.isEmpty || confirm.isEmpty) {
-      errorMessage = "Please fill all fields";
+    if (cleanPassword.isEmpty || cleanConfirmPassword.isEmpty) {
+      errorMessage = "Please fill all fields.";
       notifyListeners();
       return false;
     }
 
-    if (password.length < 8) {
-      errorMessage = "Password must be at least 8 characters";
+    if (cleanPassword.length < 8) {
+      errorMessage = "Password must be at least 8 characters.";
       notifyListeners();
       return false;
     }
 
-    if (password != confirm) {
-      errorMessage = "Passwords do not match";
+    if (cleanPassword != cleanConfirmPassword) {
+      errorMessage = "Passwords do not match.";
       notifyListeners();
       return false;
     }
@@ -274,45 +319,63 @@ class AuthProvider extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
 
-    final response = await _authService.resetPassword(
-      email: _resetEmail,
-      otp: _resetOtp,
-      newPassword: password,
-      confirmPassword: confirm,
-    );
+    try {
+      final response = await _authService.resetPassword(
+        email: _resetEmail,
+        otp: _resetOtp,
+        newPassword: cleanPassword,
+        confirmPassword: cleanConfirmPassword,
+      );
 
-    isLoading = false;
+      if (response.success) {
+        _password = cleanPassword;
+        _resetEmail = "";
+        _resetOtp = "";
+        errorMessage = null;
+        return true;
+      }
 
-    if (response.success) {
-      _password = password;
-      _resetEmail = "";
-      _resetOtp = "";
+      errorMessage = response.message;
+      return false;
+    } catch (error) {
+      errorMessage =
+      "Password reset failed. Please check your internet connection.";
+      return false;
+    } finally {
+      isLoading = false;
       notifyListeners();
-      return true;
     }
-
-    errorMessage = response.message;
-    notifyListeners();
-    return false;
   }
 
   Future<void> logout() async {
-    await _authService.logout();
+    isLoading = true;
+    notifyListeners();
 
-    _userName = "Farmer User";
+    try {
+      await _authService.logout();
+    } finally {
+      _clearAuthenticatedUserData();
+
+      _resetEmail = "";
+      _resetOtp = "";
+      rememberMe = false;
+      selectedRole = "Farmer";
+      errorMessage = null;
+      isLoading = false;
+
+      notifyListeners();
+    }
+  }
+
+  void _clearAuthenticatedUserData() {
+    _userName = "";
     _email = "";
     _phone = "";
     _password = "";
     _role = "";
     _location = "";
-    _resetEmail = "";
-    _resetOtp = "";
     _profileImagePath = null;
     _userId = null;
-    rememberMe = false;
-    selectedRole = "Farmer";
-
-    notifyListeners();
   }
 
   bool changePassword({
@@ -334,10 +397,10 @@ class AuthProvider extends ChangeNotifier {
     required String phone,
     required String location,
   }) {
-    _userName = name;
-    _email = email;
-    _phone = phone;
-    _location = location;
+    _userName = name.trim();
+    _email = email.trim();
+    _phone = phone.trim();
+    _location = location.trim();
 
     notifyListeners();
   }
@@ -354,10 +417,10 @@ class AuthProvider extends ChangeNotifier {
     required String location,
     String? profileImage,
   }) {
-    _userName = name;
-    _email = email;
-    _phone = phone;
-    _location = location;
+    _userName = name.trim();
+    _email = email.trim();
+    _phone = phone.trim();
+    _location = location.trim();
     _profileImagePath = profileImage;
 
     notifyListeners();
