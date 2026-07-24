@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,7 +26,6 @@ class EditBuyerProfileScreen extends StatefulWidget {
 class _EditBuyerProfileScreenState
     extends State<EditBuyerProfileScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   final ImagePicker _imagePicker = ImagePicker();
 
   late final TextEditingController _nameController;
@@ -35,30 +35,28 @@ class _EditBuyerProfileScreenState
 
   XFile? _selectedImage;
 
-  static const Color darkGreen = Color(0xff0F5C3A);
-  static const Color lightBackground = Color(0xffF8FAF7);
-  static const Color darkBackground = Color(0xFF0B1410);
-  static const Color darkCard = Color(0xFF15251E);
-  static const Color lightGreen = Color(0xff9ff2c1);
+  static const Color primaryGreen = Color(0xff0D6B45);
+  static const Color secondaryGreen = Color(0xff18A66A);
+  static const Color softGreen = Color(0xffEAF8F1);
+
+  static const Color lightBackground = Color(0xffF4F7F5);
+  static const Color darkBackground = Color(0xff0C1511);
+  static const Color darkCard = Color(0xff16241D);
 
   bool get isDark {
     return Theme.of(context).brightness == Brightness.dark;
   }
 
-  Color get accentColor {
-    return isDark ? lightGreen : darkGreen;
-  }
-
   Color get primaryText {
-    return isDark
-        ? Colors.white
-        : const Color(0xff10291D);
+    return isDark ? Colors.white : const Color(0xff17211C);
   }
 
   Color get secondaryText {
-    return isDark
-        ? Colors.white70
-        : const Color(0xff5F675F);
+    return isDark ? Colors.white60 : const Color(0xff6B746F);
+  }
+
+  Color get cardColor {
+    return isDark ? darkCard : Colors.white;
   }
 
   @override
@@ -93,19 +91,30 @@ class _EditBuyerProfileScreenState
   }
 
   Future<void> _pickProfileImage() async {
-    final XFile? pickedImage = await _imagePicker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 80,
-      maxWidth: 1200,
-    );
+    try {
+      final XFile? pickedImage = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+        maxWidth: 1200,
+      );
 
-    if (pickedImage == null || !mounted) {
-      return;
+      if (pickedImage == null || !mounted) {
+        return;
+      }
+
+      setState(() {
+        _selectedImage = pickedImage;
+      });
+    } catch (_) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to select image.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
-
-    setState(() {
-      _selectedImage = pickedImage;
-    });
   }
 
   Future<void> _updateProfile() async {
@@ -145,10 +154,8 @@ class _EditBuyerProfileScreenState
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text(
-          'Profile updated successfully.',
-        ),
-        backgroundColor: darkGreen,
+        content: Text('Profile updated successfully.'),
+        backgroundColor: primaryGreen,
       ),
     );
 
@@ -167,232 +174,325 @@ class _EditBuyerProfileScreenState
       resizeToAvoidBottomInset: true,
       backgroundColor:
       isDark ? darkBackground : lightBackground,
-      appBar: AppBar(
-        backgroundColor:
-        isDark ? darkBackground : lightBackground,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_rounded,
-            color: accentColor,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text(
-          language.t('editProfile'),
-          style: TextStyle(
-            color: accentColor,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-      ),
       body: SafeArea(
+        top: false,
         child: SingleChildScrollView(
           keyboardDismissBehavior:
           ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.fromLTRB(
-            20,
-            16,
-            20,
-            30,
-          ),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                _buildProfileImage(),
-                const SizedBox(height: 14),
-
-                TextButton.icon(
-                  onPressed: profileProvider.isUpdating
-                      ? null
-                      : _pickProfileImage,
-                  icon: Icon(
-                    Icons.photo_library_outlined,
-                    color: accentColor,
+          child: Column(
+            children: [
+              _buildModernHeader(
+                language,
+                profileProvider,
+              ),
+              Transform.translate(
+                offset: const Offset(0, -48),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
                   ),
-                  label: Text(
-                    language.t('changePhoto'),
-                    style: TextStyle(
-                      color: accentColor,
-                      fontWeight: FontWeight.w800,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        _buildProfileCard(
+                          language,
+                          profileProvider,
+                        ),
+                        const SizedBox(height: 18),
+                        _buildFormCard(language),
+                        const SizedBox(height: 22),
+                        _buildSaveButton(
+                          language,
+                          profileProvider,
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 20),
-
-                _buildTextField(
-                  controller: _nameController,
-                  label: language.t('fullName'),
-                  icon: Icons.person_outline_rounded,
-                  textInputAction: TextInputAction.next,
-                  validator: (value) {
-                    if (value == null ||
-                        value.trim().isEmpty) {
-                      return 'Please enter your full name.';
-                    }
-
-                    if (value.trim().length < 2) {
-                      return 'Name must contain at least 2 characters.';
-                    }
-
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 14),
-
-                _buildTextField(
-                  controller: _emailController,
-                  label: language.t('email'),
-                  icon: Icons.email_outlined,
-                  enabled: false,
-                  keyboardType:
-                  TextInputType.emailAddress,
-                ),
-
-                const SizedBox(height: 14),
-
-                _buildTextField(
-                  controller: _phoneController,
-                  label: language.t('phone'),
-                  icon: Icons.phone_outlined,
-                  keyboardType: TextInputType.phone,
-                  textInputAction: TextInputAction.next,
-                  validator: (value) {
-                    if (value == null ||
-                        value.trim().isEmpty) {
-                      return null;
-                    }
-
-                    if (value.trim().length < 10) {
-                      return 'Please enter a valid phone number.';
-                    }
-
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 14),
-
-                _buildTextField(
-                  controller: _locationController,
-                  label: language.t('address'),
-                  icon: Icons.location_on_outlined,
-                  textInputAction: TextInputAction.done,
-                  maxLines: 3,
-                ),
-
-                const SizedBox(height: 28),
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: ElevatedButton(
-                    onPressed: profileProvider.isUpdating
-                        ? null
-                        : _updateProfile,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: darkGreen,
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor:
-                      darkGreen.withOpacity(0.55),
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.circular(15),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: profileProvider.isUpdating
-                        ? const SizedBox(
-                      width: 23,
-                      height: 23,
-                      child:
-                      CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: Colors.white,
-                      ),
-                    )
-                        : Text(
-                      language.t('saveChanges'),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight:
-                        FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildProfileImage() {
-    final String networkImage =
-    widget.profile.profileImage.trim();
+  Widget _buildModernHeader(
+      BuyerLanguageProvider language,
+      ProfileProvider profileProvider,
+      ) {
+    return Container(
+      height: 235,
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xff0B5D3B),
+            Color(0xff0F8452),
+            Color(0xff19A86A),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(36),
+          bottomRight: Radius.circular(36),
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: -60,
+            right: -35,
+            child: Container(
+              width: 180,
+              height: 180,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(
+                  alpha: 0.08,
+                ),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -55,
+            left: -35,
+            child: Container(
+              width: 145,
+              height: 145,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(
+                  alpha: 0.07,
+                ),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          Positioned(
+            top: 50,
+            left: 10,
+            right: 18,
+            child: Row(
+              children: [
+                Material(
+                  color: Colors.white.withValues(
+                    alpha: 0.15,
+                  ),
+                  shape: const CircleBorder(),
+                  child: IconButton(
+                    onPressed:
+                    profileProvider.isUpdating
+                        ? null
+                        : () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        language.t('editProfile'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Keep your profile information updated',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white.withValues(
+                            alpha: 0.78,
+                          ),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
+  Widget _buildProfileCard(
+      BuyerLanguageProvider language,
+      ProfileProvider profileProvider,
+      ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(
+        20,
+        20,
+        20,
+        18,
+      ),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: isDark
+              ? Colors.white10
+              : Colors.white,
+          width: 1.4,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: isDark ? 0.22 : 0.09,
+            ),
+            blurRadius: 28,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildProfileImage(profileProvider),
+          const SizedBox(height: 14),
+          Text(
+            _nameController.text.trim().isEmpty
+                ? widget.profile.displayName
+                : _nameController.text.trim(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: primaryText,
+              fontSize: 21,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            widget.profile.email,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: secondaryText,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: profileProvider.isUpdating
+                ? null
+                : _pickProfileImage,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: primaryGreen,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 12,
+              ),
+              side: BorderSide(
+                color: primaryGreen.withValues(
+                  alpha: 0.28,
+                ),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              backgroundColor: isDark
+                  ? Colors.white.withValues(
+                alpha: 0.04,
+              )
+                  : softGreen,
+            ),
+            icon: const Icon(
+              Icons.photo_camera_outlined,
+              size: 20,
+            ),
+            label: Text(
+              language.t('changePhoto'),
+              style: const TextStyle(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileImage(
+      ProfileProvider profileProvider,
+      ) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
         Container(
-          padding: const EdgeInsets.all(3),
+          height: 122,
+          width: 122,
+          padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(
-              color: accentColor,
-              width: 3,
+            gradient: const LinearGradient(
+              colors: [
+                primaryGreen,
+                secondaryGreen,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: secondaryGreen.withValues(
+                  alpha: 0.28,
+                ),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          child: CircleAvatar(
-            radius: 54,
-            backgroundColor: isDark
-                ? const Color(0xFF1D3329)
-                : const Color(0xffE4F4E8),
+          child: Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: cardColor,
+              shape: BoxShape.circle,
+            ),
             child: ClipOval(
-              child: _selectedImage != null
-                  ? kIsWeb
-                  ? Image.network(
-                _selectedImage!.path,
-                width: 108,
-                height: 108,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) {
-                  return _buildInitials();
-                },
-              )
-                  : Image.file(
-                File(_selectedImage!.path),
-                width: 108,
-                height: 108,
-                fit: BoxFit.cover,
-              )
-                  : _buildInitials(),
+              child: _buildProfileImageContent(),
             ),
           ),
         ),
         Positioned(
           right: -2,
-          bottom: 3,
+          bottom: 2,
           child: Material(
-            color: accentColor,
+            color: primaryGreen,
             shape: const CircleBorder(),
+            elevation: 4,
             child: InkWell(
+              onTap: profileProvider.isUpdating
+                  ? null
+                  : _pickProfileImage,
               customBorder: const CircleBorder(),
-              onTap: _pickProfileImage,
               child: const Padding(
-                padding: EdgeInsets.all(9),
+                padding: EdgeInsets.all(10),
                 child: Icon(
                   Icons.camera_alt_rounded,
-                  size: 19,
                   color: Colors.white,
+                  size: 18,
                 ),
               ),
             ),
@@ -402,18 +502,61 @@ class _EditBuyerProfileScreenState
     );
   }
 
+  Widget _buildProfileImageContent() {
+    if (_selectedImage != null) {
+      if (kIsWeb) {
+        return Image.network(
+          _selectedImage!.path,
+          width: 110,
+          height: 110,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) {
+            return _buildInitials();
+          },
+        );
+      }
+
+      return Image.file(
+        File(_selectedImage!.path),
+        width: 110,
+        height: 110,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) {
+          return _buildInitials();
+        },
+      );
+    }
+
+    final String networkImage =
+    widget.profile.profileImage.trim();
+
+    if (networkImage.isNotEmpty) {
+      return Image.network(
+        networkImage,
+        width: 110,
+        height: 110,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) {
+          return _buildInitials();
+        },
+      );
+    }
+
+    return _buildInitials();
+  }
+
   Widget _buildInitials() {
     return Container(
-      width: 108,
-      height: 108,
+      width: 110,
+      height: 110,
       alignment: Alignment.center,
       color: isDark
-          ? const Color(0xFF1D3329)
-          : const Color(0xffE4F4E8),
+          ? const Color(0xff20352A)
+          : softGreen,
       child: Text(
         widget.profile.initials,
-        style: TextStyle(
-          color: accentColor,
+        style: const TextStyle(
+          color: primaryGreen,
           fontSize: 32,
           fontWeight: FontWeight.w900,
         ),
@@ -421,7 +564,131 @@ class _EditBuyerProfileScreenState
     );
   }
 
-  Widget _buildTextField({
+  Widget _buildFormCard(
+      BuyerLanguageProvider language,
+      ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(
+        18,
+        20,
+        18,
+        22,
+      ),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(
+          color: isDark
+              ? Colors.white10
+              : const Color(0xffE6ECE8),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: isDark ? 0.14 : 0.05,
+            ),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                height: 42,
+                width: 42,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(
+                    alpha: 0.06,
+                  )
+                      : softGreen,
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: const Icon(
+                  Icons.edit_note_rounded,
+                  color: primaryGreen,
+                  size: 23,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  language.t('personalInformation'),
+                  style: TextStyle(
+                    color: primaryText,
+                    fontSize: 19,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 22),
+          _buildModernTextField(
+            controller: _nameController,
+            label: language.t('fullName'),
+            icon: Icons.person_outline_rounded,
+            textInputAction: TextInputAction.next,
+            validator: (value) {
+              if (value == null ||
+                  value.trim().isEmpty) {
+                return 'Please enter your full name.';
+              }
+
+              if (value.trim().length < 2) {
+                return 'Name must contain at least 2 characters.';
+              }
+
+              return null;
+            },
+          ),
+          const SizedBox(height: 15),
+          _buildModernTextField(
+            controller: _emailController,
+            label: language.t('email'),
+            icon: Icons.alternate_email_rounded,
+            enabled: false,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 15),
+          _buildModernTextField(
+            controller: _phoneController,
+            label: language.t('phone'),
+            icon: Icons.phone_iphone_rounded,
+            keyboardType: TextInputType.phone,
+            textInputAction: TextInputAction.next,
+            validator: (value) {
+              if (value == null ||
+                  value.trim().isEmpty) {
+                return null;
+              }
+
+              if (value.trim().length < 10) {
+                return 'Please enter a valid phone number.';
+              }
+
+              return null;
+            },
+          ),
+          const SizedBox(height: 15),
+          _buildModernTextField(
+            controller: _locationController,
+            label: language.t('address'),
+            icon: Icons.location_on_outlined,
+            textInputAction: TextInputAction.done,
+            maxLines: 3,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModernTextField({
     required TextEditingController controller,
     required String label,
     required IconData icon,
@@ -438,58 +705,182 @@ class _EditBuyerProfileScreenState
       textInputAction: textInputAction,
       validator: validator,
       maxLines: maxLines,
+      minLines: maxLines > 1 ? maxLines : 1,
       style: TextStyle(
-        color: primaryText,
+        color: enabled ? primaryText : secondaryText,
+        fontSize: 15,
         fontWeight: FontWeight.w700,
       ),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(
-          icon,
-          color: accentColor,
-        ),
-        filled: true,
-        fillColor: isDark
-            ? darkCard
-            : Colors.white,
-        labelStyle: TextStyle(
-          color: secondaryText,
-        ),
-        disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(
-            color: isDark
-                ? Colors.white10
-                : const Color(0xffDCE7DD),
+        alignLabelWithHint: maxLines > 1,
+        prefixIcon: Container(
+          margin: EdgeInsets.fromLTRB(
+            10,
+            9,
+            10,
+            maxLines > 1 ? 48 : 9,
+          ),
+          decoration: BoxDecoration(
+            color: enabled
+                ? isDark
+                ? Colors.white.withValues(
+              alpha: 0.06,
+            )
+                : softGreen
+                : isDark
+                ? Colors.white.withValues(
+              alpha: 0.03,
+            )
+                : const Color(0xffECEFED),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            icon,
+            color: enabled
+                ? primaryGreen
+                : secondaryText,
+            size: 21,
           ),
         ),
+        prefixIconConstraints: const BoxConstraints(
+          minWidth: 58,
+          minHeight: 54,
+        ),
+        filled: true,
+        fillColor: enabled
+            ? isDark
+            ? Colors.white.withValues(alpha: 0.035)
+            : const Color(0xffFBFCFB)
+            : isDark
+            ? Colors.white.withValues(alpha: 0.025)
+            : const Color(0xffF1F3F2),
+        labelStyle: TextStyle(
+          color: secondaryText,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+        floatingLabelStyle: const TextStyle(
+          color: primaryGreen,
+          fontSize: 14,
+          fontWeight: FontWeight.w800,
+        ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: maxLines > 1 ? 18 : 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(17),
+          borderSide: BorderSide.none,
+        ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(17),
           borderSide: BorderSide(
             color: isDark
                 ? Colors.white10
-                : const Color(0xffDCE7DD),
+                : const Color(0xffE2E8E4),
+          ),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(17),
+          borderSide: BorderSide(
+            color: isDark
+                ? Colors.white10
+                : const Color(0xffE5E8E6),
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(
-            color: accentColor,
-            width: 1.6,
+          borderRadius: BorderRadius.circular(17),
+          borderSide: const BorderSide(
+            color: primaryGreen,
+            width: 1.7,
           ),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(17),
           borderSide: const BorderSide(
             color: Colors.red,
+            width: 1.2,
           ),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(17),
           borderSide: const BorderSide(
             color: Colors.red,
-            width: 1.5,
+            width: 1.6,
           ),
+        ),
+        errorMaxLines: 2,
+      ),
+    );
+  }
+
+  Widget _buildSaveButton(
+      BuyerLanguageProvider language,
+      ProfileProvider profileProvider,
+      ) {
+    return Container(
+      width: double.infinity,
+      height: 58,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        gradient: const LinearGradient(
+          colors: [
+            primaryGreen,
+            secondaryGreen,
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: secondaryGreen.withValues(
+              alpha: 0.28,
+            ),
+            blurRadius: 18,
+            offset: const Offset(0, 9),
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: profileProvider.isUpdating
+            ? null
+            : _updateProfile,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          disabledBackgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+        ),
+        child: profileProvider.isUpdating
+            ? const SizedBox(
+          height: 24,
+          width: 24,
+          child: CircularProgressIndicator(
+            strokeWidth: 2.5,
+            color: Colors.white,
+          ),
+        )
+            : Row(
+          mainAxisAlignment:
+          MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.check_circle_outline_rounded,
+              size: 22,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              language.t('saveChanges'),
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
         ),
       ),
     );
