@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
+import '../../widgets/buyer/buyer_app_bar.dart';
 import '../../providers/buyer_inquiry_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/inquiry/buyer_inquiry_card.dart';
@@ -42,6 +43,7 @@ class BuyerInquiriesScreen extends StatelessWidget {
       textDirection: lang.isUrdu ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         backgroundColor: isDark ? darkBackground : lightBackground,
+        appBar: BuyerAppBar(title: lang.t("myInquiries")),
         bottomNavigationBar: BuyerBottomNavBar(
           currentIndex: 3,
           onTap: (index) => _onNavTap(context, index),
@@ -49,7 +51,6 @@ class BuyerInquiriesScreen extends StatelessWidget {
         body: SafeArea(
           child: Column(
             children: [
-              _appBar(context),
               _tabs(),
               Expanded(
                 child: Consumer<BuyerInquiryProvider>(
@@ -116,38 +117,6 @@ class BuyerInquiriesScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _appBar(BuildContext context) {
-    final isDark = _isDark(context);
-
-    return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 22),
-      decoration: BoxDecoration(
-        color: isDark ? darkCard : const Color(0xFFF4F7F5),
-        border: Border(
-          bottom: BorderSide(
-            color: isDark ? Colors.white10 : const Color(0xFFDDE5DF),
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          const Spacer(),
-          Text(
-            context.watch<LanguageProvider>().t("myInquiries"),
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: _accent(context),
-            ),
-          ),
-
-          const Spacer(),
-        ],
       ),
     );
   }

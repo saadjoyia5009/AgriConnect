@@ -8,6 +8,7 @@ import '../../models/buyer_profile_model.dart';
 import '../../providers/buyer_profile_provider.dart';
 import '../../providers/language_provider.dart';
 import '../common/profile_image_picker.dart';
+import '../../widgets/buyer/buyer_app_bar.dart';
 
 class EditBuyerProfileScreen extends StatefulWidget {
   final BuyerProfileModel profile;
@@ -113,18 +114,9 @@ class _EditBuyerProfileScreenState extends State<EditBuyerProfileScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: isDark ? darkBackground : lightBackground,
-      appBar: AppBar(
-        backgroundColor: isDark ? darkBackground : lightBackground,
-        elevation: 0,
-        title: Text(
-          context.watch<LanguageProvider>().t("editProfile"),
-          style: TextStyle(color: accentColor, fontWeight: FontWeight.w900),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: accentColor),
-          onPressed: () => Navigator.pop(context),
-        ),
+      appBar: BuyerAppBar(
+        title: context.watch<LanguageProvider>().t("editProfile"),
+        showBackButton: true,
       ),
       body: SafeArea(
         child: Consumer<BuyerProfileProvider>(

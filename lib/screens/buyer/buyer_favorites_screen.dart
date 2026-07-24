@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/buyer_favorite_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
+import '../../widgets/buyer/buyer_app_bar.dart';
 import '../buyer/send_inquiry_screen.dart';
 import '../../widgets/buyer/buyer_favorite_crop_card.dart';
 
@@ -15,8 +16,6 @@ class BuyerFavoritesScreen extends StatefulWidget {
 }
 
 class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
-  int _selectedIndex = 1;
-
   static const Color darkGreen = Color(0xff0F5C3A);
   static const Color lightBackground = Color(0xffF8FAF7);
   static const Color darkBackground = Color(0xFF0B1410);
@@ -71,6 +70,7 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
       textDirection: lang.isUrdu ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         backgroundColor: isDark ? darkBackground : lightBackground,
+        appBar: BuyerAppBar(title: lang.t("favorites")),
         bottomNavigationBar: BuyerBottomNavBar(
           currentIndex: 1,
           onTap: _onNavTap,
@@ -80,22 +80,12 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
             builder: (context, provider, _) {
               return Column(
                 children: [
-                  _topBar(),
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.fromLTRB(18, 12, 18, 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            lang.t("favoriteCrops"),
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900,
-                              color: accentColor,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
                           Text(
                             lang.t("favoriteCropsSubtitle"),
                             style: TextStyle(
@@ -116,26 +106,6 @@ class _BuyerFavoritesScreenState extends State<BuyerFavoritesScreen> {
             },
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _topBar() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
-      child: Row(
-        children: [
-          const Spacer(),
-          Text(
-            context.watch<LanguageProvider>().t("favorites"),
-            style: TextStyle(
-              color: accentColor,
-              fontWeight: FontWeight.w900,
-              fontSize: 22,
-            ),
-          ),
-          const Spacer(),
-        ],
       ),
     );
   }

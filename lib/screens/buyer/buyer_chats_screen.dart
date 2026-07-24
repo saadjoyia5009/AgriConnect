@@ -7,6 +7,7 @@ import '../chat/chat_detail_screen.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
+import '../../widgets/buyer/buyer_app_bar.dart';
 
 class BuyerChatsScreen extends StatefulWidget {
   const BuyerChatsScreen({super.key});
@@ -122,16 +123,7 @@ class _BuyerChatsScreenState extends State<BuyerChatsScreen> {
           }
         },
       ),
-      appBar: AppBar(
-        elevation: 0,
-        centerTitle: true,
-        backgroundColor: primaryGreen,
-        foregroundColor: Colors.white,
-        title: Text(
-          context.watch<LanguageProvider>().t("chats"),
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
-        ),
-      ),
+      appBar: BuyerAppBar(title: context.watch<LanguageProvider>().t("chats")),
       body: SafeArea(
         child: Column(
           children: [

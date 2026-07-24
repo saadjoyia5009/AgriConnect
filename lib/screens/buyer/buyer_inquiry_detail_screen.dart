@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/buyer_inquiry_model.dart';
 import '../../providers/language_provider.dart';
 import '../chat/chat_detail_screen.dart';
+import '../../widgets/buyer/buyer_app_bar.dart';
 
 class BuyerInquiryDetailScreen extends StatelessWidget {
   final BuyerInquiryModel inquiry;
@@ -41,21 +42,9 @@ class BuyerInquiryDetailScreen extends StatelessWidget {
       textDirection: lang.isUrdu ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         backgroundColor: isDark ? darkBackground : lightBackground,
-        appBar: AppBar(
-          backgroundColor: isDark ? darkBackground : lightBackground,
-          elevation: 0,
-          centerTitle: true,
-          title: Text(
-            lang.t("inquiryDetails"),
-            style: TextStyle(
-              color: _accent(context),
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: _accent(context)),
-            onPressed: () => Navigator.pop(context),
-          ),
+        appBar: BuyerAppBar(
+          title: lang.t("inquiryDetails"),
+          showBackButton: true,
         ),
         bottomNavigationBar: _bottomButton(context),
         body: SingleChildScrollView(

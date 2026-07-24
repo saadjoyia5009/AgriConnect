@@ -7,6 +7,7 @@ import '../../providers/crop_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/buyer_favorite_provider.dart';
 import '../../widgets/buyer/buyer_bottom_navbar.dart';
+import '../../widgets/buyer/buyer_app_bar.dart';
 import '../../widgets/buyer/buyer_category_card.dart';
 import '../../widgets/buyer/buyer_crop_card.dart';
 import '../../widgets/buyer/buyer_search_bar.dart';
@@ -68,6 +69,59 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
       textDirection: lang.isUrdu ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         backgroundColor: isDark ? darkBackground : lightBackground,
+        appBar: BuyerAppBar(
+          title: lang.t("dashboard"),
+          showBrandIcon: true,
+          actions: [
+            Padding(
+              padding: const EdgeInsetsDirectional.only(end: 16),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const BuyerNotificationScreen(),
+                    ),
+                  );
+                },
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      height: 42,
+                      width: 42,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.12),
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.notifications_none_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    Positioned(
+                      right: 10,
+                      top: 10,
+                      child: Container(
+                        height: 8,
+                        width: 8,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
         bottomNavigationBar: BuyerBottomNavBar(
           currentIndex: 0,
           onTap: _onNavTap,
@@ -81,9 +135,6 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _topBar(lang),
-                      const SizedBox(height: 34),
-
                       Text(
                         lang.t("buyerGreeting"),
                         textAlign: lang.isUrdu
@@ -146,39 +197,6 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _topBar(LanguageProvider lang) {
-    return Row(
-      children: [
-        const Spacer(),
-
-        Text(
-          lang.t("appName"),
-          style: TextStyle(
-            color: accentColor,
-            fontWeight: FontWeight.w900,
-            fontSize: 21,
-            fontFamily: lang.isUrdu ? 'NotoNastaliqUrdu' : null,
-          ),
-        ),
-
-        const Spacer(),
-
-        IconButton(
-          tooltip: lang.t("notifications"),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const BuyerNotificationScreen(),
-              ),
-            );
-          },
-          icon: Icon(Icons.notifications_none, color: iconColor),
-        ),
-      ],
     );
   }
 

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../models/crop_model.dart';
 import '../../providers/buyer_inquiry_provider.dart';
 import '../../providers/language_provider.dart';
+import '../../widgets/buyer/buyer_app_bar.dart';
 
 class SendInquiryScreen extends StatefulWidget {
   final CropModel crop;
@@ -226,19 +227,7 @@ class _SendInquiryScreenState extends State<SendInquiryScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: isDark ? darkBackground : lightBackground,
-      appBar: AppBar(
-        backgroundColor: isDark ? darkBackground : lightBackground,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          lang.t("sendInquiry"),
-          style: TextStyle(color: accentColor, fontWeight: FontWeight.w900),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: accentColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      appBar: BuyerAppBar(title: lang.t("sendInquiry"), showBackButton: true),
       body: SafeArea(
         child: Consumer<BuyerInquiryProvider>(
           builder: (context, provider, _) {

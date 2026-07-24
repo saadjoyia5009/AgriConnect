@@ -11,6 +11,7 @@ import '../../widgets/buyer/profile/buyer_profile_header.dart';
 import '../../widgets/buyer/profile/buyer_profile_stats.dart';
 import 'buyer_notification_screen.dart';
 import '../../widgets/buyer/profile/buyer_profile_menu_tile.dart';
+import '../../widgets/buyer/buyer_app_bar.dart';
 
 class BuyerProfileScreen extends StatefulWidget {
   const BuyerProfileScreen({super.key});
@@ -266,6 +267,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? darkBackground : lightBackground,
+      appBar: BuyerAppBar(title: language.t("profile")),
       bottomNavigationBar: BuyerBottomNavBar(currentIndex: 4, onTap: _onNavTap),
       body: SafeArea(
         child: Consumer<BuyerProfileProvider>(
@@ -306,8 +308,6 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
               padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
               child: Column(
                 children: [
-                  _topBar(),
-                  const SizedBox(height: 24),
                   BuyerProfileHeader(profile: profile),
                   const SizedBox(height: 24),
                   BuyerProfileStats(profile: profile),
@@ -382,25 +382,6 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
           },
         ),
       ),
-    );
-  }
-
-  Widget _topBar() {
-    final language = context.watch<BuyerLanguageProvider>();
-
-    return Row(
-      children: [
-        const Spacer(),
-        Text(
-          language.t("profile"),
-          style: TextStyle(
-            color: accentColor,
-            fontWeight: FontWeight.w900,
-            fontSize: 21,
-          ),
-        ),
-        const Spacer(),
-      ],
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/crop_model.dart';
 import '../../providers/language_provider.dart';
+import '../../widgets/buyer/buyer_app_bar.dart';
 import 'send_inquiry_screen.dart';
 
 class BuyerCropDetailScreen extends StatelessWidget {
@@ -37,6 +38,20 @@ class BuyerCropDetailScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: isDark ? darkBackground : lightBackground,
+      appBar: BuyerAppBar(
+        title: context.watch<LanguageProvider>().t("cropDetails"),
+        showBackButton: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 10),
+            child: IconButton(
+              tooltip: context.watch<LanguageProvider>().t("favorites"),
+              icon: const Icon(Icons.favorite_border_rounded),
+              onPressed: () {},
+            ),
+          ),
+        ],
+      ),
       bottomNavigationBar: _bottomButtons(context),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -90,28 +105,6 @@ class BuyerCropDetailScreen extends StatelessWidget {
               ),
             );
           },
-        ),
-        Positioned(
-          top: 14,
-          left: 14,
-          child: CircleAvatar(
-            backgroundColor: isDark ? const Color(0xff1E1E1E) : Colors.white,
-            child: IconButton(
-              icon: Icon(Icons.arrow_back, color: _accent(context)),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-        ),
-        Positioned(
-          top: 14,
-          right: 14,
-          child: CircleAvatar(
-            backgroundColor: isDark ? const Color(0xff1E1E1E) : Colors.white,
-            child: IconButton(
-              icon: Icon(Icons.favorite_border, color: _accent(context)),
-              onPressed: () {},
-            ),
-          ),
         ),
       ],
     );
