@@ -1,33 +1,64 @@
 import 'package:flutter/material.dart';
+
 import '../models/admin_dashboard_stats_model.dart';
+import '../services/admin_service.dart';
 
 class AdminDashboardProvider extends ChangeNotifier {
-  bool isLoading = false;
-  String? errorMessage;
+  bool _isLoading = false;
+  String? _errorMessage;
+  AdminDashboardStatsModel? _stats;
 
-  AdminDashboardStatsModel? stats;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  AdminDashboardStatsModel? get stats => _stats;
 
   Future<void> fetchDashboardStats() async {
-    isLoading = true;
-    errorMessage = null;
-    notifyListeners();
+    if (_isLoading) return;
 
     try {
-      await Future.delayed(const Duration(seconds: 1));
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
 
-      stats = AdminDashboardStatsModel(
-        totalFarmers: 128,
-        totalBuyers: 76,
-        totalCrops: 312,
-        totalInquiries: 154,
-        activeListings: 248,
-        pendingReports: 9,
-      );
-    } catch (e) {
-      errorMessage = "Failed to load dashboard stats";
+      _stats = await AdminService.fetchDashboardStats();
+    } catch (error) {
+      _errorMessage = _cleanError(error);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
+  }
 
-    isLoading = false;
+  Future<void> refreshDashboardStats() async {
+    try {
+      _errorMessage = null;
+
+      _stats = await AdminService.fetchDashboardStats();
+    } catch (error) {
+      _errorMessage = _cleanError(error);
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  void clearError() {
+    if (_errorMessage == null) return;
+
+    _errorMessage = null;
     notifyListeners();
+  }
+
+  void clearDashboard() {
+    _stats = null;
+    _errorMessage = null;
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  String _cleanError(Object error) {
+    return error
+        .toString()
+        .replaceFirst("Exception: ", "")
+        .trim();
   }
 }
