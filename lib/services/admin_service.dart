@@ -1,3 +1,4 @@
+import '../models/admin_analytics_model.dart';
 import '../models/admin_crop_model.dart';
 import '../models/admin_dashboard_stats_model.dart';
 import '../models/admin_user_model.dart';
@@ -6,23 +7,27 @@ import 'api_service.dart';
 class AdminService {
   static const String _adminEndpoint = "/admin/";
 
-  static Future<AdminDashboardStatsModel> fetchDashboardStats() async {
+  static Future<AdminDashboardStatsModel>
+  fetchDashboardStats() async {
     final response = await ApiService.get(
       "${_adminEndpoint}dashboard/",
       auth: true,
     );
 
-    if (response is Map<String, dynamic>) {
-      return AdminDashboardStatsModel.fromJson(response);
-    }
+    return AdminDashboardStatsModel.fromJson(
+      _toMap(response),
+    );
+  }
 
-    if (response is Map) {
-      return AdminDashboardStatsModel.fromJson(
-        Map<String, dynamic>.from(response),
-      );
-    }
+  static Future<AdminAnalyticsModel> fetchAnalytics() async {
+    final response = await ApiService.get(
+      "${_adminEndpoint}analytics/",
+      auth: true,
+    );
 
-    throw Exception("Invalid admin dashboard response.");
+    return AdminAnalyticsModel.fromJson(
+      _toMap(response),
+    );
   }
 
   static Future<List<AdminUserModel>> fetchUsers({
@@ -40,11 +45,14 @@ class AdminService {
 
     final cleanedRole = role.trim().toLowerCase();
 
-    if (cleanedRole.isNotEmpty && cleanedRole != "all") {
+    if (cleanedRole.isNotEmpty &&
+        cleanedRole != "all") {
       parameters["role"] = cleanedRole;
     }
 
-    final query = Uri(queryParameters: parameters).query;
+    final query = Uri(
+      queryParameters: parameters,
+    ).query;
 
     final response = await ApiService.get(
       "${_adminEndpoint}users/?$query",
@@ -69,7 +77,9 @@ class AdminService {
   }) async {
     final response = await ApiService.patch(
       "${_adminEndpoint}users/$userId/status/",
-      {"is_active": isActive},
+      {
+        "is_active": isActive,
+      },
       auth: true,
     );
 
@@ -97,7 +107,9 @@ class AdminService {
       parameters["status"] = backendStatus;
     }
 
-    final query = Uri(queryParameters: parameters).query;
+    final query = Uri(
+      queryParameters: parameters,
+    ).query;
 
     final response = await ApiService.get(
       "${_adminEndpoint}crops/?$query",
@@ -122,7 +134,9 @@ class AdminService {
   }) async {
     final response = await ApiService.patch(
       "${_adminEndpoint}crops/$cropId/status/",
-      {"status": status},
+      {
+        "status": status,
+      },
       auth: true,
     );
 
@@ -146,7 +160,8 @@ class AdminService {
     }
 
     if (response is Map) {
-      final results = response["results"] ?? response["data"];
+      final results =
+          response["results"] ?? response["data"];
 
       if (results is List) {
         return results;
@@ -172,10 +187,13 @@ class AdminService {
     switch (value.trim().toLowerCase()) {
       case "active":
         return "active";
+
       case "sold out":
         return "sold_out";
+
       case "draft":
         return "draft";
+
       default:
         return "";
     }

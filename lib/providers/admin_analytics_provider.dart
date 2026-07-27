@@ -1,43 +1,117 @@
 import 'package:flutter/material.dart';
 
+import '../models/admin_analytics_model.dart';
+import '../services/admin_service.dart';
+
 class AdminAnalyticsProvider extends ChangeNotifier {
-  bool isLoading = false;
+  bool _isLoading = false;
+  String? _errorMessage;
+  AdminAnalyticsModel? _analytics;
 
-  int totalUsers = 204;
-  int totalCrops = 312;
-  int totalInquiries = 154;
-  int completedDeals = 87;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  AdminAnalyticsModel? get analytics => _analytics;
 
-  final Map<String, double> userGrowth = {
-    "Jan": 22,
-    "Feb": 38,
-    "Mar": 61,
-    "Apr": 92,
-    "May": 146,
-    "Jun": 204,
-  };
+  int get totalUsers {
+    return _analytics?.totalUsers ?? 0;
+  }
 
-  final Map<String, double> cropCategories = {
-    "Grains": 42,
-    "Vegetables": 26,
-    "Fruits": 18,
-    "Fiber": 14,
-  };
+  int get totalCrops {
+    return _analytics?.totalCrops ?? 0;
+  }
 
-  final Map<String, double> inquiryStats = {
-    "Pending": 42,
-    "Accepted": 71,
-    "Rejected": 24,
-    "Completed": 17,
-  };
+  int get totalInquiries {
+    return _analytics?.totalInquiries ?? 0;
+  }
 
-  Future<void> fetchAnalytics() async {
-    isLoading = true;
+  int get completedDeals {
+    return _analytics?.completedDeals ?? 0;
+  }
+
+  Map<String, double> get userGrowth {
+    return Map.unmodifiable(
+      _analytics?.userGrowth ?? <String, double>{},
+    );
+  }
+
+  Map<String, double> get cropCategories {
+    return Map.unmodifiable(
+      _analytics?.cropCategories ??
+          <String, double>{},
+    );
+  }
+
+  Map<String, double> get inquiryStats {
+    return Map.unmodifiable(
+      _analytics?.inquiryStats ??
+          <String, double>{},
+    );
+  }
+
+  Map<String, double> get userRoles {
+    return Map.unmodifiable(
+      _analytics?.userRoles ?? <String, double>{},
+    );
+  }
+
+  Map<String, double> get cropStatuses {
+    return Map.unmodifiable(
+      _analytics?.cropStatuses ??
+          <String, double>{},
+    );
+  }
+
+  Map<String, double> get inquiryMonthlyTrend {
+    return Map.unmodifiable(
+      _analytics?.inquiryMonthlyTrend ??
+          <String, double>{},
+    );
+  }
+
+  Map<String, double> get topListedCrops {
+    return Map.unmodifiable(
+      _analytics?.topListedCrops ??
+          <String, double>{},
+    );
+  }
+
+  Future<void> fetchAnalytics({
+    bool showLoading = true,
+  }) async {
+    if (_isLoading) return;
+
+    try {
+      if (showLoading) {
+        _isLoading = true;
+      }
+
+      _errorMessage = null;
+      notifyListeners();
+
+      _analytics = await AdminService.fetchAnalytics();
+    } catch (error) {
+      _errorMessage = _cleanError(error);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> refreshAnalytics() async {
+    await fetchAnalytics(showLoading: false);
+  }
+
+  void clearError() {
+    if (_errorMessage == null) return;
+
+    _errorMessage = null;
     notifyListeners();
+  }
 
-    await Future.delayed(const Duration(seconds: 1));
-
-    isLoading = false;
-    notifyListeners();
+  String _cleanError(Object error) {
+    return error
+        .toString()
+        .replaceFirst("Exception: ", "")
+        .trim();
   }
 }
