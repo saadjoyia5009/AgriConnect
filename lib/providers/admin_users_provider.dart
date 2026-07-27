@@ -1,94 +1,162 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import '../models/admin_user_model.dart';
+import '../services/admin_service.dart';
 
 class AdminUsersProvider extends ChangeNotifier {
-  bool isLoading = false;
-  String selectedFilter = "All";
-  String searchQuery = "";
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  String _selectedFilter = "All";
+  String _searchQuery = "";
+
+  Timer? _searchDebounce;
 
   final List<AdminUserModel> _users = [];
+  final Set<String> _updatingUserIds = {};
+
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  String get selectedFilter => _selectedFilter;
+  String get searchQuery => _searchQuery;
 
   List<AdminUserModel> get users {
-    return _users.where((user) {
-      final matchesFilter =
-          selectedFilter == "All" || user.role == selectedFilter;
-
-      final matchesSearch =
-          user.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          user.email.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          user.phone.toLowerCase().contains(searchQuery.toLowerCase());
-
-      return matchesFilter && matchesSearch;
-    }).toList();
+    return List.unmodifiable(_users);
   }
 
-  Future<void> fetchUsers() async {
-    isLoading = true;
-    notifyListeners();
+  bool isUpdatingUser(String userId) {
+    return _updatingUserIds.contains(userId);
+  }
 
-    await Future.delayed(const Duration(seconds: 1));
+  Future<void> fetchUsers({
+    bool showLoading = true,
+  }) async {
+    if (_isLoading) return;
 
-    _users.clear();
-    _users.addAll([
-      AdminUserModel(
-        id: "1",
-        name: "Ahmed Khan",
-        email: "ahmed@example.com",
-        phone: "+92 300 1111111",
-        role: "Farmer",
-        isActive: true,
-        joinedDate: "12 Jun 2026",
-      ),
-      AdminUserModel(
-        id: "2",
-        name: "Ali Raza",
-        email: "ali@example.com",
-        phone: "+92 301 2222222",
-        role: "Buyer",
-        isActive: true,
-        joinedDate: "14 Jun 2026",
-      ),
-      AdminUserModel(
-        id: "3",
-        name: "Usman Malik",
-        email: "usman@example.com",
-        phone: "+92 302 3333333",
-        role: "Farmer",
-        isActive: false,
-        joinedDate: "18 Jun 2026",
-      ),
-    ]);
+    try {
+      if (showLoading) {
+        _isLoading = true;
+      }
 
-    isLoading = false;
-    notifyListeners();
+      _errorMessage = null;
+      notifyListeners();
+
+      final loadedUsers = await AdminService.fetchUsers(
+        search: _searchQuery,
+        role: _selectedFilter,
+      );
+
+      _users
+        ..clear()
+        ..addAll(loadedUsers);
+    } catch (error) {
+      _errorMessage = _cleanError(error);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> refreshUsers() async {
+    await fetchUsers(showLoading: false);
   }
 
   void changeFilter(String filter) {
-    selectedFilter = filter;
+    if (_selectedFilter == filter) return;
+
+    _selectedFilter = filter;
     notifyListeners();
+
+    fetchUsers();
   }
 
   void updateSearch(String value) {
-    searchQuery = value;
+    _searchQuery = value.trim();
+    _searchDebounce?.cancel();
+
+    _searchDebounce = Timer(
+      const Duration(milliseconds: 500),
+          () {
+        fetchUsers();
+      },
+    );
+  }
+
+  Future<bool> toggleUserStatus(String id) async {
+    if (_updatingUserIds.contains(id)) {
+      return false;
+    }
+
+    final index = _users.indexWhere(
+          (user) => user.id == id,
+    );
+
+    if (index == -1) {
+      _errorMessage = "User not found.";
+      notifyListeners();
+      return false;
+    }
+
+    final currentUser = _users[index];
+
+    try {
+      _updatingUserIds.add(id);
+      _errorMessage = null;
+      notifyListeners();
+
+      final updatedUser = await AdminService.updateUserStatus(
+        userId: id,
+        isActive: !currentUser.isActive,
+      );
+
+      final updatedIndex = _users.indexWhere(
+            (user) => user.id == id,
+      );
+
+      if (updatedIndex != -1) {
+        _users[updatedIndex] = updatedUser;
+      }
+
+      return true;
+    } catch (error) {
+      _errorMessage = _cleanError(error);
+      return false;
+    } finally {
+      _updatingUserIds.remove(id);
+      notifyListeners();
+    }
+  }
+
+  void clearError() {
+    if (_errorMessage == null) return;
+
+    _errorMessage = null;
     notifyListeners();
   }
 
-  void toggleUserStatus(String id) {
-    final index = _users.indexWhere((user) => user.id == id);
-    if (index == -1) return;
-
-    final old = _users[index];
-
-    _users[index] = AdminUserModel(
-      id: old.id,
-      name: old.name,
-      email: old.email,
-      phone: old.phone,
-      role: old.role,
-      isActive: !old.isActive,
-      joinedDate: old.joinedDate,
-    );
-
+  void clearUsers() {
+    _searchDebounce?.cancel();
+    _users.clear();
+    _updatingUserIds.clear();
+    _errorMessage = null;
+    _isLoading = false;
+    _selectedFilter = "All";
+    _searchQuery = "";
     notifyListeners();
+  }
+
+  String _cleanError(Object error) {
+    return error
+        .toString()
+        .replaceFirst("Exception: ", "")
+        .trim();
+  }
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
   }
 }
