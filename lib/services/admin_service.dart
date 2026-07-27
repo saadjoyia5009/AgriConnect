@@ -1,11 +1,51 @@
 import '../models/admin_analytics_model.dart';
 import '../models/admin_crop_model.dart';
 import '../models/admin_dashboard_stats_model.dart';
+import '../models/admin_profile_model.dart';
 import '../models/admin_user_model.dart';
 import 'api_service.dart';
 
 class AdminService {
   static const String _adminEndpoint = "/admin/";
+
+  // ==================== Admin Profile ====================
+
+  static Future<AdminProfileModel>
+  fetchAdminProfile() async {
+    final response = await ApiService.get(
+      "${_adminEndpoint}profile/",
+      auth: true,
+    );
+
+    return AdminProfileModel.fromJson(
+      _toMap(response),
+    );
+  }
+
+  static Future<AdminProfileModel>
+  updateAdminProfile({
+    required String firstName,
+    required String lastName,
+    required String phone,
+    required String address,
+  }) async {
+    final response = await ApiService.patch(
+      "${_adminEndpoint}profile/",
+      {
+        "first_name": firstName.trim(),
+        "last_name": lastName.trim(),
+        "phone": phone.trim(),
+        "address": address.trim(),
+      },
+      auth: true,
+    );
+
+    return AdminProfileModel.fromJson(
+      _toMap(response),
+    );
+  }
+
+  // ==================== Dashboard ====================
 
   static Future<AdminDashboardStatsModel>
   fetchDashboardStats() async {
@@ -19,7 +59,10 @@ class AdminService {
     );
   }
 
-  static Future<AdminAnalyticsModel> fetchAnalytics() async {
+  // ==================== Analytics ====================
+
+  static Future<AdminAnalyticsModel>
+  fetchAnalytics() async {
     final response = await ApiService.get(
       "${_adminEndpoint}analytics/",
       auth: true,
@@ -29,6 +72,8 @@ class AdminService {
       _toMap(response),
     );
   }
+
+  // ==================== Users ====================
 
   static Future<List<AdminUserModel>> fetchUsers({
     String search = "",
@@ -87,6 +132,8 @@ class AdminService {
       _toMap(response),
     );
   }
+
+  // ==================== Crops ====================
 
   static Future<List<AdminCropModel>> fetchCrops({
     String search = "",
@@ -154,7 +201,11 @@ class AdminService {
     );
   }
 
-  static List<dynamic> _extractResults(dynamic response) {
+  // ==================== Response Helpers ====================
+
+  static List<dynamic> _extractResults(
+      dynamic response,
+      ) {
     if (response is List) {
       return response;
     }
@@ -171,7 +222,9 @@ class AdminService {
     throw Exception("Invalid paginated response.");
   }
 
-  static Map<String, dynamic> _toMap(dynamic response) {
+  static Map<String, dynamic> _toMap(
+      dynamic response,
+      ) {
     if (response is Map<String, dynamic>) {
       return response;
     }
@@ -183,7 +236,9 @@ class AdminService {
     throw Exception("Invalid server response.");
   }
 
-  static String _cropBackendStatus(String value) {
+  static String _cropBackendStatus(
+      String value,
+      ) {
     switch (value.trim().toLowerCase()) {
       case "active":
         return "active";

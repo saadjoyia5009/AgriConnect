@@ -31,7 +31,7 @@ import 'screens/admin/admin_main_screen.dart';
 import 'screens/admin/admin_profile_screen.dart';
 import 'screens/admin/admin_reports_screen.dart';
 import 'screens/admin/admin_users_screen.dart';
-
+import 'providers/admin_profile_provider.dart';
 import 'screens/auth/forgot_password_screen.dart';
 import 'screens/auth/login_screen.dart';
 
@@ -178,7 +178,9 @@ class AgriConnectApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => ProfileProvider(),
         ),
-
+        ChangeNotifierProvider(
+          create: (_) => AdminProfileProvider(),
+        ),
         ChangeNotifierProvider(
           create: (_) => CropProvider(),
         ),
