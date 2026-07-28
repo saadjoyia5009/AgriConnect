@@ -7,7 +7,9 @@ import '../utils/token_storage.dart';
 
 class ApiService {
   static Uri _url(String endpoint) {
-    return Uri.parse("${ApiConfig.baseUrl}$endpoint");
+    return Uri.parse(
+      "${ApiConfig.baseUrl}$endpoint",
+    );
   }
 
   static Future<Map<String, String>> _headers({
@@ -27,6 +29,18 @@ class ApiService {
     }
 
     return headers;
+  }
+
+  static Future<dynamic> get(
+      String endpoint, {
+        bool auth = false,
+      }) async {
+    final response = await http.get(
+      _url(endpoint),
+      headers: await _headers(auth: auth),
+    );
+
+    return handleResponse(response);
   }
 
   static Future<dynamic> post(
@@ -57,11 +71,11 @@ class ApiService {
     return handleResponse(response);
   }
 
-  static Future<dynamic> get(
+  static Future<dynamic> delete(
       String endpoint, {
         bool auth = false,
       }) async {
-    final response = await http.get(
+    final response = await http.delete(
       _url(endpoint),
       headers: await _headers(auth: auth),
     );
@@ -69,7 +83,9 @@ class ApiService {
     return handleResponse(response);
   }
 
-  static dynamic handleResponse(http.Response response) {
+  static dynamic handleResponse(
+      http.Response response,
+      ) {
     dynamic data;
 
     try {
@@ -80,10 +96,8 @@ class ApiService {
       data = response.body;
     }
 
-    if (
-    response.statusCode >= 200 &&
-        response.statusCode < 300
-    ) {
+    if (response.statusCode >= 200 &&
+        response.statusCode < 300) {
       return data;
     }
 
@@ -99,7 +113,8 @@ class ApiService {
       } else if (data.isNotEmpty) {
         final firstValue = data.values.first;
 
-        if (firstValue is List && firstValue.isNotEmpty) {
+        if (firstValue is List &&
+            firstValue.isNotEmpty) {
           message = firstValue.first.toString();
         } else {
           message = firstValue.toString();
