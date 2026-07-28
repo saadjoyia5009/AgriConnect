@@ -14,10 +14,12 @@ class AuthRoleDropdown extends StatelessWidget {
   });
 
   static const Color darkGreen = Color(0xFF0E5A3C);
+  static const List<String> _allowedRoles = ["Farmer", "Buyer"];
 
   @override
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
+    final safeValue = _allowedRoles.contains(value) ? value : "Farmer";
 
     return Theme(
       data: ThemeData.light(),
@@ -34,7 +36,7 @@ class AuthRoleDropdown extends StatelessWidget {
           ],
         ),
         child: DropdownButtonFormField<String>(
-          initialValue: value,
+          initialValue: safeValue,
           isExpanded: true,
           icon: const Icon(
             Icons.keyboard_arrow_down_rounded,
@@ -98,20 +100,6 @@ class AuthRoleDropdown extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   Flexible(child: Text(lang.t("roleBuyer"))),
-                ],
-              ),
-            ),
-            DropdownMenuItem(
-              value: "Admin",
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.admin_panel_settings_outlined,
-                    color: darkGreen,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 10),
-                  Flexible(child: Text(lang.t("roleAdmin"))),
                 ],
               ),
             ),

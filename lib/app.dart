@@ -148,13 +148,25 @@ class AgriConnectApp extends StatelessWidget {
         const BuyerChatsScreen(),
       ),
 
-      '/adminDashboard': const AdminMainScreen(),
-      '/adminUsers': const AdminUsersScreen(),
-      '/adminCrops': const AdminCropsScreen(),
+      '/adminDashboard': const _AdminRouteGuard(
+        child: AdminMainScreen(),
+      ),
+      '/adminUsers': const _AdminRouteGuard(
+        child: AdminUsersScreen(),
+      ),
+      '/adminCrops': const _AdminRouteGuard(
+        child: AdminCropsScreen(),
+      ),
       '/adminAnalytics':
-      const AdminAnalyticsScreen(),
-      '/adminReports': const AdminReportsScreen(),
-      '/adminProfile': const AdminProfileScreen(),
+      const _AdminRouteGuard(
+        child: AdminAnalyticsScreen(),
+      ),
+      '/adminReports': const _AdminRouteGuard(
+        child: AdminReportsScreen(),
+      ),
+      '/adminProfile': const _AdminRouteGuard(
+        child: AdminProfileScreen(),
+      ),
     };
 
     return _animatedRoute(
@@ -329,5 +341,26 @@ class AgriConnectApp extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class _AdminRouteGuard extends StatelessWidget {
+  final Widget child;
+
+  const _AdminRouteGuard({
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final role = context.select<AuthProvider, String>(
+          (provider) => provider.role.trim().toLowerCase(),
+    );
+
+    if (role == 'admin') {
+      return child;
+    }
+
+    return const LoginScreen();
   }
 }

@@ -45,12 +45,30 @@ class AuthProvider extends ChangeNotifier {
   }
 
   void selectRole(String role) {
-    selectedRole = role;
+    final normalizedRole = role.trim().toLowerCase();
+
+    if (normalizedRole == "farmer") {
+      selectedRole = "Farmer";
+    } else if (normalizedRole == "buyer") {
+      selectedRole = "Buyer";
+    } else {
+      errorMessage = "Only Farmer or Buyer role can be selected.";
+      notifyListeners();
+      return;
+    }
+
+    errorMessage = null;
     notifyListeners();
   }
 
   String _backendRole(String role) {
-    return role.trim().toLowerCase();
+    final normalizedRole = role.trim().toLowerCase();
+
+    if (normalizedRole != "farmer" && normalizedRole != "buyer") {
+      return "farmer";
+    }
+
+    return normalizedRole;
   }
 
   Future<bool> login({

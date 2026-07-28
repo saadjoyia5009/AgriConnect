@@ -6,7 +6,6 @@ import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_input_field.dart';
-import '../../widgets/auth/auth_role_dropdown.dart';
 import 'forgot_password_screen.dart';
 import 'signup_screen.dart';
 import 'verify_email_otp_screen.dart';
@@ -113,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!success) {
       final message =
           authProvider.errorMessage ??
-          context.read<LanguageProvider>().t("loginFailed");
+              context.read<LanguageProvider>().t("loginFailed");
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), backgroundColor: Colors.red),
@@ -223,15 +222,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 16),
-
-                        _label(lang.t("selectRole")),
-                        const SizedBox(height: 8),
-                        AuthRoleDropdown(
-                          value: authProvider.selectedRole,
-                          onChanged: authProvider.selectRole,
-                        ),
-
                         const SizedBox(height: 8),
 
                         Row(
@@ -272,20 +262,20 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             child: authProvider.isLoading
                                 ? const SizedBox(
-                                    height: 22,
-                                    width: 22,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2.4,
-                                    ),
-                                  )
+                              height: 22,
+                              width: 22,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.4,
+                              ),
+                            )
                                 : Text(
-                                    lang.t("login"),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
+                              lang.t("login"),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
                           ),
                         ),
 
