@@ -12,6 +12,10 @@ class ChatConversationModel {
   final String cropName;
   final String cropImage;
 
+  final String otherUserId;
+  final String otherUserName;
+  final String otherUserRole;
+
   final String lastMessage;
   final DateTime? lastMessageTime;
 
@@ -29,6 +33,9 @@ class ChatConversationModel {
     required this.cropId,
     required this.cropName,
     required this.cropImage,
+    this.otherUserId = "",
+    this.otherUserName = "",
+    this.otherUserRole = "",
     required this.lastMessage,
     required this.lastMessageTime,
     required this.unreadCount,
@@ -37,75 +44,139 @@ class ChatConversationModel {
   });
 
   factory ChatConversationModel.fromJson(Map<String, dynamic> json) {
+    final inquiryStatus = (
+        json["inquiry_status"] ??
+            json["status"] ??
+            ""
+    ).toString().trim().toLowerCase();
+
+    final buyer = _toMap(json["buyer"]);
+    final farmer = _toMap(json["farmer"]);
+    final crop = _toMap(json["crop"]);
+
+    final conversationId = _extractId(
+      json["id"] ?? json["conversation_id"],
+    );
+
     return ChatConversationModel(
-      id: json["id"]?.toString() ?? json["conversation_id"]?.toString() ?? "",
-
-      inquiryId: json["inquiry_id"]?.toString() ?? _extractId(json["inquiry"]),
-
-      buyerId:
-          json["buyer_id"]?.toString() ??
-          json["buyer"]?["id"]?.toString() ??
-          "",
-
-      buyerName:
-          json["buyer_name"]?.toString() ??
-          json["buyer"]?["full_name"]?.toString() ??
-          "Buyer",
-
-      farmerId:
-          json["farmer_id"]?.toString() ??
-          json["farmer"]?["id"]?.toString() ??
-          "",
-
-      farmerName:
-          json["farmer_name"]?.toString() ??
-          json["farmer"]?["full_name"]?.toString() ??
-          "Farmer",
-
-      cropId:
-          json["crop_id"]?.toString() ?? json["crop"]?["id"]?.toString() ?? "",
-
-      cropName:
-          json["crop_name"]?.toString() ??
-          json["crop"]?["name"]?.toString() ??
-          "Crop",
-
-      cropImage:
-          json["crop_image"]?.toString() ??
-          json["crop"]?["image"]?.toString() ??
-          "",
-
-      lastMessage: json["last_message"]?.toString() ?? "",
-
-      lastMessageTime: json["last_message_time"] != null
-          ? DateTime.tryParse(json["last_message_time"].toString())
-          : null,
-
+      id: conversationId,
+      inquiryId: _extractId(
+        json["inquiry_id"] ?? json["inquiry"],
+      ),
+      buyerId: _extractId(
+        json["buyer_id"] ?? json["buyer"],
+      ),
+      buyerName: (
+          json["buyer_name"] ??
+              buyer["full_name"] ??
+              buyer["name"] ??
+              buyer["username"] ??
+              "Buyer"
+      ).toString(),
+      farmerId: _extractId(
+        json["farmer_id"] ?? json["farmer"],
+      ),
+      farmerName: (
+          json["farmer_name"] ??
+              farmer["full_name"] ??
+              farmer["name"] ??
+              farmer["username"] ??
+              "Farmer"
+      ).toString(),
+      cropId: _extractId(
+        json["crop_id"] ?? json["crop"],
+      ),
+      cropName: (
+          json["crop_name"] ??
+              crop["name"] ??
+              "Crop"
+      ).toString(),
+      cropImage: (
+          json["crop_image"] ??
+              json["image_url"] ??
+              crop["image"] ??
+              ""
+      ).toString(),
+      otherUserId: _extractId(json["other_user_id"]),
+      otherUserName: (
+          json["other_user_name"] ?? ""
+      ).toString(),
+      otherUserRole: (
+          json["other_user_role"] ?? ""
+      ).toString().trim().toLowerCase(),
+      lastMessage: (
+          json["last_message"] ?? ""
+      ).toString(),
+      lastMessageTime: _parseDate(
+        json["last_message_at"] ??
+            json["last_message_time"],
+      ),
       unreadCount: _parseInt(json["unread_count"]),
-
       canChat:
-          json["can_chat"] == true ||
-          json["inquiry_status"]?.toString().toLowerCase() == "accepted" ||
-          json["inquiry_status"]?.toString().toLowerCase() == "active",
-      inquiryStatus:
-          json["inquiry_status"]?.toString() ??
-          json["status"]?.toString() ??
-          "",
+      conversationId.isNotEmpty &&
+          inquiryStatus == "accepted",
+      inquiryStatus: inquiryStatus,
     );
   }
 
   bool get hasUnreadMessages => unreadCount > 0;
-  String get displayLastMessage =>
-      lastMessage.trim().isEmpty ? "Start conversation" : lastMessage;
+
+  String get displayLastMessage {
+    return lastMessage.trim().isEmpty
+        ? "Start conversation"
+        : lastMessage;
+  }
+
   DateTime? get displayTime => lastMessageTime;
+
+  String get participantName {
+    if (otherUserName.trim().isNotEmpty) {
+      return otherUserName;
+    }
+
+    if (otherUserRole == "farmer") {
+      return farmerName;
+    }
+
+    if (otherUserRole == "buyer") {
+      return buyerName;
+    }
+
+    return "User";
+  }
+
+  static Map<String, dynamic> _toMap(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+
+    if (value is Map) {
+      return Map<String, dynamic>.from(value);
+    }
+
+    return <String, dynamic>{};
+  }
 
   static int _parseInt(dynamic value) {
     if (value is int) return value;
+    if (value is num) return value.toInt();
+
     return int.tryParse(value?.toString() ?? "") ?? 0;
   }
 
+  static DateTime? _parseDate(dynamic value) {
+    if (value == null) return null;
+
+    return DateTime.tryParse(value.toString())?.toLocal();
+  }
+
   static String _extractId(dynamic value) {
-    if (value is Map) return value["id"]?.toString() ?? "";
-    return value?.toString() ?? "";
+    if (value == null) return "";
+
+    if (value is Map) {
+      return value["id"]?.toString() ?? "";
+    }
+
+    return value.toString();
   }
 }

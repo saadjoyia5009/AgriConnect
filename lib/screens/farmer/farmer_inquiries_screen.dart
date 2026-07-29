@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/inquiry_model.dart';
+import '../../providers/chat_provider.dart';
 import '../../providers/inquiry_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/farmer_bottom_navbar.dart';
@@ -99,7 +100,7 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
                                 title: "Pending",
                                 displayTitle: lang.t("pending"),
                                 selected:
-                                    inquiryProvider.selectedFilter == "Pending",
+                                inquiryProvider.selectedFilter == "Pending",
                               ),
                               const SizedBox(width: 10),
                               _filterChip(
@@ -107,7 +108,7 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
                                 title: "Active",
                                 displayTitle: lang.t("active"),
                                 selected:
-                                    inquiryProvider.selectedFilter == "Active",
+                                inquiryProvider.selectedFilter == "Active",
                               ),
                               const SizedBox(width: 10),
                               _filterChip(
@@ -115,7 +116,7 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
                                 title: "History",
                                 displayTitle: lang.t("history"),
                                 selected:
-                                    inquiryProvider.selectedFilter == "History",
+                                inquiryProvider.selectedFilter == "History",
                               ),
                             ],
                           ),
@@ -125,12 +126,12 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
                           else
                             ListView.builder(
                               itemCount:
-                                  inquiryProvider.filteredInquiries.length,
+                              inquiryProvider.filteredInquiries.length,
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemBuilder: (context, index) {
                                 final inquiry =
-                                    inquiryProvider.filteredInquiries[index];
+                                inquiryProvider.filteredInquiries[index];
 
                                 return _InquiryCard(
                                   inquiry: inquiry,
@@ -154,6 +155,16 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
                                     await inquiryProvider.acceptInquiry(
                                       inquiry.id,
                                     );
+
+                                    if (!context.mounted) return;
+
+                                    if (inquiryProvider.errorMessage == null) {
+                                      await context
+                                          .read<ChatProvider>()
+                                          .fetchConversations(
+                                        showLoading: false,
+                                      );
+                                    }
                                   },
                                 );
                               },
@@ -211,11 +222,11 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
   }
 
   Widget _filterChip(
-    BuildContext context, {
-    required String title,
-    required String displayTitle,
-    required bool selected,
-  }) {
+      BuildContext context, {
+        required String title,
+        required String displayTitle,
+        required bool selected,
+      }) {
     final provider = Provider.of<InquiryProvider>(context, listen: false);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 

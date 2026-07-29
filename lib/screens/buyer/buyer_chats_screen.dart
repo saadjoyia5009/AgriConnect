@@ -188,15 +188,15 @@ class _BuyerChatsScreenState extends State<BuyerChatsScreen> {
           prefixIcon: const Icon(Icons.search, color: primaryGreen),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
-                  onPressed: () {
-                    _searchController.clear();
+            onPressed: () {
+              _searchController.clear();
 
-                    context.read<BuyerChatProvider>().search("");
+              context.read<BuyerChatProvider>().search("");
 
-                    setState(() {});
-                  },
-                  icon: const Icon(Icons.close),
-                )
+              setState(() {});
+            },
+            icon: const Icon(Icons.close),
+          )
               : null,
           filled: true,
           fillColor: Colors.white,
@@ -316,8 +316,8 @@ class _BuyerChatsScreenState extends State<BuyerChatsScreen> {
                           child: Text(
                             conversation.lastMessage.isEmpty
                                 ? context.watch<LanguageProvider>().t(
-                                    "startConversation",
-                                  )
+                              "startConversation",
+                            )
                                 : conversation.lastMessage,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

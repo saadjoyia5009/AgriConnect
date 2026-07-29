@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -40,11 +42,22 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   static const Color primaryGreen = Color(0xFF0B6B45);
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
+  Timer? _messagePollingTimer;
+  bool _refreshInProgress = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadChat());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadChat();
+
+      if (!mounted) return;
+
+      _messagePollingTimer = Timer.periodic(
+        const Duration(seconds: 3),
+            (_) => _pollMessages(),
+      );
+    });
   }
 
   Future<void> _loadChat() async {
@@ -64,8 +77,33 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   }
 
   Future<void> _refreshMessages() async {
-    await context.read<ChatProvider>().refreshMessages();
-    if (mounted) _scrollToBottom();
+    await _pollMessages(forceScroll: true);
+  }
+
+  Future<void> _pollMessages({
+    bool forceScroll = false,
+  }) async {
+    if (!mounted || _refreshInProgress) return;
+
+    _refreshInProgress = true;
+
+    try {
+      final provider = context.read<ChatProvider>();
+      final previousMessageCount = provider.messages.length;
+
+      await provider.refreshMessages();
+
+      if (!mounted) return;
+
+      final hasNewMessage =
+          provider.messages.length > previousMessageCount;
+
+      if (forceScroll || hasNewMessage) {
+        _scrollToBottom();
+      }
+    } finally {
+      _refreshInProgress = false;
+    }
   }
 
   Future<void> _sendMessage() async {
@@ -79,6 +117,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     if (success) {
       _messageController.clear();
       _scrollToBottom();
+      await _pollMessages();
     }
   }
 
@@ -95,6 +134,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 
   @override
   void dispose() {
+    _messagePollingTimer?.cancel();
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -138,8 +178,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 
   bool get _hasSummary =>
       (widget.cropName?.trim().isNotEmpty ?? false) ||
-      (widget.quantity?.trim().isNotEmpty ?? false) ||
-      (widget.offeredPrice?.trim().isNotEmpty ?? false);
+          (widget.quantity?.trim().isNotEmpty ?? false) ||
+          (widget.offeredPrice?.trim().isNotEmpty ?? false);
 
   Widget _buildInquirySummary(bool isDark) {
     final quantity = widget.quantity?.trim() ?? '';
@@ -214,7 +254,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               final message = provider.messages[index];
               final isMe =
                   message.senderId.toString() ==
-                  widget.currentUserId.toString();
+                      widget.currentUserId.toString();
               return Align(
                 alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                 child: Container(
@@ -230,9 +270,45 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                     color: isMe ? primaryGreen : Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Text(
-                    message.message,
-                    style: TextStyle(color: isMe ? Colors.white : null),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        message.message,
+                        style: TextStyle(
+                          color: isMe ? Colors.white : null,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _formatMessageTime(message.createdAt),
+                            style: TextStyle(
+                              color: isMe
+                                  ? Colors.white70
+                                  : Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.color
+                                  ?.withValues(alpha: 0.65),
+                              fontSize: 10,
+                            ),
+                          ),
+                          if (isMe) ...[
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.done_all_rounded,
+                              size: 17,
+                              color: message.isRead
+                                  ? const Color(0xFF64B5F6)
+                                  : Colors.white70,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -254,6 +330,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               controller: _messageController,
               minLines: 1,
               maxLines: 4,
+              textInputAction: TextInputAction.newline,
               decoration: InputDecoration(
                 hintText: context.watch<LanguageProvider>().t('writeMessage'),
                 filled: true,
@@ -273,9 +350,9 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                 color: primaryGreen,
                 icon: provider.isSending
                     ? const SizedBox.square(
-                        dimension: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                  dimension: 22,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
                     : const Icon(Icons.send),
               );
             },
@@ -283,6 +360,19 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         ],
       ),
     );
+  }
+
+  String _formatMessageTime(DateTime dateTime) {
+    final localTime = dateTime.toLocal();
+    final hour = localTime.hour == 0
+        ? 12
+        : localTime.hour > 12
+        ? localTime.hour - 12
+        : localTime.hour;
+    final minute = localTime.minute.toString().padLeft(2, '0');
+    final period = localTime.hour >= 12 ? 'PM' : 'AM';
+
+    return '$hour:$minute $period';
   }
 }
 

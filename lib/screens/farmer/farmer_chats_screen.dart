@@ -43,15 +43,19 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
   }
 
   List<ChatConversationModel> _filteredChats(
-    List<ChatConversationModel> conversations,
-  ) {
+      List<ChatConversationModel> conversations,
+      ) {
     final query = _searchController.text.trim().toLowerCase();
 
     return conversations.where((conversation) {
+      if (!conversation.canChat || conversation.id.trim().isEmpty) {
+        return false;
+      }
+
       final matchesSearch =
           conversation.buyerName.toLowerCase().contains(query) ||
-          conversation.cropName.toLowerCase().contains(query) ||
-          conversation.displayLastMessage.toLowerCase().contains(query);
+              conversation.cropName.toLowerCase().contains(query) ||
+              conversation.displayLastMessage.toLowerCase().contains(query);
 
       bool matchesFilter;
 
@@ -161,16 +165,16 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
       child: chats.isEmpty
           ? _emptyState()
           : ListView.separated(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              itemCount: chats.length,
-              separatorBuilder: (_, __) {
-                return const SizedBox(height: 14);
-              },
-              itemBuilder: (context, index) {
-                return _chatCard(chats[index]);
-              },
-            ),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        itemCount: chats.length,
+        separatorBuilder: (_, __) {
+          return const SizedBox(height: 14);
+        },
+        itemBuilder: (context, index) {
+          return _chatCard(chats[index]);
+        },
+      ),
     );
   }
 
@@ -198,12 +202,12 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
           suffixIcon: _searchController.text.isEmpty
               ? null
               : IconButton(
-                  onPressed: () {
-                    _searchController.clear();
-                    setState(() {});
-                  },
-                  icon: const Icon(Icons.close),
-                ),
+            onPressed: () {
+              _searchController.clear();
+              setState(() {});
+            },
+            icon: const Icon(Icons.close),
+          ),
           filled: true,
           fillColor: Theme.of(context).cardColor,
           contentPadding: const EdgeInsets.symmetric(vertical: 16),
@@ -288,7 +292,7 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
               conversationId: conversation.id,
               inquiryId: conversation.inquiryId,
               currentUserId:
-                  (context.read<AuthProvider>().userId?.toString() ??
+              (context.read<AuthProvider>().userId?.toString() ??
                   conversation.farmerId),
               otherUserId: conversation.buyerId,
               otherUserName: conversation.buyerName,
