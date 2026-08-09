@@ -5,6 +5,8 @@ import 'package:animations/animations.dart';
 import '../../providers/crop_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/farmer_bottom_navbar.dart';
+import '../../services/voice_assistant_service.dart';
+import '../../widgets/voice_assistant_sheet.dart';
 import 'add_crop_screen.dart';
 import 'price_prediction_screen.dart';
 import 'disease_detection_screen.dart';
@@ -29,10 +31,26 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   bool _isLoading = false;
   String? _errorMessage;
 
+  final VoiceAssistantService _voiceAssistantService =
+  VoiceAssistantService();
+  bool _isListening = false;
+  String _voiceText = "";
+
   @override
   void initState() {
     super.initState();
     Future.microtask(_loadDashboardData);
+  }
+
+  void _openVoiceAssistant() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return const VoiceAssistantSheet();
+      },
+    );
   }
 
   Future<void> _loadDashboardData() async {
@@ -51,6 +69,104 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       setState(() {
         _isLoading = false;
         _errorMessage = "failedLoadDashboard";
+      });
+    }
+  }
+
+  Future<void> _toggleVoiceAssistant() async {
+    if (_isListening) {
+      await _voiceAssistantService.stopListening();
+
+      if (!mounted) return;
+
+      setState(() {
+        _isListening = false;
+      });
+
+      return;
+    }
+
+    final initialized = await _voiceAssistantService.initialize(
+      onError: (message) {
+        if (!mounted) return;
+
+        setState(() {
+          _isListening = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+          ),
+        );
+      },
+      onStatus: (status) {
+        if (!mounted) return;
+
+        if (status == "done" || status == "notListening") {
+          setState(() {
+            _isListening = false;
+          });
+        }
+      },
+    );
+
+    if (!initialized) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Microphone permission is required.",
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _isListening = true;
+      _voiceText = "";
+    });
+
+    final started = await _voiceAssistantService.startListening(
+      onResult: (text) {
+        if (!mounted) return;
+
+        setState(() {
+          _voiceText = text;
+        });
+      },
+      onError: (message) {
+        if (!mounted) return;
+
+        setState(() {
+          _isListening = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+          ),
+        );
+      },
+      onStatus: (status) {
+        if (!mounted) return;
+
+        if (status == "done" || status == "notListening") {
+          setState(() {
+            _isListening = false;
+          });
+        }
+      }, localeId: 'en_US',
+    );
+
+    if (!started && mounted) {
+      setState(() {
+        _isListening = false;
       });
     }
   }
@@ -76,7 +192,8 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
         onNotificationTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const FarmerNotificationScreen()),
+            MaterialPageRoute(
+                builder: (_) => const FarmerNotificationScreen()),
           );
         },
       ),
@@ -87,35 +204,36 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
           color: darkGreen,
           onRefresh: _loadDashboardData,
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator(color: darkGreen))
+              ? const Center(
+              child: CircularProgressIndicator(color: darkGreen))
               : _errorMessage != null
               ? _errorView()
               : SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _welcomeCard(
-                        lang: lang,
-                        activeCrops: cropProvider.activeCrops,
-                        newInquiries: cropProvider.newInquiries,
-                      ),
-                      const SizedBox(height: 26),
-                      _sectionHeader(lang.t("quickActions")),
-                      const SizedBox(height: 14),
-                      _quickActionsGrid(lang),
-                      const SizedBox(height: 22),
-                      cropProvider.weatherAlert != null
-                          ? _weatherAlertCard(cropProvider.weatherAlert!)
-                          : _emptyWeatherCard(),
-                      const SizedBox(height: 22),
-                      _dailyTipCard(),
-                      const SizedBox(height: 22),
-                      _marketAdvisoryCard(),
-                    ],
-                  ),
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _welcomeCard(
+                  lang: lang,
+                  activeCrops: cropProvider.activeCrops,
+                  newInquiries: cropProvider.newInquiries,
                 ),
+                const SizedBox(height: 26),
+                _sectionHeader(lang.t("quickActions")),
+                const SizedBox(height: 14),
+                _quickActionsGrid(lang),
+                const SizedBox(height: 22),
+                cropProvider.weatherAlert != null
+                    ? _weatherAlertCard(cropProvider.weatherAlert!)
+                    : _emptyWeatherCard(),
+                const SizedBox(height: 22),
+                _dailyTipCard(),
+                const SizedBox(height: 22),
+                _marketAdvisoryCard(),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -164,28 +282,71 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
               color: Colors.white.withOpacity(0.12),
             ),
           ),
+          // Clean Mic Button Position (Top Right - Opens Voice Assistant Sheet)
+          Positioned(
+            top: 18,
+            right: 18,
+            child: GestureDetector(
+              onTap: _openVoiceAssistant,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                height: 54,
+                width: 54,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.18),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.35),
+                    width: 1.5,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.mic_none_rounded,
+                  color: Colors.white,
+                  size: 27,
+                ),
+              ),
+            ),
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 context.watch<LanguageProvider>().t("welcomeBackComma"),
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
-                context.watch<LanguageProvider>().t("growSmarterSellBetter"),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 25,
-                  fontWeight: FontWeight.w900,
+              Padding(
+                padding: const EdgeInsets.only(right: 60),
+                child: Text(
+                  context
+                      .watch<LanguageProvider>()
+                      .t("growSmarterSellBetter"),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 25,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
+              if (_voiceText.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(
+                  _voiceText,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
               const SizedBox(height: 28),
-
               Row(
                 children: [
                   Expanded(
@@ -210,11 +371,9 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 24),
               Divider(color: Colors.white.withOpacity(0.22)),
               const SizedBox(height: 16),
-
               Row(
                 children: [
                   Expanded(
@@ -392,14 +551,15 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
           children: [
             Text(
               context.watch<LanguageProvider>().t("viewAll"),
-              style: TextStyle(
+              style: const TextStyle(
                 color: darkGreen,
                 fontSize: 14,
                 fontWeight: FontWeight.w900,
               ),
             ),
-            SizedBox(width: 5),
-            Icon(Icons.arrow_forward_ios_rounded, color: darkGreen, size: 14),
+            const SizedBox(width: 5),
+            const Icon(Icons.arrow_forward_ios_rounded,
+                color: darkGreen, size: 14),
           ],
         ),
       ],

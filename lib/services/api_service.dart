@@ -1,129 +1,137 @@
-import 'dart:convert';
+  import 'dart:convert';
 
-import 'package:http/http.dart' as http;
+  import 'package:http/http.dart' as http;
 
-import '../config/api_config.dart';
-import '../utils/token_storage.dart';
+  import '../config/api_config.dart';
+  import '../utils/token_storage.dart';
 
-class ApiService {
-  static Uri _url(String endpoint) {
-    return Uri.parse(
-      "${ApiConfig.baseUrl}$endpoint",
-    );
-  }
-
-  static Future<Map<String, String>> _headers({
-    bool auth = false,
-  }) async {
-    final headers = <String, String>{
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-    };
-
-    if (auth) {
-      final token = await TokenStorage.getAccessToken();
-
-      if (token != null && token.trim().isNotEmpty) {
-        headers["Authorization"] = "Bearer $token";
-      }
+  class ApiService {
+    static Uri _url(String endpoint) {
+      return Uri.parse(
+        "${ApiConfig.baseUrl}$endpoint",
+      );
     }
 
-    return headers;
-  }
+    static Future<Map<String, String>> _headers({
+      bool auth = false,
+    }) async {
+      final headers = <String, String>{
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      };
 
-  static Future<dynamic> get(
-      String endpoint, {
-        bool auth = false,
-      }) async {
-    final response = await http.get(
-      _url(endpoint),
-      headers: await _headers(auth: auth),
-    );
+      if (auth) {
+        final token = await TokenStorage.getAccessToken();
 
-    return handleResponse(response);
-  }
-
-  static Future<dynamic> post(
-      String endpoint,
-      Map<String, dynamic> body, {
-        bool auth = false,
-      }) async {
-    final response = await http.post(
-      _url(endpoint),
-      headers: await _headers(auth: auth),
-      body: jsonEncode(body),
-    );
-
-    return handleResponse(response);
-  }
-
-  static Future<dynamic> patch(
-      String endpoint,
-      Map<String, dynamic> body, {
-        bool auth = false,
-      }) async {
-    final response = await http.patch(
-      _url(endpoint),
-      headers: await _headers(auth: auth),
-      body: jsonEncode(body),
-    );
-
-    return handleResponse(response);
-  }
-
-  static Future<dynamic> delete(
-      String endpoint, {
-        bool auth = false,
-      }) async {
-    final response = await http.delete(
-      _url(endpoint),
-      headers: await _headers(auth: auth),
-    );
-
-    return handleResponse(response);
-  }
-
-  static dynamic handleResponse(
-      http.Response response,
-      ) {
-    dynamic data;
-
-    try {
-      data = response.body.isNotEmpty
-          ? jsonDecode(response.body)
-          : null;
-    } catch (_) {
-      data = response.body;
-    }
-
-    if (response.statusCode >= 200 &&
-        response.statusCode < 300) {
-      return data;
-    }
-
-    String message = "Something went wrong";
-
-    if (data is Map) {
-      if (data["message"] != null) {
-        message = data["message"].toString();
-      } else if (data["detail"] != null) {
-        message = data["detail"].toString();
-      } else if (data["error"] != null) {
-        message = data["error"].toString();
-      } else if (data.isNotEmpty) {
-        final firstValue = data.values.first;
-
-        if (firstValue is List &&
-            firstValue.isNotEmpty) {
-          message = firstValue.first.toString();
-        } else {
-          message = firstValue.toString();
+        if (token != null && token.trim().isNotEmpty) {
+          headers["Authorization"] = "Bearer $token";
         }
       }
-    } else if (data != null) {
-      message = data.toString();
+
+      return headers;
     }
 
-    throw Exception(message);
+    static Future<dynamic> get(
+        String endpoint, {
+          bool auth = false,
+        }) async {
+      final response = await http.get(
+        _url(endpoint),
+        headers: await _headers(auth: auth),
+      );
+
+      return handleResponse(response);
+    }
+
+    static Future<dynamic> post(
+        String endpoint,
+        Map<String, dynamic> body, {
+          bool auth = false,
+        }) async {
+
+      print("POST METHOD CALLED");
+      print("Endpoint: $endpoint");
+      print("Request Body: $body");
+
+      final response = await http.post(
+        _url(endpoint),
+        headers: await _headers(auth: auth),
+        body: jsonEncode(body),
+      );
+
+      print("Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      return handleResponse(response);
+    }
+
+    static Future<dynamic> patch(
+        String endpoint,
+        Map<String, dynamic> body, {
+          bool auth = false,
+        }) async {
+      final response = await http.patch(
+        _url(endpoint),
+        headers: await _headers(auth: auth),
+        body: jsonEncode(body),
+      );
+
+      return handleResponse(response);
+    }
+
+    static Future<dynamic> delete(
+        String endpoint, {
+          bool auth = false,
+        }) async {
+      final response = await http.delete(
+        _url(endpoint),
+        headers: await _headers(auth: auth),
+      );
+
+      return handleResponse(response);
+    }
+
+    static dynamic handleResponse(
+        http.Response response,
+        ) {
+      dynamic data;
+
+      try {
+        data = response.body.isNotEmpty
+            ? jsonDecode(response.body)
+            : null;
+      } catch (_) {
+        data = response.body;
+      }
+
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300) {
+        return data;
+      }
+
+      String message = "Something went wrong";
+
+      if (data is Map) {
+        if (data["message"] != null) {
+          message = data["message"].toString();
+        } else if (data["detail"] != null) {
+          message = data["detail"].toString();
+        } else if (data["error"] != null) {
+          message = data["error"].toString();
+        } else if (data.isNotEmpty) {
+          final firstValue = data.values.first;
+
+          if (firstValue is List &&
+              firstValue.isNotEmpty) {
+            message = firstValue.first.toString();
+          } else {
+            message = firstValue.toString();
+          }
+        }
+      } else if (data != null) {
+        message = data.toString();
+      }
+
+      throw Exception(message);
+    }
   }
-}

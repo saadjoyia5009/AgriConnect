@@ -1,3 +1,4 @@
+import 'package:agriconnect/providers/voice_assistant_provider.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -182,6 +183,11 @@ class AgriConnectApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => BuyerChatProvider(),
         ),
+
+        ChangeNotifierProvider(
+          create: (_) => VoiceAssistantProvider(),
+        ),
+
         ChangeNotifierProvider(
           create: (_) => AuthProvider(),
         ),

@@ -84,6 +84,12 @@ class AuthProvider extends ChangeNotifier {
         email: email.trim().toLowerCase(),
         password: password,
       );
+      print("=========== LOGIN RESPONSE ===========");
+      print("Success: ${response.success}");
+      print("Role: ${response.role}");
+      print("Message: ${response.message}");
+      print("UserId: ${response.userId}");
+      print("=====================================");
 
       if (response.success) {
         _userName = (response.username ?? "").trim();
@@ -144,10 +150,7 @@ class AuthProvider extends ChangeNotifier {
       );
 
       if (response.success) {
-        /*
-         * Signup ke baad user ko login state mein nahi rakhenge.
-         * User manually login karega.
-         */
+
         _clearAuthenticatedUserData();
 
         errorMessage = null;
