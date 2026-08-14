@@ -12,20 +12,18 @@ enum VoiceAssistantState {
 }
 
 class VoiceAssistantProvider extends ChangeNotifier {
-  final VoiceAssistantService _voiceService =
-  VoiceAssistantService();
+  final VoiceAssistantService _voiceService = VoiceAssistantService();
 
-  final AIChatService _aiService =
-  AIChatService();
+  final AIChatService _aiService = AIChatService();
 
-  VoiceAssistantState _state =
-      VoiceAssistantState.idle;
+  VoiceAssistantState _state = VoiceAssistantState.idle;
 
   String _recognizedText = '';
   String _responseText = '';
   String? _error;
 
   String? _conversationId;
+  Map<String, dynamic>? _action;
 
   VoiceAssistantState get state => _state;
 
@@ -37,14 +35,17 @@ class VoiceAssistantProvider extends ChangeNotifier {
 
   String? get conversationId => _conversationId;
 
-  bool get isListening =>
-      _state == VoiceAssistantState.listening;
+  String? get actionType => _action?['type']?.toString();
 
-  bool get isProcessing =>
-      _state == VoiceAssistantState.processing;
+  String? get actionTarget => _action?['target']?.toString();
 
-  bool get isSpeaking =>
-      _state == VoiceAssistantState.speaking;
+  Map<String, dynamic>? get action => _action;
+
+  bool get isListening => _state == VoiceAssistantState.listening;
+
+  bool get isProcessing => _state == VoiceAssistantState.processing;
+
+  bool get isSpeaking => _state == VoiceAssistantState.speaking;
 
   // ---------------------------------------------------------
   // Start Listening
@@ -61,14 +62,14 @@ class VoiceAssistantProvider extends ChangeNotifier {
     _error = null;
     _recognizedText = '';
     _responseText = '';
+    _action = null;
 
     _state = VoiceAssistantState.listening;
 
     notifyListeners();
 
     // English / Urdu locale
-    final String localeId =
-    language == 'ur' ? 'ur_PK' : 'en_US';
+    final String localeId = language == 'ur' ? 'ur_PK' : 'en_US';
 
     debugPrint(
       'VOICE LANGUAGE: $language',
@@ -78,10 +79,8 @@ class VoiceAssistantProvider extends ChangeNotifier {
       'VOICE LOCALE: $localeId',
     );
 
-    final bool started =
-    await _voiceService.startListening(
+    final bool started = await _voiceService.startListening(
       localeId: localeId,
-
       onResult: (text) {
         debugPrint(
           'VOICE RESULT: $text',
@@ -91,20 +90,17 @@ class VoiceAssistantProvider extends ChangeNotifier {
 
         notifyListeners();
       },
-
       onError: (message) {
         debugPrint(
           'VOICE ERROR: $message',
         );
 
-        _state =
-            VoiceAssistantState.error;
+        _state = VoiceAssistantState.error;
 
         _error = message;
 
         notifyListeners();
       },
-
       onStatus: (status) {
         debugPrint(
           'VOICE STATUS: $status',
@@ -113,11 +109,9 @@ class VoiceAssistantProvider extends ChangeNotifier {
     );
 
     if (!started) {
-      _state =
-          VoiceAssistantState.error;
+      _state = VoiceAssistantState.error;
 
-      _error =
-      'Microphone or speech recognition is not available.';
+      _error = 'Microphone or speech recognition is not available.';
 
       notifyListeners();
     }
@@ -130,26 +124,22 @@ class VoiceAssistantProvider extends ChangeNotifier {
   Future<void> stopListening({
     String? currentScreen,
   }) async {
-    if (_state !=
-        VoiceAssistantState.listening) {
+    if (_state != VoiceAssistantState.listening) {
       return;
     }
 
     await _voiceService.stopListening();
 
-    final String text =
-    _recognizedText.trim();
+    final String text = _recognizedText.trim();
 
     debugPrint(
       'FINAL VOICE TEXT: $text',
     );
 
     if (text.isEmpty) {
-      _state =
-          VoiceAssistantState.idle;
+      _state = VoiceAssistantState.idle;
 
-      _error =
-      'I could not understand your voice.';
+      _error = 'I could not understand your voice.';
 
       notifyListeners();
 
@@ -170,8 +160,7 @@ class VoiceAssistantProvider extends ChangeNotifier {
       String text, {
         String? currentScreen,
       }) async {
-    _state =
-        VoiceAssistantState.processing;
+    _state = VoiceAssistantState.processing;
 
     _error = null;
 
@@ -181,20 +170,24 @@ class VoiceAssistantProvider extends ChangeNotifier {
       debugPrint(
         'SENDING VOICE TEXT TO AI: $text',
       );
-      debugPrint(
-        'AI RESPONSE: $_responseText',
-      );
 
-      final AIChatResponse response =
-      await _aiService.sendMessage(
+      final AIChatResponse response = await _aiService.sendMessage(
         message: text,
         conversationId: _conversationId,
         currentScreen: currentScreen,
       );
 
+      debugPrint('========== AI RESULT ==========');
+      debugPrint('SUCCESS: ${response.success}');
+      debugPrint('MESSAGE: ${response.message}');
+      debugPrint('CONVERSATION ID: ${response.conversationId}');
+      debugPrint('ACTION: ${response.action}');
+      debugPrint('ACTION TYPE: ${response.action?['type']}');
+      debugPrint('ACTION TARGET: ${response.action?['target']}');
+      debugPrint('================================');
+
       if (!response.success) {
-        _state =
-            VoiceAssistantState.error;
+        _state = VoiceAssistantState.error;
 
         _error = response.message;
 
@@ -203,25 +196,27 @@ class VoiceAssistantProvider extends ChangeNotifier {
         return;
       }
 
-      _conversationId =
-          response.conversationId;
+      _conversationId = response.conversationId;
 
-      _responseText =
-          response.message;
+      _responseText = response.message;
+
+      _action = response.action;
 
       debugPrint(
         'AI RESPONSE: $_responseText',
       );
 
-      _state =
-          VoiceAssistantState.speaking;
+      debugPrint(
+        'AI ACTION: $_action',
+      );
+
+      _state = VoiceAssistantState.speaking;
 
       notifyListeners();
 
       // TTS next step mein add karenge.
 
-      _state =
-          VoiceAssistantState.idle;
+      _state = VoiceAssistantState.idle;
 
       notifyListeners();
     } catch (e) {
@@ -229,11 +224,9 @@ class VoiceAssistantProvider extends ChangeNotifier {
         'AI VOICE ERROR: $e',
       );
 
-      _state =
-          VoiceAssistantState.error;
+      _state = VoiceAssistantState.error;
 
-      _error =
-      'Unable to process your voice request.';
+      _error = e.toString();
 
       notifyListeners();
     }
@@ -248,8 +241,7 @@ class VoiceAssistantProvider extends ChangeNotifier {
 
     _recognizedText = '';
 
-    _state =
-        VoiceAssistantState.idle;
+    _state = VoiceAssistantState.idle;
 
     notifyListeners();
   }
@@ -267,8 +259,9 @@ class VoiceAssistantProvider extends ChangeNotifier {
 
     _error = null;
 
-    _state =
-        VoiceAssistantState.idle;
+    _action = null;
+
+    _state = VoiceAssistantState.idle;
 
     notifyListeners();
   }

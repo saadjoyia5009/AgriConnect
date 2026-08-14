@@ -200,6 +200,19 @@ class _AdminProfileScreenState
           ),
 
           AdminProfileOptionTile(
+            icon: Icons.support_agent_rounded,
+            title: "Customer Support",
+            subtitle: "View farmer and buyer requests",
+            color: darkGreen,
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                "/adminSupport",
+              );
+            },
+          ),
+
+          AdminProfileOptionTile(
             icon: Icons.info_rounded,
             title: context
                 .watch<LanguageProvider>()

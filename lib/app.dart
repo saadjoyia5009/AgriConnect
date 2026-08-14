@@ -25,6 +25,7 @@ import 'providers/price_prediction_provider.dart';
 import 'providers/profile_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/weather_provider.dart';
+import 'screens/admin/admin_support_screen.dart';
 
 import 'screens/admin/admin_analytics_screen.dart';
 import 'screens/admin/admin_crops_screen.dart';
@@ -57,6 +58,8 @@ import 'screens/farmer/price_prediction_screen.dart';
 import 'screens/farmer/weather_forecast_screen.dart';
 
 import 'screens/language/language_selection_screen.dart';
+import 'screens/support/customer_support_screen.dart';
+import 'providers/support_provider.dart';
 
 import 'screens/onboarding/onboarding_screen_one.dart';
 import 'screens/onboarding/onboarding_screen_three.dart';
@@ -132,6 +135,7 @@ class AgriConnectApp extends StatelessWidget {
       '/farmerChats': const FarmerChatsScreen(),
       '/notifications':
       const FarmerNotificationScreen(),
+      '/customerSupport': const CustomerSupportScreen(),
 
       '/buyerDashboard': buyerPage(
         const BuyerDashboardScreen(),
@@ -167,6 +171,9 @@ class AgriConnectApp extends StatelessWidget {
       ),
       '/adminProfile': const _AdminRouteGuard(
         child: AdminProfileScreen(),
+      ),
+      '/adminSupport': const _AdminRouteGuard(
+        child: AdminSupportScreen(),
       ),
     };
 
@@ -252,6 +259,9 @@ class AgriConnectApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) =>
           LanguageProvider()..loadLanguage(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SupportProvider(),
         ),
       ],
       child: Consumer2<

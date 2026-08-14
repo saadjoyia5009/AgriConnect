@@ -638,7 +638,12 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
           BuyerProfileMenuTile(
             icon: Icons.headset_mic,
             title: language.t('helpSupport'),
-            onTap: _openHelpDialog,
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                '/customerSupport',
+              );
+            },
           ),
         ],
       ),

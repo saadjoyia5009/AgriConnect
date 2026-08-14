@@ -3,18 +3,16 @@ import 'package:provider/provider.dart';
 
 import '../providers/voice_assistant_provider.dart';
 
-class VoiceAssistantSheet extends StatefulWidget {
+class   VoiceAssistantSheet extends StatefulWidget {
   const VoiceAssistantSheet({
     super.key,
   });
 
   @override
-  State<VoiceAssistantSheet> createState() =>
-      _VoiceAssistantSheetState();
+  State<VoiceAssistantSheet> createState() => _VoiceAssistantSheetState();
 }
 
-class _VoiceAssistantSheetState
-    extends State<VoiceAssistantSheet> {
+class _VoiceAssistantSheetState extends State<VoiceAssistantSheet> {
   String _language = 'en';
 
   @override
@@ -25,11 +23,10 @@ class _VoiceAssistantSheetState
           voiceProvider,
           child,
           ) {
-        final height =
-            MediaQuery.of(context).size.height;
+        final height = MediaQuery.of(context).size.height;
 
         return Container(
-          height: height * 0.25,
+          height: height * 0.35, // Increased slightly to comfortably accommodate responses/errors
           padding: const EdgeInsets.fromLTRB(
             20,
             12,
@@ -47,14 +44,12 @@ class _VoiceAssistantSheetState
               // -------------------------------------------------
               // Handle
               // -------------------------------------------------
-
               Container(
                 width: 42,
                 height: 4,
                 decoration: BoxDecoration(
                   color: Colors.black12,
-                  borderRadius:
-                  BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
 
@@ -63,16 +58,13 @@ class _VoiceAssistantSheetState
               // -------------------------------------------------
               // Header
               // -------------------------------------------------
-
               Row(
                 children: [
                   const Icon(
                     Icons.auto_awesome,
                     color: Color(0xff075739),
                   ),
-
                   const SizedBox(width: 8),
-
                   const Expanded(
                     child: Text(
                       'Voice Assistant',
@@ -82,7 +74,6 @@ class _VoiceAssistantSheetState
                       ),
                     ),
                   ),
-
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _language,
@@ -97,10 +88,7 @@ class _VoiceAssistantSheetState
                         ),
                       ],
                       onChanged: (value) {
-                        if (value == null) {
-                          return;
-                        }
-
+                        if (value == null) return;
                         setState(() {
                           _language = value;
                         });
@@ -113,42 +101,86 @@ class _VoiceAssistantSheetState
               const SizedBox(height: 6),
 
               // -------------------------------------------------
-              // Recognized Text
+              // Content Area (Recognized Text, Status, Error)
               // -------------------------------------------------
-
               Expanded(
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  child: Center(
-                    child: voiceProvider
-                        .recognizedText
-                        .trim()
-                        .isEmpty
-                        ? Text(
-                      voiceProvider.isListening
-                          ? 'Listening...'
-                          : 'Press and hold the microphone to speak',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.black54,
-                        fontSize: 14,
-                      ),
-                    )
-                        : Text(
-                      voiceProvider.recognizedText,
-                      textAlign: TextAlign.center,
-                      maxLines: 3,
-                      overflow:
-                      TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.black87,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                      ),
+                child: SingleChildScrollView(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Recognized / Prompt Text
+                        if (voiceProvider.recognizedText.trim().isEmpty)
+                          Text(
+                            voiceProvider.isListening
+                                ? 'Listening...'
+                                : 'Press and hold the microphone to speak',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.black54,
+                              fontSize: 14,
+                            ),
+                          )
+                        else
+                          Text(
+                            voiceProvider.recognizedText,
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.black87,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+
+                        // Processing Status
+                        if (voiceProvider.isProcessing)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 8),
+                            child: Text(
+                              'Processing your request...',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+
+                        // Response Text
+                        if (voiceProvider.responseText.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              voiceProvider.responseText,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+
+                        // Error Message
+                        if (voiceProvider.error != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              voiceProvider.error!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 ),
@@ -157,9 +189,8 @@ class _VoiceAssistantSheetState
               const SizedBox(height: 6),
 
               // -------------------------------------------------
-              // Microphone
+              // Microphone Button
               // -------------------------------------------------
-
               GestureDetector(
                 onLongPressStart: (_) async {
                   await voiceProvider.startListening(
@@ -168,13 +199,11 @@ class _VoiceAssistantSheetState
                 },
                 onLongPressEnd: (_) async {
                   await voiceProvider.stopListening(
-                    currentScreen:
-                    'farmer_dashboard',
+                    currentScreen: 'farmer_dashboard',
                   );
                 },
                 child: AnimatedContainer(
-                  duration:
-                  const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 200),
                   width: 58,
                   height: 58,
                   decoration: BoxDecoration(
@@ -184,9 +213,7 @@ class _VoiceAssistantSheetState
                         : const Color(0xff075739),
                   ),
                   child: Icon(
-                    voiceProvider.isListening
-                        ? Icons.mic
-                        : Icons.mic_none,
+                    voiceProvider.isListening ? Icons.mic : Icons.mic_none,
                     color: Colors.white,
                     size: 28,
                   ),

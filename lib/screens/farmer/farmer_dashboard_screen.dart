@@ -48,7 +48,9 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return const VoiceAssistantSheet();
+        return VoiceAssistantSheet(
+          // onAction: _handleVoiceAction,
+        );
       },
     );
   }
@@ -974,6 +976,24 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
         ),
       ),
     );
+  }
+
+  void _handleVoiceAction(
+      Map<String, dynamic> action,
+      ) {
+    final type = action['type']?.toString();
+    final target = action['target']?.toString();
+
+    debugPrint(
+      'VOICE ACTION RECEIVED: $action',
+    );
+
+    if (type == 'navigate' &&
+        target == 'my_crops') {
+      Navigator.pop(context);
+
+      // Yahan baad mein MyCropsScreen open karenge.
+    }
   }
 
   Widget _errorView() {

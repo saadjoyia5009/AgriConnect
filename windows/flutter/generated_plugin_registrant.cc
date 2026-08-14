@@ -10,11 +10,8 @@
 #include <flutter_secure_storage_windows/flutter_secure_storage_windows_plugin.h>
 #include <flutter_tts/flutter_tts_plugin.h>
 #include <geolocator_windows/geolocator_windows.h>
-<<<<<<< Updated upstream
-#include <speech_to_text_windows/speech_to_text_windows.h>
-=======
 #include <location/location_plugin.h>
->>>>>>> Stashed changes
+#include <speech_to_text_windows/speech_to_text_windows.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   FileSelectorWindowsRegisterWithRegistrar(
@@ -25,11 +22,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("FlutterTtsPlugin"));
   GeolocatorWindowsRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("GeolocatorWindows"));
-<<<<<<< Updated upstream
-  SpeechToTextWindowsRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("SpeechToTextWindows"));
-=======
   LocationPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("LocationPlugin"));
->>>>>>> Stashed changes
+  SpeechToTextWindowsRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("SpeechToTextWindows"));
 }

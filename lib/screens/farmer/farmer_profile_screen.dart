@@ -173,11 +173,9 @@ class _FarmerProfileScreenState
                       await themeProvider.toggleTheme();
                     },
                     onHelpSupport: () {
-                      _showSnackBar(
+                      Navigator.pushNamed(
                         context,
-                        context
-                            .read<LanguageProvider>()
-                            .t("helpSupportComingSoon"),
+                        "/customerSupport",
                       );
                     },
                     onAboutApp: () {
