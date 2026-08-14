@@ -222,14 +222,7 @@ class _AdminProfileScreenState
                 .t("aboutAgriConnectSubtitle"),
             color: Colors.purple,
             onTap: () {
-              _showInfoDialog(
-                context
-                    .read<LanguageProvider>()
-                    .t("aboutAgriConnect"),
-                context
-                    .read<LanguageProvider>()
-                    .t("aboutAgriConnectDescription"),
-              );
+              _showAboutAgriConnectDialog();
             },
           ),
 
@@ -1026,6 +1019,293 @@ class _AdminProfileScreenState
         isError: true,
       );
     }
+  }
+
+  void _showAboutAgriConnectDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        final dialogIsDark =
+            Theme.of(dialogContext).brightness ==
+                Brightness.dark;
+
+        return Dialog(
+          backgroundColor:
+          dialogIsDark ? darkCard : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                22,
+                24,
+                22,
+                20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // AgriConnect Icon
+                  Container(
+                    height: 76,
+                    width: 76,
+                    decoration: BoxDecoration(
+                      color: dialogIsDark
+                          ? const Color(0xFF263B31)
+                          : const Color(0xFFE8F5EE),
+                      borderRadius:
+                      BorderRadius.circular(24),
+                    ),
+                    child: Icon(
+                      Icons.agriculture_rounded,
+                      size: 42,
+                      color: dialogIsDark
+                          ? lightGreen
+                          : darkGreen,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // App Name
+                  Text(
+                    'AgriConnect',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: dialogIsDark
+                          ? Colors.white
+                          : const Color(0xFF123524),
+                      fontSize: 25,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  Text(
+                    'AI-Powered Farmer Marketplace',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: dialogIsDark
+                          ? lightGreen
+                          : darkGreen,
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Description
+                  Text(
+                    'AgriConnect is a smart agricultural '
+                        'marketplace designed to connect farmers '
+                        'directly with buyers.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: dialogIsDark
+                          ? Colors.white70
+                          : Colors.grey.shade700,
+                      height: 1.55,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Text(
+                    'The platform helps farmers showcase their '
+                        'crops, reach potential buyers, access '
+                        'weather and market information, and make '
+                        'better selling decisions with '
+                        'AI-powered insights.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: dialogIsDark
+                          ? Colors.white70
+                          : Colors.grey.shade700,
+                      height: 1.55,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Divider
+                  Divider(
+                    color: dialogIsDark
+                        ? Colors.white12
+                        : Colors.grey.shade300,
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  Text(
+                    'Developed By',
+                    style: TextStyle(
+                      color: dialogIsDark
+                          ? Colors.white
+                          : const Color(0xFF123524),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // Developers
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _developerCard(
+                          imagePath:
+                          'assets/images/img_4.png',
+                          name: 'Muhammad Saad',
+                          role: 'Frontend / AI',
+                          dialogIsDark:
+                          dialogIsDark,
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      Expanded(
+                        child: _developerCard(
+                          imagePath:
+                          'assets/images/img_2.png',
+                          name: 'Muhammad Ghous',
+                          role: "Backend / Database ",
+                          dialogIsDark:
+                          dialogIsDark,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  Text(
+                    'Final Year Project • Version 1.0.0',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: dialogIsDark
+                          ? Colors.white54
+                          : Colors.grey.shade600,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(dialogContext);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: darkGreen,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                          BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text(
+                        'Close',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _developerCard({
+    required String imagePath,
+    required String name,
+    required String role,
+    required bool dialogIsDark,
+  }) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        10,
+        14,
+        10,
+        14,
+      ),
+      decoration: BoxDecoration(
+        color: dialogIsDark
+            ? const Color(0xFF1D3027)
+            : const Color(0xFFF4F8F5),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: dialogIsDark
+              ? Colors.white10
+              : const Color(0xFFE3EBE6),
+        ),
+      ),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 38,
+            backgroundColor: dialogIsDark
+                ? const Color(0xFF263B31)
+                : const Color(0xFFE8F5EE),
+            backgroundImage: AssetImage(imagePath),
+          ),
+
+          const SizedBox(height: 10),
+
+          Text(
+            name,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: dialogIsDark
+                  ? Colors.white
+                  : const Color(0xFF123524),
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+
+          const SizedBox(height: 4),
+
+          Text(
+            role,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: dialogIsDark
+                  ? Colors.white60
+                  : Colors.grey.shade600,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showSnackBar(
