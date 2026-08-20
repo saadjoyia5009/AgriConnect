@@ -16,7 +16,19 @@ class _CustomerSupportScreenState
   final TextEditingController _messageController =
   TextEditingController();
 
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey =
+  GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      context.read<SupportProvider>().fetchMyRequests();
+    });
+  }
 
   @override
   void dispose() {
@@ -69,21 +81,30 @@ class _CustomerSupportScreenState
         centerTitle: true,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(context),
-                const SizedBox(height: 24),
-                _buildMessageField(context),
-                const SizedBox(height: 20),
-                _buildSubmitButton(context),
-                const SizedBox(height: 32),
-                _buildPreviousRequests(context),
-              ],
+        child: RefreshIndicator(
+          onRefresh: () {
+            return context
+                .read<SupportProvider>()
+                .fetchMyRequests();
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(20),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context),
+                  const SizedBox(height: 24),
+                  _buildMessageField(context),
+                  const SizedBox(height: 20),
+                  _buildSubmitButton(context),
+                  const SizedBox(height: 32),
+                  _buildPreviousRequests(context),
+                ],
+              ),
             ),
           ),
         ),
@@ -103,12 +124,15 @@ class _CustomerSupportScreenState
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary,
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -120,7 +144,8 @@ class _CustomerSupportScreenState
           const SizedBox(width: 14),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
               children: [
                 Text(
                   'How can we help you?',
@@ -153,7 +178,8 @@ class _CustomerSupportScreenState
 
   Widget _buildMessageField(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
       children: [
         Text(
           'Your Message',
@@ -169,9 +195,11 @@ class _CustomerSupportScreenState
           controller: _messageController,
           maxLines: 6,
           maxLength: 1000,
-          textInputAction: TextInputAction.newline,
+          textInputAction:
+          TextInputAction.newline,
           decoration: InputDecoration(
-            hintText: 'Describe your issue or request...',
+            hintText:
+            'Describe your issue or request...',
             alignLabelWithHint: true,
             prefixIcon: const Padding(
               padding: EdgeInsets.only(
@@ -179,29 +207,39 @@ class _CustomerSupportScreenState
                 right: 8,
                 bottom: 75,
               ),
-              child: Icon(Icons.message_outlined),
+              child: Icon(
+                Icons.message_outlined,
+              ),
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius:
+              BorderRadius.circular(14),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius:
+              BorderRadius.circular(14),
               borderSide: BorderSide(
                 color: Colors.grey.shade300,
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius:
+              BorderRadius.circular(14),
               borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary,
                 width: 1.5,
               ),
             ),
             filled: true,
-            fillColor: Theme.of(context).colorScheme.surface,
+            fillColor: Theme.of(context)
+                .colorScheme
+                .surface,
           ),
           validator: (value) {
-            final message = value?.trim() ?? '';
+            final message =
+                value?.trim() ?? '';
 
             if (message.isEmpty) {
               return 'Please enter your message.';
@@ -218,26 +256,31 @@ class _CustomerSupportScreenState
     );
   }
 
-  Widget _buildSubmitButton(BuildContext context) {
+  Widget _buildSubmitButton(
+      BuildContext context) {
     return Consumer<SupportProvider>(
       builder: (context, provider, child) {
         return SizedBox(
           width: double.infinity,
           height: 52,
           child: ElevatedButton(
-            onPressed: provider.isSubmitting ? null : _submitRequest,
+            onPressed: provider.isSubmitting
+                ? null
+                : _submitRequest,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius:
+                BorderRadius.circular(14),
               ),
             ),
             child: provider.isSubmitting
                 ? const SizedBox(
               height: 22,
               width: 22,
-              child: CircularProgressIndicator(
+              child:
+              CircularProgressIndicator(
                 strokeWidth: 2.5,
                 color: Colors.white,
               ),
@@ -255,15 +298,36 @@ class _CustomerSupportScreenState
     );
   }
 
-  Widget _buildPreviousRequests(BuildContext context) {
+  Widget _buildPreviousRequests(
+      BuildContext context) {
     return Consumer<SupportProvider>(
       builder: (context, provider, child) {
+        if (provider.isLoading) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: 30,
+            ),
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (provider.errorMessage != null &&
+            provider.requests.isEmpty) {
+          return _buildErrorState(
+            context,
+            provider,
+          );
+        }
+
         if (provider.requests.isEmpty) {
-          return const SizedBox.shrink();
+          return _buildEmptyState(context);
         }
 
         return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+          CrossAxisAlignment.start,
           children: [
             Text(
               'My Previous Requests',
@@ -279,13 +343,19 @@ class _CustomerSupportScreenState
                   (request) {
                 return Container(
                   width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
+                  margin:
+                  const EdgeInsets.only(
+                    bottom: 12,
+                  ),
+                  padding:
+                  const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Colors.grey.shade300,
+                      color:
+                      Colors.grey.shade300,
                     ),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius:
+                    BorderRadius.circular(14),
                   ),
                   child: Column(
                     crossAxisAlignment:
@@ -305,17 +375,22 @@ class _CustomerSupportScreenState
                             request.status,
                           ),
                           const Spacer(),
-                          if (request.createdAt != null)
+                          if (request.createdAt !=
+                              null)
                             Text(
                               _formatDate(
                                 request.createdAt!,
                               ),
-                              style: Theme.of(context)
+                              style:
+                              Theme.of(
+                                context,
+                              )
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                color:
-                                Colors.grey.shade600,
+                                color: Colors
+                                    .grey
+                                    .shade600,
                               ),
                             ),
                         ],
@@ -331,6 +406,87 @@ class _CustomerSupportScreenState
     );
   }
 
+  Widget _buildEmptyState(
+      BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 25,
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.support_agent_outlined,
+              size: 50,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'No previous requests',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleSmall
+                  ?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Your submitted support requests '
+                  'will appear here.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(
+      BuildContext context,
+      SupportProvider provider,
+      ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.red.withValues(
+          alpha: 0.06,
+        ),
+        borderRadius:
+        BorderRadius.circular(14),
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.error_outline,
+            color: Colors.red,
+            size: 34,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            provider.errorMessage ??
+                'Failed to load support requests.',
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton(
+            onPressed: provider.isLoading
+                ? null
+                : provider.fetchMyRequests,
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatusChip(
       BuildContext context,
       String status,
@@ -341,9 +497,11 @@ class _CustomerSupportScreenState
       case 'in_progress':
         label = 'In Progress';
         break;
+
       case 'resolved':
         label = 'Resolved';
         break;
+
       default:
         label = 'Pending';
     }
@@ -358,12 +516,15 @@ class _CustomerSupportScreenState
             .colorScheme
             .primary
             .withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius:
+        BorderRadius.circular(20),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: Theme.of(context).colorScheme.primary,
+          color: Theme.of(context)
+              .colorScheme
+              .primary,
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
