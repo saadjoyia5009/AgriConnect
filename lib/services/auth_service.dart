@@ -31,7 +31,7 @@ class AuthService {
         "email": cleanEmail,
         "password": password,
       });
-      print(response);
+      
 
       final dynamic tokensData = response["tokens"];
 

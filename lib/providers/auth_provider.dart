@@ -84,12 +84,6 @@ class AuthProvider extends ChangeNotifier {
         email: email.trim().toLowerCase(),
         password: password,
       );
-      print("=========== LOGIN RESPONSE ===========");
-      print("Success: ${response.success}");
-      print("Role: ${response.role}");
-      print("Message: ${response.message}");
-      print("UserId: ${response.userId}");
-      print("=====================================");
 
       if (response.success) {
         _userName = (response.username ?? "").trim();

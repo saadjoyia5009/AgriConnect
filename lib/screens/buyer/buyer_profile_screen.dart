@@ -336,69 +336,6 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
     );
   }
 
-  void _openHelpDialog() {
-    final BuyerLanguageProvider language = context
-        .read<BuyerLanguageProvider>();
-
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          scrollable: true,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
-          ),
-          title: Row(
-            children: [
-              Container(
-                height: 44,
-                width: 44,
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF263B31)
-                      : const Color(0xffE8F5EE),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(Icons.headset_mic_rounded, color: accentColor),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  language.t('helpSupport'),
-                  style: TextStyle(
-                    color: accentColor,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: Text(
-            language.t('aboutAgriConnectDescription'),
-            style: TextStyle(
-              color: primaryText,
-              height: 1.5,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-              child: Text(
-                language.t('okay'),
-                style: const TextStyle(
-                  color: darkGreen,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   Future<void> _logout() async {
     final AuthProvider authProvider = context.read<AuthProvider>();

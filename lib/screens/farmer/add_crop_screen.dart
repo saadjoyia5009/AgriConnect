@@ -201,11 +201,7 @@ class _AddCropScreenState extends State<AddCropScreen> {
       final latitude = locationData.latitude;
       final longitude = locationData.longitude;
 
-      if (latitude == null || longitude == null) {
-        throw Exception(
-          'Could not determine your current location.',
-        );
-      }
+
 
       final currentLocation = LatLng(
         latitude,

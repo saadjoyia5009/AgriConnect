@@ -175,18 +175,8 @@ class CropService {
       imageBytes: imageBytes,
     );
 
-    print(
-      'Crop update URL: '
-      '${ApiConfig.baseUrl}/crops/${crop.id}/',
-    );
-    print('Crop update fields: ${request.fields}');
-    print('Crop update image name: ${imageFile?.name}');
-
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
-
-    print('Crop update status: ${response.statusCode}');
-    print('Crop update response: ${response.body}');
 
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);

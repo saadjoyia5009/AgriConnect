@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 import '../config/api_config.dart';
 import '../utils/token_storage.dart';
@@ -20,15 +20,14 @@ class AIChatResponse {
   });
 
   factory AIChatResponse.fromJson(
-      Map<String, dynamic> json,
-      ) {
+    Map<String, dynamic> json,
+  ) {
     final rawAction = json['action'];
 
     return AIChatResponse(
       success: json['success'] == true,
       message: json['message']?.toString() ?? '',
-      conversationId:
-      json['conversation_id']?.toString(),
+      conversationId: json['conversation_id']?.toString(),
       action: rawAction is Map
           ? Map<String, dynamic>.from(rawAction)
           : null,
@@ -41,13 +40,13 @@ class AIChatService {
     required String message,
     String? conversationId,
     String? currentScreen,
+    String language = 'en',
   }) async {
     // ---------------------------------------------------------
     // Get JWT access token
     // ---------------------------------------------------------
 
-    final token =
-    await TokenStorage.getAccessToken();
+    final token = await TokenStorage.getAccessToken();
 
     if (token == null || token.isEmpty) {
       throw Exception(
@@ -69,10 +68,9 @@ class AIChatService {
       },
       body: jsonEncode({
         'message': message,
-        if (conversationId != null)
-          'conversation_id': conversationId,
-        if (currentScreen != null)
-          'current_screen': currentScreen,
+        if (conversationId != null) 'conversation_id': conversationId,
+        if (currentScreen != null) 'current_screen': currentScreen,
+        'language': language,
       }),
     );
 
@@ -111,8 +109,8 @@ class AIChatService {
     } catch (_) {
       throw Exception(
         'Invalid response from AI server. '
-            'Status: ${response.statusCode}. '
-            'Body: ${response.body}',
+        'Status: ${response.statusCode}. '
+        'Body: ${response.body}',
       );
     }
 
@@ -120,8 +118,7 @@ class AIChatService {
     // Success
     // ---------------------------------------------------------
 
-    if (response.statusCode >= 200 &&
-        response.statusCode < 300) {
+    if (response.statusCode >= 200 && response.statusCode < 300) {
       return AIChatResponse.fromJson(
         data,
       );
@@ -132,8 +129,7 @@ class AIChatService {
     // ---------------------------------------------------------
 
     throw Exception(
-      data['message']?.toString() ??
-          'Unable to process AI request.',
+      data['message']?.toString() ?? 'Unable to process AI request.',
     );
   }
 }

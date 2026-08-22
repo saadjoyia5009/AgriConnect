@@ -49,18 +49,12 @@
           bool auth = false,
         }) async {
 
-      print("POST METHOD CALLED");
-      print("Endpoint: $endpoint");
-      print("Request Body: $body");
-
       final response = await http.post(
         _url(endpoint),
         headers: await _headers(auth: auth),
         body: jsonEncode(body),
       );
 
-      print("Status Code: ${response.statusCode}");
-      print("Response Body: ${response.body}");
 
       return handleResponse(response);
     }

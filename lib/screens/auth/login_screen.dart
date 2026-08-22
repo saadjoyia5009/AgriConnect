@@ -8,7 +8,6 @@ import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_input_field.dart';
 import 'forgot_password_screen.dart';
 import 'signup_screen.dart';
-import 'verify_email_otp_screen.dart';
 
 import '../farmer/farmer_dashboard_screen.dart';
 import '../buyer/buyer_dashboard_screen.dart';
