@@ -85,6 +85,8 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   // VOICE ASSISTANT
   // ============================================================
 
+  bool _isNavigatingFromVoiceAction = false;
+
   void _openVoiceAssistant() {
     showModalBottomSheet(
       context: context,
@@ -99,30 +101,58 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   }
 
   void _handleVoiceAction(Map<String, dynamic> action) {
+    // [TRACE-7] _handleVoiceAction entered
+    debugPrint('[NAV-TRACE-7] _handleVoiceAction entered, mounted=$mounted, _isNavigatingFromVoiceAction=$_isNavigatingFromVoiceAction');
+
+    if (!mounted || _isNavigatingFromVoiceAction) {
+      debugPrint('[NAV-TRACE-7b] ABORT: mounted=$mounted, _isNavigatingFromVoiceAction=$_isNavigatingFromVoiceAction');
+      return;
+    }
+
     final type = action['type']?.toString();
     final target = action['target']?.toString();
 
     debugPrint('VOICE ACTION RECEIVED: $action');
+    debugPrint('[NAV-TRACE-7c] type=$type  target=$target');
 
     if (type != 'navigate' && type != 'open_add_crop') {
+      debugPrint('[NAV-TRACE-7d] ABORT: type "$type" does not match navigate/open_add_crop');
+      return;
+    }
+
+    final routeName = switch (target) {
+      'add_crop' => '/addCrop',
+      'my_crops' => '/myCrops',
+      _ => null,
+    };
+
+    // [TRACE-8] route resolved
+    debugPrint('[NAV-TRACE-8] routeName resolved to: $routeName');
+
+    if (routeName != null) {
+      _isNavigatingFromVoiceAction = true;
+
+      final nav = Navigator.of(context, rootNavigator: true);
+      // [TRACE-9] navigator state before push
+      debugPrint('[NAV-TRACE-9] navigator=$nav  canPop=${nav.canPop()}');
+      debugPrint('[NAV-TRACE-9b] exact route being pushed: $routeName');
+
+      // [TRACE-10] immediately before pushNamed
+      debugPrint('[NAV-TRACE-10] >>> calling pushNamed("$routeName") NOW');
+      nav.pushNamed(routeName).whenComplete(() {
+        // [TRACE-10b] pushNamed future completed (screen popped back)
+        debugPrint('[NAV-TRACE-10b] pushNamed("$routeName") whenComplete fired');
+        if (mounted) {
+          _isNavigatingFromVoiceAction = false;
+        }
+      });
+      // [TRACE-11] immediately after pushNamed (future is pending, not awaited)
+      debugPrint('[NAV-TRACE-11] pushNamed("$routeName") called — future is pending');
+
       return;
     }
 
     switch (target) {
-      case 'add_crop':
-        Navigator.pushNamed(
-          context,
-          '/addCrop',
-        );
-        break;
-
-      case 'my_crops':
-        Navigator.pushNamed(
-          context,
-          '/myCrops',
-        );
-        break;
-
       case 'farmer_dashboard':
         Navigator.pushNamedAndRemoveUntil(
           context,

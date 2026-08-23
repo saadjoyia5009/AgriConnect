@@ -6,9 +6,16 @@ class VoiceAssistantService {
   bool _isInitialized = false;
   bool _starting = false;
 
+  String _lastRecognizedText = '';
+  bool _finalResultReceived = false;
+
   bool get isListening => _speechToText.isListening;
 
   bool get isAvailable => _isInitialized;
+
+  String get lastRecognizedText => _lastRecognizedText;
+
+  bool get finalResultReceived => _finalResultReceived;
 
   Future<bool> initialize({
     void Function(String message)? onError,
@@ -63,6 +70,10 @@ class VoiceAssistantService {
     void Function(String message)? onError,
     void Function(String status)? onStatus,
   }) async {
+    // ---------------------------------------------------------
+    // Prevent overlapping starts
+    // ---------------------------------------------------------
+
     if (_starting) {
       print(
         'SPEECH: start ignored because another start is in progress.',
@@ -71,7 +82,23 @@ class VoiceAssistantService {
       return false;
     }
 
+    // ---------------------------------------------------------
+    // Do not start another active session
+    // ---------------------------------------------------------
+
+    if (_speechToText.isListening) {
+      print(
+        'SPEECH: already listening. Ignoring duplicate start.',
+      );
+
+      return true;
+    }
+
     _starting = true;
+
+    // Reset previous recognition state
+    _lastRecognizedText = '';
+    _finalResultReceived = false;
 
     try {
       final initialized = await initialize(
@@ -88,25 +115,15 @@ class VoiceAssistantService {
       }
 
       // ---------------------------------------------------------
-      // Important:
-      // Never call listen() while another recognition session
-      // is still active.
+      // Check again after initialization
       // ---------------------------------------------------------
 
       if (_speechToText.isListening) {
         print(
-          'SPEECH: stopping previous listening session.',
+          'SPEECH: already listening after initialization.',
         );
 
-        await _speechToText.stop();
-
-        // Give Android speech service a moment to release
-        // the previous recognition session.
-        await Future.delayed(
-          const Duration(
-            milliseconds: 250,
-          ),
-        );
+        return true;
       }
 
       print(
@@ -114,23 +131,9 @@ class VoiceAssistantService {
       );
 
       await _speechToText.listen(
-        localeId: localeId,
-        listenMode: ListenMode.dictation,
-
-        partialResults: true,
-
-        cancelOnError: true,
-
-        listenFor: const Duration(
-          seconds: 30,
-        ),
-
-        pauseFor: const Duration(
-          seconds: 5,
-        ),
-
         onResult: (result) {
-          final text = result.recognizedWords.trim();
+          final text =
+              result.recognizedWords.trim();
 
           print(
             'RAW SPEECH RESULT: $text',
@@ -141,27 +144,44 @@ class VoiceAssistantService {
           );
 
           // -----------------------------------------------------
-          // Partial result
+          // Always remember latest recognized text
           // -----------------------------------------------------
 
           if (text.isNotEmpty) {
+            _lastRecognizedText = text;
+
             onResult(text);
           }
 
           // -----------------------------------------------------
-          // Final result
+          // Native final result
           // -----------------------------------------------------
 
-          if (result.finalResult && text.isNotEmpty) {
+          if (result.finalResult &&
+              text.isNotEmpty) {
+            if (_finalResultReceived) {
+              print(
+                'SPEECH: duplicate final result ignored.',
+              );
+
+              return;
+            }
+
+            _finalResultReceived = true;
+
             print(
               'FINAL SPEECH TEXT: $text',
             );
 
-            onFinalResult?.call(
-              text,
-            );
+            onFinalResult?.call(text);
           }
         },
+
+        localeId: localeId,
+
+        partialResults: true,
+
+        cancelOnError: false,
       );
 
       return true;
@@ -180,15 +200,18 @@ class VoiceAssistantService {
     }
   }
 
-  Future<void> stopListening() async {
-    if (!_speechToText.isListening) {
-      return;
-    }
+  // =========================================================
+  // STOP LISTENING
+  // =========================================================
 
-    print(
-      'SPEECH: stopping...',
-    );
+ Future<String?> stopListening() async {
+  final text = _lastRecognizedText.trim();
 
+  print(
+    'SPEECH: stopping...',
+  );
+
+  if (_speechToText.isListening) {
     try {
       await _speechToText.stop();
 
@@ -204,6 +227,25 @@ class VoiceAssistantService {
     }
   }
 
+  if (text.isNotEmpty) {
+    print(
+      'SPEECH STOP RESULT: $text',
+    );
+
+    return text;
+  }
+
+  print(
+    'SPEECH STOP RESULT: EMPTY',
+  );
+
+  return null;
+}
+
+  // =========================================================
+  // CANCEL
+  // =========================================================
+
   Future<void> cancelListening() async {
     try {
       if (_speechToText.isListening) {
@@ -213,12 +255,19 @@ class VoiceAssistantService {
 
         await _speechToText.cancel();
       }
+
+      _lastRecognizedText = '';
+      _finalResultReceived = false;
     } catch (e) {
       print(
         'SPEECH CANCEL ERROR: $e',
       );
     }
   }
+
+  // =========================================================
+  // DISPOSE
+  // =========================================================
 
   Future<void> dispose() async {
     try {
@@ -227,5 +276,8 @@ class VoiceAssistantService {
 
     _isInitialized = false;
     _starting = false;
+
+    _lastRecognizedText = '';
+    _finalResultReceived = false;
   }
 }

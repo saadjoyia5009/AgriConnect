@@ -19,7 +19,11 @@ class AddCropScreen extends StatefulWidget {
   const AddCropScreen({super.key});
 
   @override
-  State<AddCropScreen> createState() => _AddCropScreenState();
+  State<AddCropScreen> createState() {
+    // [TRACE-13/14] AddCropScreen.createState reached
+    debugPrint('[NAV-TRACE-13-14] AddCropScreen.createState() called — widget instantiated & state created');
+    return _AddCropScreenState();
+  }
 }
 
 class _AddCropScreenState extends State<AddCropScreen> {
@@ -546,6 +550,8 @@ class _AddCropScreenState extends State<AddCropScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // [TRACE-15] AddCropScreen build reached
+    debugPrint('[NAV-TRACE-15] _AddCropScreenState.build() called');
     final isSubmitting =
         context.watch<CropProvider>().isSubmitting;
 

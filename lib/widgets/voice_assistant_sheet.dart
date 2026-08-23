@@ -32,16 +32,42 @@ class _VoiceAssistantSheetState extends State<VoiceAssistantSheet> {
         if (voiceProvider.action != null && !_actionHandled) {
           _actionHandled = true;
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            // [TRACE-1] action received in post-frame callback
+            debugPrint('[NAV-TRACE-1] postFrameCallback fired, mounted=$mounted');
+            if (!mounted) {
+              debugPrint('[NAV-TRACE-1b] ABORT: sheet already unmounted before action');
+              return;
+            }
 
             final action = voiceProvider.consumeAction();
+            // [TRACE-1c] action value
+            debugPrint('[NAV-TRACE-1c] action from consumeAction: $action');
 
-            if (action == null) return;
+            if (action == null) {
+              debugPrint('[NAV-TRACE-1d] ABORT: action is null after consumeAction');
+              return;
+            }
 
             debugPrint('VOICE SHEET ACTION: $action');
 
+            // Capture the root navigator BEFORE dismissing the sheet so
+            // we still have a valid reference after the sheet's context is gone.
+            final rootNav = Navigator.of(context, rootNavigator: true);
+            debugPrint('[NAV-TRACE-2] rootNavigator obtained: $rootNav');
+            debugPrint('[NAV-TRACE-2b] rootNav.canPop() = ${rootNav.canPop()}');
+
+            // [TRACE-3] sheet dismissal started
+            debugPrint('[NAV-TRACE-3] sheet dismissal STARTED (maybePop)');
+            await rootNav.maybePop();
+            // [TRACE-4] sheet dismissal completed
+            debugPrint('[NAV-TRACE-4] sheet dismissal COMPLETED');
+
+            // [TRACE-5] about to call onAction
+            debugPrint('[NAV-TRACE-5] calling widget.onAction with action=$action');
             widget.onAction?.call(action);
+            // [TRACE-6] onAction returned
+            debugPrint('[NAV-TRACE-6] widget.onAction call returned');
           });
         }
 
@@ -248,14 +274,17 @@ class _VoiceAssistantSheetState extends State<VoiceAssistantSheet> {
               // -------------------------------------------------
               GestureDetector(
                 onLongPressStart: (_) async {
-                  await voiceProvider.startListening(
-                    language: _language,
-                    currentScreen: voiceProvider.currentScreen,
-                  );
-                },
-
+  await voiceProvider.startListening(
+    language: _language,
+    currentScreen: voiceProvider.currentScreen ?? 'farmer_dashboard',
+  );
+},
                 onLongPressEnd: (_) async {
+            
+
                   await voiceProvider.stopListening();
+
+                  debugPrint('========== MIC STOP HANDLER FINISHED ==========');
                 },
 
                 child: AnimatedContainer(

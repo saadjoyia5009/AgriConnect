@@ -101,6 +101,9 @@ class AgriConnectApp extends StatelessWidget {
   Route<dynamic> _generateRoute(
       RouteSettings settings,
       ) {
+    // [TRACE-12] _generateRoute receives settings.name
+    debugPrint('[NAV-TRACE-12] _generateRoute called with settings.name="${settings.name}"');
+
     Widget buyerPage(Widget child) {
       return BuyerLanguageScope(
         child: child,
@@ -177,8 +180,11 @@ class AgriConnectApp extends StatelessWidget {
       ),
     };
 
+    final matched = routes[settings.name];
+    debugPrint('[NAV-TRACE-12b] route lookup for "${settings.name}": ${matched != null ? "FOUND (${matched.runtimeType})" : "NOT FOUND — falling back to SplashScreen"}');
+
     return _animatedRoute(
-      routes[settings.name] ?? const SplashScreen(),
+      matched ?? const SplashScreen(),
       settings,
     );
   }
