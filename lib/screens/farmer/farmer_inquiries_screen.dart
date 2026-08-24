@@ -12,10 +12,12 @@ class FarmerInquiriesScreen extends StatefulWidget {
   const FarmerInquiriesScreen({super.key});
 
   @override
-  State<FarmerInquiriesScreen> createState() => _FarmerInquiriesScreenState();
+  State<FarmerInquiriesScreen> createState() =>
+      _FarmerInquiriesScreenState();
 }
 
-class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
+class _FarmerInquiriesScreenState
+    extends State<FarmerInquiriesScreen> {
   static const Color darkGreen = Color(0xff075739);
 
   @override
@@ -32,188 +34,209 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
     final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      bottomNavigationBar: const FarmerBottomNavbar(currentIndex: 3),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _topBar(),
-            Expanded(
-              child: Consumer<InquiryProvider>(
-                builder: (context, inquiryProvider, _) {
-                  if (inquiryProvider.isLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: darkGreen),
-                    );
-                  }
+      backgroundColor: const Color(0xfff5faf7),
 
-                  if (inquiryProvider.errorMessage != null) {
-                    return _ErrorState(
-                      message: inquiryProvider.errorMessage!,
-                      onRetry: () {
-                        inquiryProvider.fetchFarmerInquiries();
-                      },
-                    );
-                  }
+      bottomNavigationBar: const FarmerBottomNavbar(
+        currentIndex: 3,
+      ),
 
-                  final isDark =
-                      Theme.of(context).brightness == Brightness.dark;
+      body: Column(
+        children: [
+          _topBar(),
 
-                  return RefreshIndicator(
-                    color: darkGreen,
-                    onRefresh: () async {
-                      await inquiryProvider.fetchFarmerInquiries();
-                    },
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(18, 22, 18, 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            lang.t("receivedInquiries"),
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).textTheme.bodyLarge?.color,
-                              fontSize: 25,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            lang.t("receivedInquiriesSubtitle"),
-                            style: TextStyle(
-                              color: isDark
-                                  ? Colors.white60
-                                  : const Color(0xff333333),
-                              fontSize: 15,
-                              height: 1.4,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              _filterChip(
-                                context,
-                                title: "Pending",
-                                displayTitle: lang.t("pending"),
-                                selected:
-                                inquiryProvider.selectedFilter == "Pending",
-                              ),
-                              const SizedBox(width: 10),
-                              _filterChip(
-                                context,
-                                title: "Active",
-                                displayTitle: lang.t("active"),
-                                selected:
-                                inquiryProvider.selectedFilter == "Active",
-                              ),
-                              const SizedBox(width: 10),
-                              _filterChip(
-                                context,
-                                title: "History",
-                                displayTitle: lang.t("history"),
-                                selected:
-                                inquiryProvider.selectedFilter == "History",
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 22),
-                          if (inquiryProvider.filteredInquiries.isEmpty)
-                            const _EmptyState()
-                          else
-                            ListView.builder(
-                              itemCount:
-                              inquiryProvider.filteredInquiries.length,
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemBuilder: (context, index) {
-                                final inquiry =
-                                inquiryProvider.filteredInquiries[index];
+          Expanded(
+            child: Consumer<InquiryProvider>(
+              builder: (
+                context,
+                inquiryProvider,
+                _,
+              ) {
+                // --------------------------------------------------
+                // LOADING
+                // --------------------------------------------------
 
-                                return _InquiryCard(
-                                  inquiry: inquiry,
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            FarmerInquiryDetailScreen(
-                                              inquiryId: inquiry.id,
-                                            ),
-                                      ),
-                                    );
-                                  },
-                                  onReject: () async {
-                                    await inquiryProvider.rejectInquiry(
-                                      inquiry.id,
-                                    );
-                                  },
-                                  onAccept: () async {
-                                    await inquiryProvider.acceptInquiry(
-                                      inquiry.id,
-                                    );
-
-                                    if (!context.mounted) return;
-
-                                    if (inquiryProvider.errorMessage == null) {
-                                      await context
-                                          .read<ChatProvider>()
-                                          .fetchConversations(
-                                        showLoading: false,
-                                      );
-                                    }
-                                  },
-                                );
-                              },
-                            ),
-                        ],
-                      ),
+                if (inquiryProvider.isLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: darkGreen,
                     ),
                   );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+                }
 
-  Widget _topBar() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final lang = context.watch<LanguageProvider>();
+                // --------------------------------------------------
+                // ERROR
+                // --------------------------------------------------
 
-    return Container(
-      height: 58,
-      padding: const EdgeInsets.symmetric(horizontal: 18),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        border: Border(
-          bottom: BorderSide(
-            color: isDark ? Colors.white12 : const Color(0xffe4eee8),
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.agriculture_outlined,
-            color: isDark ? Colors.white : darkGreen,
-            size: 22,
-          ),
-          Expanded(
-            child: Center(
-              child: Text(
-                lang.t("appName"),
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : darkGreen,
-                ),
-              ),
+                if (inquiryProvider.errorMessage != null) {
+                  return _ErrorState(
+                    message:
+                        inquiryProvider.errorMessage!,
+                    onRetry: () {
+                      inquiryProvider
+                          .fetchFarmerInquiries();
+                    },
+                  );
+                }
+
+                final isDark =
+                    Theme.of(context).brightness ==
+                        Brightness.dark;
+
+                return RefreshIndicator(
+                  color: darkGreen,
+
+                  onRefresh: () async {
+                    await inquiryProvider
+                        .fetchFarmerInquiries();
+                  },
+
+                  child: SingleChildScrollView(
+                    physics:
+                        const AlwaysScrollableScrollPhysics(),
+
+                    padding: const EdgeInsets.fromLTRB(
+                      18,
+                      20,
+                      18,
+                      100,
+                    ),
+
+                    child: Column(
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                      children: [
+                        // ------------------------------------------------
+                        // HERO
+                        // ------------------------------------------------
+
+                        _heroSection(
+                          context,
+                          lang,
+                          isDark,
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // ------------------------------------------------
+                        // FILTERS
+                        // ------------------------------------------------
+
+                        Row(
+                          children: [
+                            _filterChip(
+                              context,
+                              title: "Pending",
+                              displayTitle:
+                                  lang.t("pending"),
+                              selected:
+                                  inquiryProvider
+                                          .selectedFilter ==
+                                      "Pending",
+                            ),
+
+                            const SizedBox(width: 9),
+
+                            _filterChip(
+                              context,
+                              title: "Active",
+                              displayTitle:
+                                  lang.t("active"),
+                              selected:
+                                  inquiryProvider
+                                          .selectedFilter ==
+                                      "Active",
+                            ),
+
+                            const SizedBox(width: 9),
+
+                            _filterChip(
+                              context,
+                              title: "History",
+                              displayTitle:
+                                  lang.t("history"),
+                              selected:
+                                  inquiryProvider
+                                          .selectedFilter ==
+                                      "History",
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // ------------------------------------------------
+                        // CONTENT
+                        // ------------------------------------------------
+
+                        if (inquiryProvider
+                            .filteredInquiries
+                            .isEmpty)
+                          const _EmptyState()
+                        else
+                          ListView.builder(
+                            itemCount: inquiryProvider
+                                .filteredInquiries
+                                .length,
+                            shrinkWrap: true,
+                            physics:
+                                const NeverScrollableScrollPhysics(),
+                            itemBuilder:
+                                (context, index) {
+                              final inquiry =
+                                  inquiryProvider
+                                      .filteredInquiries[index];
+
+                              return _InquiryCard(
+                                inquiry: inquiry,
+
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          FarmerInquiryDetailScreen(
+                                        inquiryId:
+                                            inquiry.id,
+                                      ),
+                                    ),
+                                  );
+                                },
+
+                                onReject: () async {
+                                  await inquiryProvider
+                                      .rejectInquiry(
+                                    inquiry.id,
+                                  );
+                                },
+
+                                onAccept: () async {
+                                  await inquiryProvider
+                                      .acceptInquiry(
+                                    inquiry.id,
+                                  );
+
+                                  if (!context.mounted) {
+                                    return;
+                                  }
+
+                                  if (inquiryProvider
+                                          .errorMessage ==
+                                      null) {
+                                    await context
+                                        .read<ChatProvider>()
+                                        .fetchConversations(
+                                          showLoading: false,
+                                        );
+                                  }
+                                },
+                              );
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -221,42 +244,375 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
     );
   }
 
-  Widget _filterChip(
-      BuildContext context, {
-        required String title,
-        required String displayTitle,
-        required bool selected,
-      }) {
-    final provider = Provider.of<InquiryProvider>(context, listen: false);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  // ==============================================================
+  // TOP BAR
+  // ==============================================================
 
-    return GestureDetector(
-      onTap: () {
-        provider.changeFilter(title);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected ? darkGreen : Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(
+  Widget _topBar() {
+    return Container(
+      width: double.infinity,
+      height: 120,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            Color(0xff075739),
+            Color(0xff0b704a),
+          ],
+        ),
+
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+      ),
+
+      child: Stack(
+        clipBehavior: Clip.hardEdge,
+        children: [
+          // LEFT BUBBLE
+          Positioned(
+            left: -45,
+            top: -55,
+            child: Container(
+              height: 155,
+              width: 155,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(
+                  alpha: 0.035,
+                ),
+              ),
+            ),
+          ),
+
+          // RIGHT BUBBLE
+          Positioned(
+            right: -45,
+            bottom: -70,
+            child: Container(
+              height: 165,
+              width: 165,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(
+                  alpha: 0.035,
+                ),
+              ),
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              20,
+              30,
+              20,
+              10,
+            ),
+
+            child: Row(
+              children: [
+                // LEFT ICON
+                Container(
+                  height: 48,
+                  width: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(
+                      alpha: 0.13,
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withValues(
+                        alpha: 0.08,
+                      ),
+                    ),
+                  ),
+
+                  child: const Icon(
+                    Icons.agriculture_outlined,
+                    color: Colors.white,
+                    size: 27,
+                  ),
+                ),
+
+                // TITLE
+                const Expanded(
+                  child: Center(
+                    child: Text(
+                      "Inquiries",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.6,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // RIGHT ICON
+                Container(
+                  height: 48,
+                  width: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(
+                      alpha: 0.13,
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withValues(
+                        alpha: 0.08,
+                      ),
+                    ),
+                  ),
+
+                  child: const Icon(
+                    Icons.notifications_none_rounded,
+                    color: Colors.white,
+                    size: 27,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==============================================================
+  // HERO SECTION
+  // ==============================================================
+
+  Widget _heroSection(
+    BuildContext context,
+    LanguageProvider lang,
+    bool isDark,
+  ) {
+    return Row(
+      crossAxisAlignment:
+          CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      lang.t("receivedInquiries"),
+                      style: TextStyle(
+                        color: isDark
+                            ? Colors.white
+                            : const Color(0xff161d19),
+                        fontSize: 27,
+                        fontWeight:
+                            FontWeight.w900,
+                        letterSpacing: -0.7,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 7),
+
+                  const Icon(
+                    Icons.eco_rounded,
+                    color: Color(0xff329a60),
+                    size: 19,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 7),
+
+              Text(
+                lang.t(
+                  "receivedInquiriesSubtitle",
+                ),
+                style: TextStyle(
+                  color: isDark
+                      ? Colors.white60
+                      : const Color(0xff68736d),
+                  fontSize: 14,
+                  height: 1.45,
+                  fontWeight:
+                      FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(width: 10),
+
+        // SMALL PREMIUM ICON BOX
+        Container(
+          height: 78,
+          width: 86,
+          decoration: BoxDecoration(
+            color: const Color(0xffe4f3e9),
+            borderRadius:
+                BorderRadius.circular(24),
+          ),
+
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned(
+                bottom: 8,
+                left: 10,
+                right: 10,
+                child: Container(
+                  height: 15,
+                  decoration: BoxDecoration(
+                    color:
+                        const Color(0xffcce8d5),
+                    borderRadius:
+                        BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+
+              const Icon(
+                Icons.mark_email_unread_outlined,
+                color: darkGreen,
+                size: 40,
+              ),
+
+              const Positioned(
+                top: 8,
+                right: 12,
+                child: Icon(
+                  Icons.eco_rounded,
+                  color: Color(0xff4ea971),
+                  size: 17,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ==============================================================
+  // FILTER CHIP
+  // ==============================================================
+
+  Widget _filterChip(
+    BuildContext context, {
+    required String title,
+    required String displayTitle,
+    required bool selected,
+  }) {
+    final provider =
+        Provider.of<InquiryProvider>(
+      context,
+      listen: false,
+    );
+
+    final isDark =
+        Theme.of(context).brightness ==
+            Brightness.dark;
+
+    IconData icon;
+
+    switch (title) {
+      case "Pending":
+        icon = Icons.schedule_rounded;
+        break;
+
+      case "Active":
+        icon = Icons.eco_rounded;
+        break;
+
+      default:
+        icon =
+            Icons.inventory_2_outlined;
+    }
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          provider.changeFilter(title);
+        },
+
+        child: AnimatedContainer(
+          duration:
+              const Duration(milliseconds: 180),
+
+          height: 52,
+
+          decoration: BoxDecoration(
             color: selected
                 ? darkGreen
                 : isDark
-                ? Colors.white12
-                : const Color(0xffd8e6de),
+                    ? const Color(0xff1d251f)
+                    : Colors.white,
+
+            borderRadius:
+                BorderRadius.circular(27),
+
+            border: Border.all(
+              color: selected
+                  ? darkGreen
+                  : isDark
+                      ? Colors.white12
+                      : const Color(0xffd8e6de),
+            ),
+
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: darkGreen
+                          .withValues(
+                        alpha: 0.12,
+                      ),
+                      blurRadius: 12,
+                      offset:
+                          const Offset(0, 5),
+                    ),
+                  ]
+                : [],
           ),
-        ),
-        child: Text(
-          displayTitle,
-          style: TextStyle(
-            color: selected
-                ? Colors.white
-                : isDark
-                ? Colors.white
-                : darkGreen,
-            fontWeight: FontWeight.w800,
-            fontSize: 13,
+
+          child: Row(
+            mainAxisAlignment:
+                MainAxisAlignment.center,
+
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: selected
+                    ? Colors.white
+                    : darkGreen,
+              ),
+
+              const SizedBox(width: 6),
+
+              Flexible(
+                child: Text(
+                  displayTitle,
+                  overflow:
+                      TextOverflow.ellipsis,
+
+                  style: TextStyle(
+                    color: selected
+                        ? Colors.white
+                        : darkGreen,
+                    fontSize: 12.5,
+                    fontWeight:
+                        FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -264,8 +620,13 @@ class _FarmerInquiriesScreenState extends State<FarmerInquiriesScreen> {
   }
 }
 
+// ==================================================================
+// INQUIRY CARD
+// ==================================================================
+
 class _InquiryCard extends StatelessWidget {
   final InquiryModel inquiry;
+
   final Future<void> Function() onAccept;
   final Future<void> Function() onReject;
   final VoidCallback onTap;
@@ -281,275 +642,403 @@ class _InquiryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    final lang = context.watch<LanguageProvider>();
+
+    final isPending =
+        inquiry.status.toLowerCase() == "pending";
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(24),
+
       child: Container(
-        margin: const EdgeInsets.only(bottom: 18),
+        margin: const EdgeInsets.only(bottom: 16),
+
+        height: 170,
+
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: isDark
+              ? const Color(0xff1d251f)
+              : Colors.white,
+
+          borderRadius: BorderRadius.circular(24),
+
           border: Border.all(
-            color: isDark ? Colors.white12 : const Color(0xffd8e6de),
+            color: isDark
+                ? Colors.white12
+                : const Color(0xffd8e6de),
+            width: 1,
           ),
-          borderRadius: BorderRadius.circular(12),
+
           boxShadow: [
             BoxShadow(
-              color: isDark
-                  ? Colors.black.withOpacity(0.18)
-                  : Colors.black.withOpacity(0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
+              color: Colors.black.withValues(
+                alpha: 0.045,
+              ),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
-        child: Column(
+
+        clipBehavior: Clip.antiAlias,
+
+        child: Row(
           children: [
-            _imageHeader(context),
-            _buyerDetails(context),
-            Divider(
-              color: isDark ? Colors.white12 : Colors.grey.shade300,
-              height: 1,
-            ),
-            _priceAndActions(context),
-          ],
-        ),
-      ),
-    );
-  }
+            // =====================================================
+            // PREMIUM CURVED IMAGE
+            // =====================================================
 
-  Widget _imageHeader(BuildContext context) {
-    final lang = context.watch<LanguageProvider>();
+            SizedBox(
+              width: 150,
+              height: double.infinity,
 
-    return Stack(
-      children: [
-        ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-          child: Image.network(
-            inquiry.cropImage,
-            width: double.infinity,
-            height: 125,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) {
-              return Container(
-                width: double.infinity,
-                height: 125,
-                color: const Color(0xffe8f3ed),
-                child: const Icon(
-                  Icons.image_not_supported_outlined,
-                  color: darkGreen,
-                  size: 38,
-                ),
-              );
-            },
-          ),
-        ),
-        Container(
-          height: 125,
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: [Colors.black.withOpacity(0.60), Colors.transparent],
-            ),
-          ),
-        ),
-        Positioned(
-          left: 14,
-          bottom: 14,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                inquiry.cropName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 21,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              Text(
-                inquiry.cropGrade,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Positioned(
-          top: 10,
-          right: 10,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-            decoration: BoxDecoration(
-              color: _statusColor(inquiry.status).withOpacity(0.90),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              _statusLabel(inquiry.status, lang),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buyerDetails(BuildContext context) {
-    final lang = context.watch<LanguageProvider>();
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
-      child: Row(
-        children: [
-          Expanded(
-            child: _detailBlock(
-              context: context,
-              title: lang.t("buyer"),
-              child: Row(
+              child: Stack(
                 children: [
-                  CircleAvatar(
-                    radius: 13,
-                    backgroundColor: const Color(0xffb8efcf),
-                    child: Text(
-                      inquiry.buyerInitials,
-                      style: const TextStyle(
-                        color: darkGreen,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
+                  // -------------------------------------------------
+                  // IMAGE
+                  // -------------------------------------------------
+
+                  ClipPath(
+                    clipper: _InquiryImageClipper(),
+
+                    child: Image.network(
+                      inquiry.cropImage,
+
+                      width: 160,
+                      height: double.infinity,
+
+                      fit: BoxFit.cover,
+
+                      errorBuilder: (_, __, ___) {
+                        return Container(
+                          width: 185,
+                          height: double.infinity,
+                          color: const Color(0xffe8f3ed),
+
+                          child: const Icon(
+                            Icons.image_not_supported_outlined,
+                            color: darkGreen,
+                            size: 38,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  // -------------------------------------------------
+                  // IMAGE DARK GRADIENT
+                  // -------------------------------------------------
+
+                  ClipPath(
+                    clipper: _InquiryImageClipper(),
+
+                    child: Container(
+                      width: 185,
+                      height: double.infinity,
+
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(
+                              alpha: 0.68,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Flexible(
+
+                  // -------------------------------------------------
+                  // CURVED GREEN BORDER
+                  // -------------------------------------------------
+
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: CustomPaint(
+                        painter:
+                        _InquiryImageCurvePainter(),
+                      ),
+                    ),
+                  ),
+
+                  // -------------------------------------------------
+                  // CROP NAME
+                  // -------------------------------------------------
+
+                  Positioned(
+                    left: 17,
+                    right: 35,
+                    bottom: 14,
+
                     child: Text(
-                      inquiry.buyerName,
+                      inquiry.cropName,
+
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyLarge?.color,
-                        fontSize: 14,
+
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
                         fontWeight: FontWeight.w900,
+                        letterSpacing: -0.3,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          _detailBlock(
-            context: context,
-            title: lang.t("requested"),
-            crossAxisAlignment: CrossAxisAlignment.end,
-            child: Text(
-              lang.tDynamic(inquiry.requestedQuantity),
-              style: const TextStyle(
-                color: darkGreen,
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _priceAndActions(BuildContext context) {
-    final bool isPending = inquiry.status.toLowerCase() == "pending";
-    final lang = context.watch<LanguageProvider>();
+            // =====================================================
+            // INFORMATION
+            // =====================================================
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: _detailBlock(
-              context: context,
-              title: lang.t("proposedPrice"),
-              child: Text(
-                inquiry.proposedPrice,
-                style: const TextStyle(
-                  color: darkGreen,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  14,
+                  12,
+                  12,
+                  10,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    // =====================================================
+                    // TOP ROW
+                    // BUYER + STATUS
+                    // =====================================================
+
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+
+                        // BUYER
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                            children: [
+
+                              Text(
+                                lang.t("buyer"),
+                                style: TextStyle(
+                                  color: isDark
+                                      ? Colors.white54
+                                      : const Color(0xff68736d),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+
+                              const SizedBox(height: 4),
+
+                              Row(
+                                children: [
+
+                                  Container(
+                                    height: 29,
+                                    width: 29,
+                                    decoration:
+                                    const BoxDecoration(
+                                      color: Color(0xffdff5e7),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      inquiry.buyerInitials,
+                                      style: const TextStyle(
+                                        color: darkGreen,
+                                        fontSize: 12,
+                                        fontWeight:
+                                        FontWeight.w900,
+                                      ),
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 7),
+
+                                  Flexible(
+                                    child: Text(
+                                      inquiry.buyerName,
+                                      maxLines: 1,
+                                      overflow:
+                                      TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: isDark
+                                            ? Colors.white
+                                            : const Color(
+                                          0xff202723,
+                                        ),
+                                        fontSize: 14,
+                                        fontWeight:
+                                        FontWeight.w900,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // STATUS
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _statusColor(
+                              inquiry.status,
+                            ).withValues(alpha: 0.11),
+                            borderRadius:
+                            BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+
+                              Container(
+                                height: 7,
+                                width: 7,
+                                decoration: BoxDecoration(
+                                  color: _statusColor(
+                                    inquiry.status,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+
+                              const SizedBox(width: 5),
+
+                              Text(
+                                _statusLabel(
+                                  inquiry.status,
+                                  lang,
+                                ),
+                                style: TextStyle(
+                                  color: _statusColor(
+                                    inquiry.status,
+                                  ),
+                                  fontSize: 10.5,
+                                  fontWeight:
+                                  FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // =====================================================
+                    // REQUESTED
+                    // =====================================================
+
+                    Row(
+                      mainAxisAlignment:
+                      MainAxisAlignment.end,
+                      children: [
+
+                        Text(
+                          lang.t("requested"),
+                          style: TextStyle(
+                            color: isDark
+                                ? Colors.white54
+                                : const Color(0xff000000),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+
+                        const SizedBox(width: 8),
+
+
+                        Text(
+                          lang.tDynamic(
+                            inquiry.requestedQuantity,
+                          ),
+                          style: const TextStyle(
+                            color: darkGreen,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 7),
+
+                    // =====================================================
+                    // DIVIDER
+                    // =====================================================
+
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: isDark
+                          ? Colors.white12
+                          : const Color(0xffe1e9e4),
+                    ),
+
+                    const Spacer(),
+
+                    // =====================================================
+                    // PROPOSED PRICE
+                    // =====================================================
+
+                    Column(
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                      children: [
+
+                        Text(
+                          lang.t("proposedPrice"),
+                          style: TextStyle(
+                            color: isDark
+                                ? Colors.white54
+                                : const Color(0xff68736d),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+
+                        const SizedBox(height: 2),
+
+                        Text(
+                          inquiry.proposedPrice,
+                          style: const TextStyle(
+                            color: darkGreen,
+                            fontSize: 19,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-          if (isPending) ...[
-            _circleButton(
-              context: context,
-              icon: Icons.close,
-              filled: false,
-              onTap: () async {
-                await onReject();
-                _showMessage(context, lang.t("inquiryRejected"));
-              },
-            ),
-            const SizedBox(width: 12),
-            _circleButton(
-              context: context,
-              icon: Icons.check,
-              filled: true,
-              onTap: () async {
-                await onAccept();
-                _showMessage(context, lang.t("inquiryAccepted"));
-              },
-            ),
           ],
-        ],
+        ),
       ),
     );
   }
 
-  String _statusLabel(String status, LanguageProvider lang) {
-    switch (status.toLowerCase()) {
-      case "pending":
-        return lang.t("pending");
-      case "active":
-      case "accepted":
-        return lang.t("active");
-      case "history":
-      case "completed":
-        return lang.t("history");
-      default:
-        return lang.tDynamic(status);
-    }
-  }
-
-  Widget _detailBlock({
-    required BuildContext context,
-    required String title,
-    required Widget child,
-    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.start,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Column(
-      crossAxisAlignment: crossAxisAlignment,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            color: isDark ? Colors.white60 : const Color(0xff333333),
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 7),
-        child,
-      ],
-    );
-  }
+  // ==============================================================
+  // ACTION BUTTON
+  // ==============================================================
 
   Widget _circleButton({
     required BuildContext context,
@@ -557,93 +1046,356 @@ class _InquiryCard extends StatelessWidget {
     required bool filled,
     required VoidCallback onTap,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return InkWell(
       onTap: onTap,
       customBorder: const CircleBorder(),
+
       child: Container(
-        height: 43,
-        width: 43,
+        height: 36,
+        width: 36,
+
         decoration: BoxDecoration(
           color: filled
               ? darkGreen
-              : isDark
-              ? Theme.of(context).cardColor
               : Colors.white,
+
           shape: BoxShape.circle,
-          border: Border.all(color: darkGreen),
+
+          border: Border.all(
+            color: darkGreen,
+            width: 1.2,
+          ),
         ),
-        child: Icon(icon, color: filled ? Colors.white : darkGreen, size: 25),
+
+        child: Icon(
+          icon,
+
+          color: filled
+              ? Colors.white
+              : darkGreen,
+
+          size: 19,
+        ),
       ),
     );
   }
 
-  static Color _statusColor(String status) {
+  // ==============================================================
+  // STATUS LABEL
+  // ==============================================================
+
+  String _statusLabel(
+      String status,
+      LanguageProvider lang,
+      ) {
+    switch (status.toLowerCase()) {
+      case "pending":
+        return lang.t("pending");
+
+      case "active":
+      case "accepted":
+        return lang.t("active");
+
+      case "history":
+      case "completed":
+        return lang.t("history");
+
+      default:
+        return lang.tDynamic(status);
+    }
+  }
+
+  // ==============================================================
+  // STATUS COLOR
+  // ==============================================================
+
+  static Color _statusColor(
+      String status,
+      ) {
     switch (status.toLowerCase()) {
       case "active":
       case "accepted":
         return darkGreen;
+
       case "rejected":
       case "cancelled":
         return Colors.red;
+
       case "completed":
       case "history":
         return Colors.grey;
+
       default:
         return const Color(0xffff9800);
     }
   }
 
-  void _showMessage(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: darkGreen),
+  // ==============================================================
+  // SNACKBAR
+  // ==============================================================
+
+  void _showMessage(
+      BuildContext context,
+      String message,
+      ) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: darkGreen,
+      ),
     );
   }
 }
 
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
+// ================================================================
+// CURVED IMAGE CLIPPER
+// ================================================================
 
-  static const Color darkGreen = Color(0xff075739);
+class _InquiryImageClipper
+    extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+
+    // Top-left rounded corner
+    path.moveTo(24, 0);
+
+    path.quadraticBezierTo(
+      0,
+      0,
+      0,
+      24,
+    );
+
+    // Left side
+    path.lineTo(
+      0,
+      size.height - 24,
+    );
+
+    // Bottom-left rounded corner
+    path.quadraticBezierTo(
+      0,
+      size.height,
+      24,
+      size.height,
+    );
+
+    // Bottom curved edge
+    path.lineTo(
+      size.width - 28,
+      size.height,
+    );
+
+    path.cubicTo(
+      size.width - 17,
+      size.height * 0.82,
+      size.width - 8,
+      size.height * 0.65,
+      size.width - 8,
+      size.height * 0.50,
+    );
+
+    // Top curved edge
+    path.cubicTo(
+      size.width - 8,
+      size.height * 0.35,
+      size.width - 17,
+      size.height * 0.18,
+      size.width - 28,
+      0,
+    );
+
+    path.close();
+
+    return path;
+  }
 
   @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final lang = context.watch<LanguageProvider>();
+  bool shouldReclip(
+      covariant CustomClipper<Path> oldClipper,
+      ) {
+    return false;
+  }
+}
+
+
+// ================================================================
+// CURVED GREEN SEPARATOR
+// ================================================================
+
+class _InquiryImageCurvePainter
+    extends CustomPainter {
+  @override
+  void paint(
+      Canvas canvas,
+      Size size,
+      ) {
+    final path = Path();
+
+    path.moveTo(
+      size.width - 28,
+      0,
+    );
+
+    path.cubicTo(
+      size.width - 17,
+      size.height * 0.18,
+      size.width - 8,
+      size.height * 0.35,
+      size.width - 8,
+      size.height * 0.50,
+    );
+
+    path.cubicTo(
+      size.width - 8,
+      size.height * 0.65,
+      size.width - 17,
+      size.height * 0.82,
+      size.width - 28,
+      size.height,
+    );
+
+    final paint = Paint()
+      ..color = const Color(0xff63c895)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawPath(
+      path,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(
+      covariant CustomPainter oldDelegate,
+      ) {
+    return false;
+  }
+}
+
+// ==================================================================
+// EMPTY STATE
+// ==================================================================
+
+class _EmptyState
+    extends StatelessWidget {
+  const _EmptyState();
+
+  static const Color darkGreen =
+      Color(0xff075739);
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
+    final isDark =
+        Theme.of(context).brightness ==
+            Brightness.dark;
+
+    final lang =
+        context.watch<LanguageProvider>();
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 38),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? Colors.white12 : const Color(0xffd8e6de),
-        ),
+
+      padding:
+          const EdgeInsets.symmetric(
+        horizontal: 22,
+        vertical: 38,
       ),
+
+      decoration: BoxDecoration(
+        color: isDark
+            ? const Color(0xff1d251f)
+            : Colors.white,
+
+        borderRadius:
+            BorderRadius.circular(24),
+
+        border: Border.all(
+          color: isDark
+              ? Colors.white12
+              : const Color(0xffd8e6de),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: 0.035,
+            ),
+            blurRadius: 14,
+            offset:
+                const Offset(0, 6),
+          ),
+        ],
+      ),
+
       child: Column(
         children: [
-          const Icon(
-            Icons.mark_email_unread_outlined,
-            color: darkGreen,
-            size: 42,
-          ),
-          const SizedBox(height: 14),
-          Text(
-            lang.t("noInquiriesFound"),
-            style: TextStyle(
-              color: Theme.of(context).textTheme.bodyLarge?.color,
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
+          Container(
+            height: 72,
+            width: 72,
+
+            decoration:
+                BoxDecoration(
+              color:
+                  const Color(0xffe4f3e9),
+              shape: BoxShape.circle,
+            ),
+
+            child: const Icon(
+              Icons
+                  .mark_email_unread_outlined,
+              color: darkGreen,
+              size: 38,
             ),
           ),
-          const SizedBox(height: 6),
+
+          const SizedBox(
+            height: 15,
+          ),
+
           Text(
-            lang.t("noInquiriesSubtitle"),
-            textAlign: TextAlign.center,
+            lang.t(
+              "noInquiriesFound",
+            ),
+
             style: TextStyle(
-              color: isDark ? Colors.white60 : const Color(0xff555555),
+              color: isDark
+                  ? Colors.white
+                  : const Color(
+                      0xff202723,
+                    ),
+
+              fontSize: 18,
+              fontWeight:
+                  FontWeight.w900,
+            ),
+          ),
+
+          const SizedBox(
+            height: 6,
+          ),
+
+          Text(
+            lang.t(
+              "noInquiriesSubtitle",
+            ),
+
+            textAlign:
+                TextAlign.center,
+
+            style: TextStyle(
+              color: isDark
+                  ? Colors.white60
+                  : const Color(
+                      0xff68736d,
+                    ),
+
               fontSize: 14,
               height: 1.4,
             ),
@@ -654,52 +1406,142 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-class _ErrorState extends StatelessWidget {
+// ==================================================================
+// ERROR STATE
+// ==================================================================
+
+class _ErrorState
+    extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const _ErrorState({required this.message, required this.onRetry});
+  const _ErrorState({
+    required this.message,
+    required this.onRetry,
+  });
 
-  static const Color darkGreen = Color(0xff075739);
+  static const Color darkGreen =
+      Color(0xff075739);
 
   @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final lang = context.watch<LanguageProvider>();
+  Widget build(
+    BuildContext context,
+  ) {
+    final isDark =
+        Theme.of(context).brightness ==
+            Brightness.dark;
+
+    final lang =
+        context.watch<LanguageProvider>();
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(22),
+        padding:
+            const EdgeInsets.all(22),
+
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment:
+              MainAxisAlignment.center,
+
           children: [
-            const Icon(Icons.wifi_off_rounded, color: Colors.red, size: 46),
-            const SizedBox(height: 14),
-            Text(
-              lang.t("somethingWentWrong"),
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyLarge?.color,
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
+            Container(
+              height: 76,
+              width: 76,
+
+              decoration:
+                  BoxDecoration(
+                color: const Color(
+                  0xffffeeee,
+                ),
+                shape: BoxShape.circle,
+              ),
+
+              child: const Icon(
+                Icons.wifi_off_rounded,
+                color: Colors.red,
+                size: 38,
               ),
             ),
-            const SizedBox(height: 8),
+
+            const SizedBox(
+              height: 15,
+            ),
+
+            Text(
+              lang.t(
+                "somethingWentWrong",
+              ),
+
+              style: TextStyle(
+                color: isDark
+                    ? Colors.white
+                    : const Color(
+                        0xff202723,
+                      ),
+
+                fontSize: 18,
+                fontWeight:
+                    FontWeight.w900,
+              ),
+            ),
+
+            const SizedBox(
+              height: 8,
+            ),
+
             Text(
               message,
-              textAlign: TextAlign.center,
+
+              textAlign:
+                  TextAlign.center,
+
               style: TextStyle(
-                color: isDark ? Colors.white60 : const Color(0xff555555),
+                color: isDark
+                    ? Colors.white60
+                    : const Color(
+                        0xff68736d,
+                      ),
+
                 fontSize: 14,
+                height: 1.4,
               ),
             ),
-            const SizedBox(height: 18),
+
+            const SizedBox(
+              height: 18,
+            ),
+
             ElevatedButton(
               onPressed: onRetry,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: darkGreen,
-                foregroundColor: Colors.white,
+
+              style:
+                  ElevatedButton.styleFrom(
+                backgroundColor:
+                    darkGreen,
+                foregroundColor:
+                    Colors.white,
+
+                elevation: 0,
+
+                padding:
+                    const EdgeInsets
+                        .symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+
+                shape:
+                    RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(
+                    24,
+                  ),
+                ),
               ),
-              child: Text(lang.t("retry")),
+
+              child: Text(
+                lang.t("retry"),
+              ),
             ),
           ],
         ),

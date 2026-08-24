@@ -249,7 +249,6 @@ class _FarmerChatsScreenState extends State<FarmerChatsScreen> {
             ),
             child: Row(
               children: [
-                // Chat icon
                 Container(
                   height: 48,
                   width: 48,
