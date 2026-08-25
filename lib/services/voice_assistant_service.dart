@@ -32,6 +32,16 @@ class VoiceAssistantService {
             'SPEECH SERVICE ERROR: ${error.errorMsg}',
           );
 
+          // -----------------------------------------------------
+          // Ignore non-fatal error_no_match directly at SDK level
+          // -----------------------------------------------------
+          if (error.errorMsg == 'error_no_match') {
+            print(
+              'SPEECH: error_no_match ignored.',
+            );
+            return;
+          }
+
           onError?.call(
             error.errorMsg,
           );
@@ -73,24 +83,20 @@ class VoiceAssistantService {
     // ---------------------------------------------------------
     // Prevent overlapping starts
     // ---------------------------------------------------------
-
     if (_starting) {
       print(
         'SPEECH: start ignored because another start is in progress.',
       );
-
       return false;
     }
 
     // ---------------------------------------------------------
     // Do not start another active session
     // ---------------------------------------------------------
-
     if (_speechToText.isListening) {
       print(
         'SPEECH: already listening. Ignoring duplicate start.',
       );
-
       return true;
     }
 
@@ -110,21 +116,23 @@ class VoiceAssistantService {
         onError?.call(
           'Speech recognition is not available.',
         );
-
         return false;
       }
 
       // ---------------------------------------------------------
       // Check again after initialization
       // ---------------------------------------------------------
-
       if (_speechToText.isListening) {
         print(
           'SPEECH: already listening after initialization.',
         );
-
         return true;
       }
+
+      // Give Android speech service a moment to settle
+      await Future.delayed(
+        const Duration(milliseconds: 400),
+      );
 
       print(
         'SPEECH: starting new session with $localeId',
@@ -132,8 +140,7 @@ class VoiceAssistantService {
 
       await _speechToText.listen(
         onResult: (result) {
-          final text =
-              result.recognizedWords.trim();
+          final text = result.recognizedWords.trim();
 
           print(
             'RAW SPEECH RESULT: $text',
@@ -146,24 +153,19 @@ class VoiceAssistantService {
           // -----------------------------------------------------
           // Always remember latest recognized text
           // -----------------------------------------------------
-
           if (text.isNotEmpty) {
             _lastRecognizedText = text;
-
             onResult(text);
           }
 
           // -----------------------------------------------------
           // Native final result
           // -----------------------------------------------------
-
-          if (result.finalResult &&
-              text.isNotEmpty) {
+          if (result.finalResult && text.isNotEmpty) {
             if (_finalResultReceived) {
               print(
                 'SPEECH: duplicate final result ignored.',
               );
-
               return;
             }
 
@@ -182,6 +184,17 @@ class VoiceAssistantService {
         partialResults: true,
 
         cancelOnError: false,
+
+        // -----------------------------------------------------
+        // Longer listening parameters
+        // -----------------------------------------------------
+        listenFor: const Duration(
+          seconds: 30,
+        ),
+
+        pauseFor: const Duration(
+          seconds: 6,
+        ),
       );
 
       return true;
@@ -204,43 +217,43 @@ class VoiceAssistantService {
   // STOP LISTENING
   // =========================================================
 
- Future<String?> stopListening() async {
-  final text = _lastRecognizedText.trim();
+  Future<String?> stopListening() async {
+    final text = _lastRecognizedText.trim();
 
-  print(
-    'SPEECH: stopping...',
-  );
-
-  if (_speechToText.isListening) {
-    try {
-      await _speechToText.stop();
-
-      await Future.delayed(
-        const Duration(
-          milliseconds: 150,
-        ),
-      );
-    } catch (e) {
-      print(
-        'SPEECH STOP ERROR: $e',
-      );
-    }
-  }
-
-  if (text.isNotEmpty) {
     print(
-      'SPEECH STOP RESULT: $text',
+      'SPEECH: stopping...',
     );
 
-    return text;
+    if (_speechToText.isListening) {
+      try {
+        await _speechToText.stop();
+
+        await Future.delayed(
+          const Duration(
+            milliseconds: 150,
+          ),
+        );
+      } catch (e) {
+        print(
+          'SPEECH STOP ERROR: $e',
+        );
+      }
+    }
+
+    if (text.isNotEmpty) {
+      print(
+        'SPEECH STOP RESULT: $text',
+      );
+
+      return text;
+    }
+
+    print(
+      'SPEECH STOP RESULT: EMPTY',
+    );
+
+    return null;
   }
-
-  print(
-    'SPEECH STOP RESULT: EMPTY',
-  );
-
-  return null;
-}
 
   // =========================================================
   // CANCEL

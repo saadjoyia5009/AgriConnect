@@ -129,6 +129,19 @@ class VoiceAssistantProvider extends ChangeNotifier {
       },
       onError: (message) {
         debugPrint('VOICE ERROR: $message');
+
+        // error_no_match is not a fatal application error.
+        // Speech recognition may stop because no speech was detected.
+        if (message == 'error_no_match') {
+          debugPrint(
+            'VOICE: error_no_match ignored; keeping conversation alive.',
+          );
+
+          _state = VoiceAssistantState.idle;
+          notifyListeners();
+          return;
+        }
+
         _state = VoiceAssistantState.error;
         _error = message;
         notifyListeners();

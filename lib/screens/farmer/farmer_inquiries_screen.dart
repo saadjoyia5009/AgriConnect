@@ -161,12 +161,15 @@ class _FarmerInquiriesScreenState
                             ),
                           ],
                         ),
-
-                        const SizedBox(height: 20),
-
-                        // ------------------------------------------------
-                        // CONTENT
-                        // ------------------------------------------------
+                        SizedBox(height: 13),
+                        
+                        Text("Inquiries: ${inquiryProvider.filteredInquiries.length}"
+                          , style: TextStyle(
+                            color: isDark ? Colors.white : const Color(0xff202622),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
 
                         if (inquiryProvider
                             .filteredInquiries
@@ -546,7 +549,7 @@ class _FarmerInquiriesScreenState
           duration:
               const Duration(milliseconds: 180),
 
-          height: 52,
+          height: 42,
 
           decoration: BoxDecoration(
             color: selected
@@ -588,7 +591,7 @@ class _FarmerInquiriesScreenState
             children: [
               Icon(
                 icon,
-                size: 18,
+                size: 16,
                 color: selected
                     ? Colors.white
                     : darkGreen,
