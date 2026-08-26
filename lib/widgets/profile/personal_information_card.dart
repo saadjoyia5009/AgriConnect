@@ -92,7 +92,7 @@ class PersonalInformationCard extends StatelessWidget {
   }) {
     return Row(
       children: [
-        _iconBox(icon),
+        _iconBox(icon , context),
         const SizedBox(width: 14),
         Expanded(
           child: Text(
@@ -123,7 +123,7 @@ class PersonalInformationCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _iconBox(icon),
+          _iconBox(icon, context),
           const SizedBox(width: 18),
           Expanded(
             child: Column(
@@ -162,17 +162,27 @@ class PersonalInformationCard extends StatelessWidget {
     );
   }
 
-  Widget _iconBox(IconData icon) {
+  Widget _iconBox(
+      IconData icon,
+      BuildContext context,
+      ) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: 46,
       width: 46,
       decoration: BoxDecoration(
-        color: const Color(0xffe8f5ee),
+        color: isDark
+            ? const Color(0xff20372b)
+            : const Color(0xffe8f5ee),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Icon(
         icon,
-        color: darkGreen,
+        color: isDark
+            ? const Color(0xff65c98e)
+            : darkGreen,
         size: 23,
       ),
     );

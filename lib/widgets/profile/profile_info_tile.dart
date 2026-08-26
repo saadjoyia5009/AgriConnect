@@ -23,61 +23,102 @@ class ProfileInfoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isSetting = subtitle != null;
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final titleColor = isDark
+    final bool isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    final Color titleColor = isDark
         ? Colors.white
-        : (isSetting ? const Color(0xff202525) : const Color(0xff4f5955));
+        : (isSetting
+        ? const Color(0xff202525)
+        : const Color(0xff4f5955));
 
-    final valueColor = isDark
+    final Color valueColor = isDark
         ? Colors.grey.shade300
-        : (isSetting ? const Color(0xff4f5955) : const Color(0xff202525));
+        : (isSetting
+        ? const Color(0xff4f5955)
+        : const Color(0xff202525));
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 17),
+        padding: const EdgeInsets.symmetric(
+          vertical: 16,
+        ),
         child: Row(
           children: [
+            // --------------------------------------------------
+            // ICON
+            // --------------------------------------------------
+
             CircleAvatar(
               radius: 23,
               backgroundColor: isDark
-                  ? const Color(0xFF2A2A2A)
+                  ? const Color(0xff20372b)
                   : const Color(0xfff0f1f0),
-              child: Icon(icon, color: darkGreen, size: 24),
+              child: Icon(
+                icon,
+                color: isDark
+                    ? const Color(0xff65c98e)
+                    : darkGreen,
+                size: 24,
+              ),
             ),
+
             const SizedBox(width: 18),
+
+            // --------------------------------------------------
+            // TITLE + VALUE
+            // --------------------------------------------------
+
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: isSetting ? 18 : 14,
+                      fontSize:
+                      isSetting ? 18 : 14,
                       color: titleColor,
-                      fontWeight: isSetting ? FontWeight.w700 : FontWeight.w600,
+                      fontWeight: isSetting
+                          ? FontWeight.w700
+                          : FontWeight.w600,
                     ),
                   ),
+
                   const SizedBox(height: 5),
+
                   Text(
                     subtitle ?? value,
-                    overflow: TextOverflow.ellipsis,
+                    overflow:
+                    TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: isSetting ? 13 : 17,
+                      fontSize:
+                      isSetting ? 13 : 17,
                       color: valueColor,
-                      fontWeight: isSetting ? FontWeight.w500 : FontWeight.w800,
+                      fontWeight: isSetting
+                          ? FontWeight.w500
+                          : FontWeight.w800,
                     ),
                   ),
                 ],
               ),
             ),
+
+            // --------------------------------------------------
+            // ARROW
+            // --------------------------------------------------
+
             if (showArrow)
               Icon(
                 Icons.chevron_right,
                 size: 30,
-                color: isDark ? Colors.grey.shade400 : const Color(0xff333333),
+                color: isDark
+                    ? Colors.grey.shade400
+                    : const Color(0xff333333),
               ),
           ],
         ),

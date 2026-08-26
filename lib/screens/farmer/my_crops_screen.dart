@@ -18,6 +18,43 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
   static const Color darkGreen = Color(0xff075739);
   static const Color accentGreen = Color(0xff0b704a);
 
+  // Theme-aware colors. Geometry/layout/logic remain unchanged.
+  bool _isDark(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  Color _backgroundColor(BuildContext context) =>
+      _isDark(context) ? const Color(0xff101713) : const Color(0xfff6faf7);
+
+  Color _cardColor(BuildContext context) =>
+      _isDark(context) ? const Color(0xff18221c) : Colors.white;
+
+  Color _primaryText(BuildContext context) =>
+      _isDark(context) ? Colors.white : const Color(0xff161d19);
+
+  Color _secondaryText(BuildContext context) =>
+      _isDark(context) ? const Color(0xffb8c6bd) : const Color(0xff68736d);
+
+  Color _softGreen(BuildContext context) =>
+      _isDark(context) ? const Color(0xff1d3327) : const Color(0xffe4f3e9);
+
+  Color _softChip(BuildContext context) =>
+      _isDark(context) ? const Color(0xff202b24) : const Color(0xfff7faf8);
+
+  Color _borderColor(BuildContext context) =>
+      _isDark(context) ? Colors.white12 : const Color(0xffdcebe2);
+
+  // Uses the existing LanguageProvider. If an older provider does not yet
+  // contain a key, the local English/Urdu fallback keeps this screen usable.
+  String _tr(
+      LanguageProvider lang,
+      String key, {
+        required String en,
+        required String ur,
+      }) {
+    final translated = lang.t(key);
+    return translated == key ? (lang.isUrdu ? ur : en) : translated;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -33,7 +70,7 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
     final cropProvider = context.watch<CropProvider>();
 
     return Scaffold(
-      backgroundColor: const Color(0xfff6faf7),
+      backgroundColor: _backgroundColor(context),
 
       // EXISTING NAVBAR — unchanged
       bottomNavigationBar: const FarmerBottomNavbar(
@@ -54,42 +91,47 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
         ),
       ),
 
-      body: ResponsiveLayout(
-        child: Column(
-          children: [
-            _topBar(context),
+      body: Directionality(
+        textDirection: context.watch<LanguageProvider>().isUrdu
+            ? TextDirection.rtl
+            : TextDirection.ltr,
+        child: ResponsiveLayout(
+          child: Column(
+            children: [
+              _topBar(context),
 
-            Expanded(
-              child: RefreshIndicator(
-                color: darkGreen,
-                onRefresh: cropProvider.fetchCrops,
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.only(
-                    top: 0,
-                    bottom: 100,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _heroSection(context),
+              Expanded(
+                child: RefreshIndicator(
+                  color: darkGreen,
+                  onRefresh: cropProvider.fetchCrops,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.only(
+                      top: 0,
+                      bottom: 100,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _heroSection(context),
 
-                      const SizedBox(height: 4),
+                        const SizedBox(height: 4),
 
-                      _filterSection(context),
+                        _filterSection(context),
 
-                      const SizedBox(height: 4),
+                        const SizedBox(height: 4),
 
-                      _buildCropContent(
-                        context,
-                        cropProvider,
-                      ),
-                    ],
+                        _buildCropContent(
+                          context,
+                          cropProvider,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -100,6 +142,8 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
   // ============================================================
 
   Widget _topBar(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+
     return Container(
       height: 120,
       width: double.infinity,
@@ -176,10 +220,10 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
                 ),
 
                 // Center title
-                const Expanded(
+                Expanded(
                   child: Center(
                     child: Text(
-                      "Crops",
+                      lang.t("crops"),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 28,
@@ -229,8 +273,8 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
                     Flexible(
                       child: Text(
                         lang.t("myCrops"),
-                        style: const TextStyle(
-                          color: Color(0xff161d19),
+                        style: TextStyle(
+                          color: _primaryText(context),
                           fontSize: 30,
                           fontWeight: FontWeight.w900,
                           letterSpacing: -0.8,
@@ -248,10 +292,15 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
 
                 const SizedBox(height: 7),
 
-                const Text(
-                  "Manage your crops and track their performance",
+                Text(
+                  _tr(
+                    lang,
+                    "manageCrops",
+                    en: "Manage your crops and track their performance",
+                    ur: "اپنی فصلوں کا انتظام کریں اور ان کی کارکردگی دیکھیں",
+                  ),
                   style: TextStyle(
-                    color: Color(0xff68736d),
+                    color: _secondaryText(context),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w500,
                   ),
@@ -266,7 +315,7 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
             height: 82,
             width: 96,
             decoration: BoxDecoration(
-              color: const Color(0xffe4f3e9),
+              color: _softGreen(context),
               borderRadius: BorderRadius.circular(25),
             ),
             child: Stack(
@@ -326,10 +375,10 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
       ),
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardColor(context),
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
-          color: const Color(0xffdeebe3),
+          color: _borderColor(context),
         ),
         boxShadow: [
           BoxShadow(
@@ -511,38 +560,6 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
   }
 
   // ============================================================
-  // CROP CARD
-  // ============================================================
-
-  Widget _cropCardImage(
-      BuildContext context,
-      CropModel crop,
-      ) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(22),
-        bottomLeft: Radius.circular(22),
-      ),
-      child: Image.network(
-        crop.imageUrl,
-        height: double.infinity,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
-          return Container(
-            color: const Color(0xffedf7f0),
-            child: const Icon(
-              Icons.image_not_supported_outlined,
-              size: 45,
-              color: darkGreen,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  // ============================================================
   // ERROR
   // ============================================================
 
@@ -557,7 +574,7 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
       padding: const EdgeInsets.all(30),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardColor(context),
         borderRadius: BorderRadius.circular(22),
       ),
       child: Column(
@@ -572,9 +589,15 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
 
           Text(
             cropProvider.errorMessage ??
-                "Unable to load crops.",
+                _tr(
+                  context.watch<LanguageProvider>(),
+                  "unableToLoadCrops",
+                  en: "Unable to load crops.",
+                  ur: "فصلیں لوڈ نہیں ہو سکیں۔",
+                ),
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
+              color: _primaryText(context),
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -584,7 +607,9 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
           ElevatedButton.icon(
             onPressed: cropProvider.fetchCrops,
             icon: const Icon(Icons.refresh),
-            label: const Text("Retry"),
+            label: Text(
+              context.watch<LanguageProvider>().t("retry"),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: darkGreen,
               foregroundColor: Colors.white,
@@ -613,10 +638,10 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
         vertical: 45,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardColor(context),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: const Color(0xffe0ebe4),
+          color: _borderColor(context),
         ),
       ),
       child: Column(
@@ -638,7 +663,12 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
           const SizedBox(height: 17),
 
           Text(
-            "No ${lang.tDynamic(provider.selectedFilter)} crops found",
+            _tr(
+              lang,
+              "noCropsFound",
+              en: "No ${lang.tDynamic(provider.selectedFilter)} crops found",
+              ur: "${lang.tDynamic(provider.selectedFilter)} کی کوئی فصل نہیں ملی",
+            ),
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 18,
@@ -648,11 +678,16 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
 
           const SizedBox(height: 7),
 
-          const Text(
-            "Add a crop or select another filter.",
+          Text(
+            _tr(
+              lang,
+              "addCropOrFilter",
+              en: "Add a crop or select another filter.",
+              ur: "فصل شامل کریں یا کوئی اور فلٹر منتخب کریں۔",
+            ),
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Color(0xff727b76),
+              color: _secondaryText(context),
               fontSize: 14,
             ),
           ),
@@ -676,17 +711,38 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
+          backgroundColor: _cardColor(context),
+          titleTextStyle: TextStyle(
+            color: _primaryText(context),
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+          ),
+          contentTextStyle: TextStyle(
+            color: _secondaryText(context),
+            fontSize: 15,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(22),
           ),
-          title: const Text(
-            "Delete Crop",
+          title: Text(
+            _tr(
+              context.read<LanguageProvider>(),
+              "deleteCrop",
+              en: "Delete Crop",
+              ur: "فصل حذف کریں",
+            ),
             style: TextStyle(
+              color: _primaryText(context),
               fontWeight: FontWeight.w900,
             ),
           ),
           content: Text(
-            "Are you sure you want to delete $cropName?",
+            _tr(
+              context.read<LanguageProvider>(),
+              "confirmDeleteCrop",
+              en: "Are you sure you want to delete $cropName?",
+              ur: "کیا آپ واقعی $cropName حذف کرنا چاہتے ہیں؟",
+            ),
           ),
           actions: [
             TextButton(
@@ -696,7 +752,14 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
                   false,
                 );
               },
-              child: const Text("Cancel"),
+              child: Text(
+                _tr(
+                  context.read<LanguageProvider>(),
+                  "cancel",
+                  en: "Cancel",
+                  ur: "منسوخ",
+                ),
+              ),
             ),
 
             ElevatedButton(
@@ -710,7 +773,14 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              child: const Text("Delete"),
+              child: Text(
+                _tr(
+                  context.read<LanguageProvider>(),
+                  "delete",
+                  en: "Delete",
+                  ur: "حذف",
+                ),
+              ),
             ),
           ],
         );
@@ -730,9 +800,19 @@ class _MyCropsScreenState extends State<MyCropsScreen> {
       SnackBar(
         content: Text(
           success
-              ? "Crop deleted successfully."
+              ? _tr(
+            context.read<LanguageProvider>(),
+            "cropDeletedSuccessfully",
+            en: "Crop deleted successfully.",
+            ur: "فصل کامیابی سے حذف ہو گئی۔",
+          )
               : cropProvider.errorMessage ??
-              "Unable to delete crop.",
+              _tr(
+                context.read<LanguageProvider>(),
+                "unableToDeleteCrop",
+                en: "Unable to delete crop.",
+                ur: "فصل حذف نہیں ہو سکی۔",
+              ),
         ),
         backgroundColor:
         success ? darkGreen : Colors.red,
@@ -764,6 +844,34 @@ class MyCropCard extends StatelessWidget {
 
   static const Color darkGreen = Color(0xff075739);
 
+  bool _isDark(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  Color _cardColor(BuildContext context) =>
+      _isDark(context) ? const Color(0xff18221c) : Colors.white;
+
+  Color _primaryText(BuildContext context) =>
+      _isDark(context) ? Colors.white : const Color(0xff171d19);
+
+  Color _secondaryText(BuildContext context) =>
+      _isDark(context) ? const Color(0xffb8c6bd) : const Color(0xff68736d);
+
+  Color _borderColor(BuildContext context) =>
+      _isDark(context) ? Colors.white12 : const Color(0xffdcebe2);
+
+  Color _softChip(BuildContext context) =>
+      _isDark(context) ? const Color(0xff202b24) : const Color(0xfff7faf8);
+
+  String _tr(
+      LanguageProvider lang,
+      String key, {
+        required String en,
+        required String ur,
+      }) {
+    final translated = lang.t(key);
+    return translated == key ? (lang.isUrdu ? ur : en) : translated;
+  }
+
   bool get _isActive {
     return crop.status.trim().toLowerCase() == "active";
   }
@@ -774,17 +882,17 @@ class MyCropCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      height: 235,
+      height: 215,
       margin: const EdgeInsets.only(
         left: 18,
         right: 18,
         bottom: 18,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardColor(context),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: const Color(0xffdcebe2),
+          color: _borderColor(context),
         ),
         boxShadow: [
           BoxShadow(
@@ -803,8 +911,8 @@ class MyCropCard extends StatelessWidget {
             // ============================================================
 
             Expanded(
-              flex: 28,
-              child: _buildImagePanel(),
+              flex: 34,
+              child: _buildImagePanel(context),
             ),
 
             // ============================================================
@@ -828,7 +936,7 @@ class MyCropCard extends StatelessWidget {
   // IMAGE PANEL
   // ================================================================
 
-  Widget _buildImagePanel() {
+  Widget _buildImagePanel(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -909,7 +1017,9 @@ class MyCropCard extends StatelessWidget {
                 height: 40,
                 width: 45,
                 decoration: BoxDecoration(
-                  color: const Color(0xffe7f5eb),
+                  color: _isDark(context)
+                      ? const Color(0xff20392b)
+                      : const Color(0xffe7f5eb),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Icon(
@@ -926,10 +1036,10 @@ class MyCropCard extends StatelessWidget {
                   crop.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xff171d19),
+                    color: _primaryText(context),
                     height: 1.05,
                   ),
                 ),
@@ -937,7 +1047,7 @@ class MyCropCard extends StatelessWidget {
 
               const SizedBox(width: 6),
 
-              _statusBadge(lang),
+              _statusBadge(context, lang),
             ],
           ),
 
@@ -948,7 +1058,7 @@ class MyCropCard extends StatelessWidget {
           // ------------------------------------------------------------
 
           Text(
-            "Rs. ${crop.price} / "
+            "${lang.isUrdu ? "روپے" : "Rs."} ${crop.price} / "
                 "${lang.tDynamic(crop.unit)}",
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -972,17 +1082,16 @@ class MyCropCard extends StatelessWidget {
             runSpacing: 7,
             children: [
               _infoChip(
+                context,
                 Icons.inventory_2_outlined,
-                "${crop.quantity} "
-                    "${lang.tDynamic(crop.unit)}",
+                "${crop.quantity} ${lang.tDynamic(crop.unit)}",
               ),
 
               if (crop.category.isNotEmpty)
                 _infoChip(
+                  context,
                   Icons.eco_outlined,
-                  lang.tDynamic(
-                    crop.category,
-                  ),
+                  lang.tDynamic(crop.category),
                 ),
             ],
           ),
@@ -993,9 +1102,11 @@ class MyCropCard extends StatelessWidget {
           // DIVIDER
           // ------------------------------------------------------------
 
-          const Divider(
+          Divider(
             height: 1,
-            color: Color(0xffe1e7e3),
+            color: _isDark(context)
+                ? Colors.white12
+                : const Color(0xffe1e7e3),
           ),
 
           const SizedBox(height: 11),
@@ -1093,6 +1204,7 @@ class MyCropCard extends StatelessWidget {
   // ================================================================
 
   Widget _statusBadge(
+      BuildContext context,
       LanguageProvider lang,
       ) {
     return Container(
@@ -1102,8 +1214,12 @@ class MyCropCard extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: _isActive
-            ? const Color(0xffe4f5e9)
-            : const Color(0xffeeeeee),
+            ? (_isDark(context)
+            ? const Color(0xff1e392a)
+            : const Color(0xffe4f5e9))
+            : (_isDark(context)
+            ? const Color(0xff292f2b)
+            : const Color(0xffeeeeee)),
         borderRadius: BorderRadius.circular(22),
       ),
       child: Row(
@@ -1127,7 +1243,9 @@ class MyCropCard extends StatelessWidget {
             style: TextStyle(
               color: _isActive
                   ? const Color(0xff197344)
-                  : Colors.grey.shade700,
+                  : (_isDark(context)
+                  ? Colors.white60
+                  : Colors.grey.shade700),
               fontSize: 11.5,
               fontWeight: FontWeight.w800,
             ),
@@ -1142,6 +1260,7 @@ class MyCropCard extends StatelessWidget {
   // ================================================================
 
   Widget _infoChip(
+      BuildContext context,
       IconData icon,
       String text,
       ) {
@@ -1151,7 +1270,7 @@ class MyCropCard extends StatelessWidget {
         vertical: 8,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xfff7faf8),
+        color: _softChip(context),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -1169,9 +1288,9 @@ class MyCropCard extends StatelessWidget {
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11.5,
-              color: Color(0xff39423d),
+              color: _primaryText(context),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1215,7 +1334,7 @@ class _CropImageClipper
     final path = Path();
 
     // TOP LEFT rounded corner
-    path.moveTo(22, 0);
+    path.moveTo(15, 0);
 
     path.lineTo(
       size.width - 30,

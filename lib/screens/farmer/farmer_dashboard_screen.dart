@@ -157,7 +157,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
         Navigator.pushNamedAndRemoveUntil(
           context,
           '/farmerDashboard',
-          (route) => false,
+              (route) => false,
         );
         break;
 
@@ -191,6 +191,24 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
         : const Color(0xff64706a);
   }
 
+  Color get _softSurfaceColor {
+    return _isDark()
+        ? const Color(0xff18211c)
+        : Colors.white;
+  }
+
+  Color get _softBorderColor {
+    return _isDark()
+        ? Colors.white12
+        : const Color(0xffd3ead9);
+  }
+
+  Color get _overviewSurfaceColor {
+    return _isDark()
+        ? const Color(0xff17231c)
+        : const Color(0xffeaf8ef);
+  }
+
   // ============================================================
   // BUILD
   // ============================================================
@@ -200,158 +218,163 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     final cropProvider = context.watch<CropProvider>();
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
-      backgroundColor: _isDark()
-          ? Theme.of(context).scaffoldBackgroundColor
-          : const Color(0xfff7faf8),
+    return Directionality(
+      textDirection: lang.isUrdu
+          ? TextDirection.rtl
+          : TextDirection.ltr,
+      child: Scaffold(
+        backgroundColor: _isDark()
+            ? Theme.of(context).scaffoldBackgroundColor
+            : const Color(0xfff7faf8),
 
-      appBar: FarmerTopBar(
-        title: lang.t("dashboard"),
-        onNotificationTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) =>
-                  const FarmerNotificationScreen(),
-            ),
-          );
-        },
-      ),
+        appBar: FarmerTopBar(
+          title: lang.t("dashboard"),
+          onNotificationTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                const FarmerNotificationScreen(),
+              ),
+            );
+          },
+        ),
 
-      bottomNavigationBar:
-          const FarmerBottomNavbar(currentIndex: 0),
+        bottomNavigationBar:
+        const FarmerBottomNavbar(currentIndex: 0),
 
-      body: SafeArea(
-        child: RefreshIndicator(
-          color: darkGreen,
-          onRefresh: _loadDashboardData,
-          child: _isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(
-                    color: darkGreen,
+        body: SafeArea(
+          child: RefreshIndicator(
+            color: darkGreen,
+            onRefresh: _loadDashboardData,
+            child: _isLoading
+                ? const Center(
+              child: CircularProgressIndicator(
+                color: darkGreen,
+              ),
+            )
+                : _errorMessage != null
+                ? _errorView()
+                : SingleChildScrollView(
+              physics:
+              const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(
+                18,
+                16,
+                18,
+                30,
+              ),
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  // ------------------------------------------------
+                  // OVERVIEW
+                  // ------------------------------------------------
+
+                  _farmerOverview(
+                    lang: lang,
+                    activeCrops:
+                    cropProvider.activeCrops,
+                    newInquiries:
+                    cropProvider.newInquiries,
                   ),
-                )
-              : _errorMessage != null
-                  ? _errorView()
-                  : SingleChildScrollView(
-                      physics:
-                          const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(
-                        18,
-                        16,
-                        18,
-                        30,
-                      ),
-                      child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+
+                  const SizedBox(height: 28),
+
+                  // ------------------------------------------------
+                  // QUICK ACTIONS
+                  // ------------------------------------------------
+
+                  _sectionHeader(
+                    title: lang.t("quickActions"),
+                    showViewAll: true,
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  _quickActions(),
+
+                  const SizedBox(height: 26),
+
+                  // ------------------------------------------------
+                  // ATTENTION NEEDED
+                  // ------------------------------------------------
+
+                  _attentionNeeded(
+                    newInquiries:
+                    cropProvider.newInquiries,
+                    weatherAlert:
+                    cropProvider.weatherAlert,
+                  ),
+
+                  const SizedBox(height: 26),
+
+                  // ------------------------------------------------
+                  // MARKET + WEATHER
+                  // ------------------------------------------------
+
+                  LayoutBuilder(
+                    builder:
+                        (context, constraints) {
+                      if (constraints.maxWidth >=
+                          720) {
+                        return Row(
+                          crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                          children: [
+
+                            const SizedBox(
+                              width: 16,
+                            ),
+                            Expanded(
+                              child:
+                              _weatherToday(
+                                cropProvider
+                                    .weatherAlert,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return Column(
                         children: [
-                          // ------------------------------------------------
-                          // OVERVIEW
-                          // ------------------------------------------------
 
-                          _farmerOverview(
-                            lang: lang,
-                            activeCrops:
-                                cropProvider.activeCrops,
-                            newInquiries:
-                                cropProvider.newInquiries,
+                          const SizedBox(
+                            height: 16,
                           ),
-
-                          const SizedBox(height: 28),
-
-                          // ------------------------------------------------
-                          // QUICK ACTIONS
-                          // ------------------------------------------------
-
-                          _sectionHeader(
-                            title: "Quick Actions",
-                            showViewAll: true,
+                          _weatherToday(
+                            cropProvider
+                                .weatherAlert,
                           ),
-
-                          const SizedBox(height: 14),
-
-                          _quickActions(),
-
-                          const SizedBox(height: 26),
-
-                          // ------------------------------------------------
-                          // ATTENTION NEEDED
-                          // ------------------------------------------------
-
-                          _attentionNeeded(
-                            newInquiries:
-                                cropProvider.newInquiries,
-                            weatherAlert:
-                                cropProvider.weatherAlert,
-                          ),
-
-                          const SizedBox(height: 26),
-
-                          // ------------------------------------------------
-                          // MARKET + WEATHER
-                          // ------------------------------------------------
-
-                          LayoutBuilder(
-                            builder:
-                                (context, constraints) {
-                              if (constraints.maxWidth >=
-                                  720) {
-                                return Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                   
-                                    const SizedBox(
-                                      width: 16,
-                                    ),
-                                    Expanded(
-                                      child:
-                                          _weatherToday(
-                                        cropProvider
-                                            .weatherAlert,
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }
-
-                              return Column(
-                                children: [
-                                  
-                                  const SizedBox(
-                                    height: 16,
-                                  ),
-                                  _weatherToday(
-                                    cropProvider
-                                        .weatherAlert,
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          // ------------------------------------------------
-                          // AI FARMING INSIGHT
-                          // ------------------------------------------------
-
-                          _aiFarmingInsight(
-                            weatherAlert:
-                                cropProvider.weatherAlert,
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          // ------------------------------------------------
-                          // DAILY TIP
-                          // ------------------------------------------------
-
-                          _dailyFarmingTip(),
                         ],
-                      ),
-                    ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // ------------------------------------------------
+                  // AI FARMING INSIGHT
+                  // ------------------------------------------------
+
+                  _aiFarmingInsight(
+                    weatherAlert:
+                    cropProvider.weatherAlert,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // ------------------------------------------------
+                  // DAILY TIP
+                  // ------------------------------------------------
+
+                  _dailyFarmingTip(),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -369,8 +392,13 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
+        gradient: LinearGradient(
+          colors: _isDark()
+              ? const [
+            Color(0xff172a20),
+            Color(0xff1c2c23),
+          ]
+              : const [
             Color(0xffeaf8ef),
             Color(0xfff8fcf9),
           ],
@@ -379,7 +407,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
         ),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
-          color: const Color(0xffb7dfc3),
+          color: _isDark() ? Colors.white12 : const Color(0xffb7dfc3),
         ),
         boxShadow: [
           BoxShadow(
@@ -416,7 +444,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              CrossAxisAlignment.start,
               children: [
                 // ----------------------------------------------------------
                 // GREETING + BUTTONS
@@ -424,12 +452,12 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
 
                 Row(
                   crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Column(
                         crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        CrossAxisAlignment.start,
                         children: [
                           Text(
                             lang.t("welcomeBackComma"),
@@ -437,19 +465,19 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                               color: darkGreen,
                               fontSize: 22,
                               fontWeight:
-                                  FontWeight.w900,
+                              FontWeight.w900,
                             ),
                           ),
 
                           const SizedBox(height: 6),
 
                           Text(
-                            "Grow smarter. Sell better.",
+                            lang.t("growSmarterSellBetter"),
                             style: TextStyle(
                               color: _subTextColor,
                               fontSize: 14,
                               fontWeight:
-                                  FontWeight.w600,
+                              FontWeight.w600,
                             ),
                           ),
                         ],
@@ -457,7 +485,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                     ),
 
                     // Notification
-                  
+
 
                     const SizedBox(width: 8),
 
@@ -465,11 +493,11 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                     _roundHeaderButton(
                       icon: Icons.mic_none_rounded,
                       background:
-                          darkGreen,
+                      darkGreen,
                       iconColor:
-                          Colors.white,
+                      Colors.white,
                       onTap:
-                          _openVoiceAssistant,
+                      _openVoiceAssistant,
                     ),
                   ],
                 ),
@@ -479,26 +507,27 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                   const SizedBox(height: 10),
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(
+                    const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color:
-                          Colors.white.withOpacity(0.75),
+                      color: _isDark()
+                          ? Colors.white.withOpacity(0.08)
+                          : Colors.white.withOpacity(0.75),
                       borderRadius:
-                          BorderRadius.circular(12),
+                      BorderRadius.circular(12),
                     ),
                     child: Text(
                       _voiceText,
                       maxLines: 2,
                       overflow:
-                          TextOverflow.ellipsis,
+                      TextOverflow.ellipsis,
                       style: TextStyle(
                         color: darkGreen,
                         fontSize: 12,
                         fontWeight:
-                            FontWeight.w600,
+                        FontWeight.w600,
                       ),
                     ),
                   ),
@@ -515,13 +544,13 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                     Expanded(
                       child: _overviewStat(
                         icon:
-                            Icons.eco_rounded,
+                        Icons.eco_rounded,
                         value:
-                            activeCrops.toString(),
+                        activeCrops.toString(),
                         title:
-                            "Active Crops",
+                        lang.t("activeCrops"),
                         iconColor:
-                            primaryGreen,
+                        primaryGreen,
                       ),
                     ),
 
@@ -530,15 +559,15 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                     Expanded(
                       child: _overviewStat(
                         icon:
-                            Icons.chat_bubble_rounded,
+                        Icons.chat_bubble_rounded,
                         value:
-                            newInquiries.toString(),
+                        newInquiries.toString(),
                         title:
-                            "Inquiries",
+                        lang.t("inquiries"),
                         iconColor:
-                            orangeColor,
+                        orangeColor,
                         showBadge:
-                            newInquiries > 0,
+                        newInquiries > 0,
                       ),
                     ),
                   ],
@@ -552,29 +581,30 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
 
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(
+                  const EdgeInsets.symmetric(
                     horizontal: 8,
                     vertical: 16,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white
-                        .withOpacity(0.82),
+                    color: _isDark()
+                        ? Colors.white.withOpacity(0.06)
+                        : Colors.white.withOpacity(0.82),
                     borderRadius:
-                        BorderRadius.circular(18),
+                    BorderRadius.circular(18),
                   ),
                   child: Row(
                     children: [
                       Expanded(
                         child:
-                            _overviewInfo(
+                        _overviewInfo(
                           icon:
-                              Icons.calendar_month_rounded,
+                          Icons.calendar_month_rounded,
                           title:
-                              "This Season",
+                          lang.t("thisSeason"),
                           value:
-                              "Good Progress",
+                          lang.t("goodProgress"),
                           iconColor:
-                              primaryGreen,
+                          primaryGreen,
                         ),
                       ),
 
@@ -582,15 +612,15 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
 
                       Expanded(
                         child:
-                            _overviewInfo(
+                        _overviewInfo(
                           icon:
-                              Icons.trending_up_rounded,
+                          Icons.trending_up_rounded,
                           title:
-                              "Price Trend",
+                          lang.t("priceTrend"),
                           value:
-                              "Rising",
+                          lang.t("rising"),
                           iconColor:
-                              orangeColor,
+                          orangeColor,
                         ),
                       ),
 
@@ -598,7 +628,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
 
                       Expanded(
                         child:
-                            GestureDetector(
+                        GestureDetector(
                           onTap: () {
                             Navigator.pushNamed(
                               context,
@@ -606,15 +636,15 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                             );
                           },
                           child:
-                              _overviewInfo(
+                          _overviewInfo(
                             icon:
-                                Icons.cloud_outlined,
+                            Icons.cloud_outlined,
                             title:
-                                "Weather",
+                            lang.t("weather"),
                             value:
-                                "Check Now",
+                            lang.t("checkNow"),
                             iconColor:
-                                blueColor,
+                            blueColor,
                           ),
                         ),
                       ),
@@ -636,10 +666,13 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   Widget _roundHeaderButton({
     required IconData icon,
     required VoidCallback onTap,
-    Color background = Colors.white,
+    Color? background,
     Color iconColor = darkGreen,
     String? badge,
   }) {
+    final resolvedBackground = background ??
+        (_isDark() ? const Color(0xff24332a) : Colors.white);
+
     return GestureDetector(
       onTap: onTap,
       child: Stack(
@@ -649,19 +682,19 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
             height: 48,
             width: 48,
             decoration: BoxDecoration(
-              color: background,
+              color: resolvedBackground,
               shape: BoxShape.circle,
               border: Border.all(
                 color:
-                    darkGreen.withOpacity(0.10),
+                darkGreen.withOpacity(0.10),
               ),
               boxShadow: [
                 BoxShadow(
                   color:
-                      Colors.black.withOpacity(0.05),
+                  Colors.black.withOpacity(0.05),
                   blurRadius: 10,
                   offset:
-                      const Offset(0, 4),
+                  const Offset(0, 4),
                 ),
               ],
             ),
@@ -678,27 +711,27 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
               top: -4,
               child: Container(
                 padding:
-                    const EdgeInsets.all(5),
+                const EdgeInsets.all(5),
                 constraints:
-                    const BoxConstraints(
+                const BoxConstraints(
                   minWidth: 20,
                   minHeight: 20,
                 ),
                 decoration:
-                    const BoxDecoration(
+                const BoxDecoration(
                   color: Color(0xffdf4646),
                   shape: BoxShape.circle,
                 ),
                 child: Text(
                   badge,
                   textAlign:
-                      TextAlign.center,
+                  TextAlign.center,
                   style:
-                      const TextStyle(
+                  const TextStyle(
                     color: Colors.white,
                     fontSize: 9,
                     fontWeight:
-                        FontWeight.w900,
+                    FontWeight.w900,
                   ),
                 ),
               ),
@@ -721,7 +754,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   }) {
     return Container(
       padding:
-          const EdgeInsets.symmetric(
+      const EdgeInsets.symmetric(
         horizontal: 14,
         vertical: 14,
       ),
@@ -729,9 +762,9 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
         color: Colors.white
             .withOpacity(0.82),
         borderRadius:
-            BorderRadius.circular(18),
+        BorderRadius.circular(18),
         border: Border.all(
-          color: const Color(0xffd3ead9),
+          color: _softBorderColor,
         ),
       ),
       child: Row(
@@ -756,29 +789,29 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
           Expanded(
             child: Column(
               crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              CrossAxisAlignment.start,
               children: [
                 Text(
                   value,
                   style:
-                      const TextStyle(
+                  const TextStyle(
                     color: darkGreen,
                     fontSize: 25,
                     fontWeight:
-                        FontWeight.w900,
+                    FontWeight.w900,
                   ),
                 ),
                 Text(
                   title,
                   maxLines: 1,
                   overflow:
-                      TextOverflow.ellipsis,
+                  TextOverflow.ellipsis,
                   style: TextStyle(
                     color:
-                        _subTextColor,
+                    _subTextColor,
                     fontSize: 11,
                     fontWeight:
-                        FontWeight.w700,
+                    FontWeight.w700,
                   ),
                 ),
               ],
@@ -801,7 +834,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   }) {
     return Padding(
       padding:
-          const EdgeInsets.symmetric(
+      const EdgeInsets.symmetric(
         horizontal: 5,
       ),
       child: Column(
@@ -816,13 +849,13 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
             title,
             maxLines: 1,
             overflow:
-                TextOverflow.ellipsis,
+            TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: _subTextColor,
               fontSize: 10,
               fontWeight:
-                  FontWeight.w700,
+              FontWeight.w700,
             ),
           ),
           const SizedBox(height: 3),
@@ -830,14 +863,14 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
             value,
             maxLines: 1,
             overflow:
-                TextOverflow.ellipsis,
+            TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style:
-                TextStyle(
+            TextStyle(
               color: iconColor,
               fontSize: 11.5,
               fontWeight:
-                  FontWeight.w900,
+              FontWeight.w900,
             ),
           ),
         ],
@@ -849,7 +882,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     return Container(
       height: 50,
       width: 1,
-      color: const Color(0xffd6e7dc),
+      color: _isDark() ? Colors.white12 : const Color(0xffd6e7dc),
     );
   }
 
@@ -861,6 +894,8 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     required String title,
     bool showViewAll = false,
   }) {
+    final lang = context.watch<LanguageProvider>();
+
     return Row(
       children: [
         Expanded(
@@ -870,7 +905,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
               color: _textColor,
               fontSize: 18,
               fontWeight:
-                  FontWeight.w900,
+              FontWeight.w900,
               letterSpacing: 0.2,
             ),
           ),
@@ -886,13 +921,13 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
             child: Row(
               children: [
                 Text(
-                  "View All",
+                  lang.t("viewAll"),
                   style:
-                      const TextStyle(
+                  const TextStyle(
                     color: darkGreen,
                     fontSize: 12,
                     fontWeight:
-                        FontWeight.w800,
+                    FontWeight.w800,
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -913,25 +948,27 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   // ============================================================
 
   Widget _quickActions() {
+    final lang = context.watch<LanguageProvider>();
+
     final actions = [
       _ActionData(
         icon: Icons.eco_rounded,
-        title: "Add Crop",
-        subtitle: "Create New Listing",
+        title: lang.t("addCrop"),
+        subtitle: lang.t("listNewCrop"),
         iconColor: primaryGreen,
         background:
-            const Color(0xfff1faef),
+        const Color(0xfff1faef),
         screen:
-            const AddCropScreen(),
+        const AddCropScreen(),
       ),
 
       _ActionData(
         icon: Icons.grass_rounded,
-        title: "My Crops",
-        subtitle: "Manage Your Crops",
+        title: lang.t("myCrops"),
+        subtitle: lang.t("manageCrops"),
         iconColor: orangeColor,
         background:
-            const Color(0xfffff8ed),
+        const Color(0xfffff8ed),
         onTap: () {
           Navigator.pushNamed(
             context,
@@ -942,26 +979,26 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
 
       _ActionData(
         icon:
-            Icons.trending_up_rounded,
-        title: "Price AI",
-        subtitle: "AI Price Prediction",
+        Icons.trending_up_rounded,
+        title: lang.t("pricePrediction"),
+        subtitle: lang.t("checkPrices"),
         iconColor: purpleColor,
         background:
-            const Color(0xfff7f1ff),
+        const Color(0xfff7f1ff),
         screen:
-            const PricePredictionScreen(),
+        const PricePredictionScreen(),
       ),
 
       _ActionData(
         icon:
-            Icons.cloud_outlined,
-        title: "Weather",
-        subtitle: "Check Weather Forecast",
+        Icons.cloud_outlined,
+        title: lang.t("weather"),
+        subtitle: lang.t("weatherForecast"),
         iconColor: blueColor,
         background:
-            const Color(0xffeff8ff),
+        const Color(0xffeff8ff),
         screen:
-            const WeatherForecastScreen(),
+        const WeatherForecastScreen(),
       ),
     ];
 
@@ -982,18 +1019,18 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
         return GridView.builder(
           shrinkWrap: true,
           physics:
-              const NeverScrollableScrollPhysics(),
+          const NeverScrollableScrollPhysics(),
           itemCount: actions.length,
           gridDelegate:
-              SliverGridDelegateWithFixedCrossAxisCount(
+          SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount:
-                columns,
+            columns,
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             childAspectRatio:
-                columns == 2
-                    ? 1.08
-                    : 1.05,
+            columns == 2
+                ? 1.08
+                : 1.05,
           ),
           itemBuilder:
               (context, index) {
@@ -1011,35 +1048,35 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   }) {
     return OpenContainer(
       transitionDuration:
-          const Duration(
+      const Duration(
         milliseconds: 350,
       ),
       closedElevation: 0,
       openElevation: 0,
       closedColor:
-          Colors.transparent,
+      Colors.transparent,
       openColor:
-          Theme.of(context)
-              .scaffoldBackgroundColor,
+      Theme.of(context)
+          .scaffoldBackgroundColor,
       closedBuilder:
           (context, openContainer) {
         return Material(
           color: Colors.transparent,
           child: InkWell(
             borderRadius:
-                BorderRadius.circular(20),
+            BorderRadius.circular(20),
             onTap: action.onTap ??
                 openContainer,
             child: Container(
               padding:
-                  const EdgeInsets.all(12),
+              const EdgeInsets.all(12),
               decoration:
-                  BoxDecoration(
+              BoxDecoration(
                 color: _isDark()
                     ? _cardColor
                     : action.background,
                 borderRadius:
-                    BorderRadius.circular(
+                BorderRadius.circular(
                   20,
                 ),
                 border: Border.all(
@@ -1049,24 +1086,24 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
               ),
               child: Column(
                 mainAxisAlignment:
-                    MainAxisAlignment.center,
+                MainAxisAlignment.center,
                 children: [
                   Container(
                     height: 50,
                     width: 50,
                     decoration:
-                        BoxDecoration(
+                    BoxDecoration(
                       color: action.iconColor
                           .withOpacity(
                         0.11,
                       ),
                       shape:
-                          BoxShape.circle,
+                      BoxShape.circle,
                     ),
                     child: Icon(
                       action.icon,
                       color:
-                          action.iconColor,
+                      action.iconColor,
                       size: 27,
                     ),
                   ),
@@ -1078,15 +1115,15 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                   Text(
                     action.title,
                     textAlign:
-                        TextAlign.center,
+                    TextAlign.center,
                     maxLines: 2,
                     overflow:
-                        TextOverflow.ellipsis,
+                    TextOverflow.ellipsis,
                     style: TextStyle(
                       color: _textColor,
                       fontSize: 13,
                       fontWeight:
-                          FontWeight.w900,
+                      FontWeight.w900,
                     ),
                   ),
 
@@ -1097,17 +1134,17 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                   Text(
                     action.subtitle,
                     textAlign:
-                        TextAlign.center,
+                    TextAlign.center,
                     maxLines: 2,
                     overflow:
-                        TextOverflow.ellipsis,
+                    TextOverflow.ellipsis,
                     style: TextStyle(
                       color:
-                          _subTextColor,
+                      _subTextColor,
                       fontSize: 10.5,
                       height: 1.2,
                       fontWeight:
-                          FontWeight.w600,
+                      FontWeight.w600,
                     ),
                   ),
                 ],
@@ -1118,8 +1155,8 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       },
       openBuilder:
           (context, _) =>
-              action.screen ??
-              const SizedBox.shrink(),
+      action.screen ??
+          const SizedBox.shrink(),
     );
   }
 
@@ -1131,16 +1168,19 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     required int newInquiries,
     required dynamic weatherAlert,
   }) {
+    final lang = context.watch<LanguageProvider>();
     final items = <_AttentionData>[];
 
     if (newInquiries > 0) {
       items.add(
         _AttentionData(
           icon:
-              Icons.chat_bubble_rounded,
+          Icons.chat_bubble_rounded,
           iconColor: primaryGreen,
           text:
-              "$newInquiries buyer ${newInquiries == 1 ? "inquiry needs" : "inquiries need"} your response",
+          lang.isUrdu
+              ? "$newInquiries ${newInquiries == 1 ? "خریدار کی انکوائری" : "خریداروں کی انکوائریز"} آپ کے جواب کی منتظر ہیں"
+              : "$newInquiries buyer ${newInquiries == 1 ? "inquiry needs" : "inquiries need"} your response",
           onTap: () {
             Navigator.pushNamed(
               context,
@@ -1156,11 +1196,11 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       items.add(
         _AttentionData(
           icon:
-              Icons.cloud_outlined,
+          Icons.cloud_outlined,
           iconColor: blueColor,
           text:
-              weatherAlert.title ??
-                  "Weather alert available",
+          weatherAlert.title ??
+              lang.t("weatherAlert"),
           onTap: () {
             Navigator.pushNamed(
               context,
@@ -1174,13 +1214,13 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     return Container(
       width: double.infinity,
       padding:
-          const EdgeInsets.all(18),
+      const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: _isDark()
             ? _cardColor
             : const Color(0xfffffaf1),
         borderRadius:
-            BorderRadius.circular(22),
+        BorderRadius.circular(22),
         border: Border.all(
           color: _isDark()
               ? Colors.white12
@@ -1189,19 +1229,19 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       ),
       child: Column(
         crossAxisAlignment:
-            CrossAxisAlignment.start,
+        CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Expanded(
                 child: Text(
-                  "ATTENTION NEEDED",
+                  lang.t("actionRequired"),
                   style:
-                      const TextStyle(
-                    color: Color(0xff8c4710),
+                   TextStyle(
+                    color: _isDark() ? const Color(0xffffc078) : const Color(0xff8c4710),
                     fontSize: 16,
                     fontWeight:
-                        FontWeight.w900,
+                    FontWeight.w900,
                   ),
                 ),
               ),
@@ -1210,14 +1250,14 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                 height: 38,
                 width: 38,
                 decoration:
-                    BoxDecoration(
+                BoxDecoration(
                   color: orangeColor
                       .withOpacity(0.10),
                   shape:
-                      BoxShape.circle,
+                  BoxShape.circle,
                 ),
                 child:
-                    const Icon(
+                const Icon(
                   Icons.priority_high_rounded,
                   color: orangeColor,
                   size: 22,
@@ -1228,9 +1268,9 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                 width: 8,
               ),
 
-              const Icon(
+               Icon(
                 Icons.arrow_forward_ios_rounded,
-                color: Color(0xff8c4710),
+                color: _isDark() ? const Color(0xffffc078) : const Color(0xff8c4710),
                 size: 14,
               ),
             ],
@@ -1239,7 +1279,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
           const SizedBox(height: 14),
 
           ...items.map(
-            (item) =>
+                (item) =>
                 _attentionItem(item),
           ),
         ],
@@ -1248,43 +1288,43 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   }
 
   Widget _attentionItem(
-    _AttentionData item,
-  ) {
+      _AttentionData item,
+      ) {
     return Padding(
       padding:
-          const EdgeInsets.only(
+      const EdgeInsets.only(
         bottom: 8,
       ),
       child: Material(
         color: _isDark()
             ? Colors.white.withOpacity(
-                0.04,
-              )
+          0.04,
+        )
             : Colors.white,
         borderRadius:
-            BorderRadius.circular(14),
+        BorderRadius.circular(14),
         child: InkWell(
           onTap: item.onTap,
           borderRadius:
-              BorderRadius.circular(14),
+          BorderRadius.circular(14),
           child: Container(
             padding:
-                const EdgeInsets.symmetric(
+            const EdgeInsets.symmetric(
               horizontal: 13,
               vertical: 13,
             ),
             decoration:
-                BoxDecoration(
+            BoxDecoration(
               borderRadius:
-                  BorderRadius.circular(
+              BorderRadius.circular(
                 14,
               ),
               border: Border.all(
                 color: _isDark()
                     ? Colors.white12
                     : const Color(
-                        0xffffe5c0,
-                      ),
+                  0xffffe5c0,
+                ),
               ),
             ),
             child: Row(
@@ -1293,16 +1333,16 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                   height: 36,
                   width: 36,
                   decoration:
-                      BoxDecoration(
+                  BoxDecoration(
                     color: item.iconColor
                         .withOpacity(0.10),
                     shape:
-                        BoxShape.circle,
+                    BoxShape.circle,
                   ),
                   child: Icon(
                     item.icon,
                     color:
-                        item.iconColor,
+                    item.iconColor,
                     size: 19,
                   ),
                 ),
@@ -1316,13 +1356,13 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                     item.text,
                     maxLines: 2,
                     overflow:
-                        TextOverflow.ellipsis,
+                    TextOverflow.ellipsis,
                     style: TextStyle(
                       color:
-                          _textColor,
+                      _textColor,
                       fontSize: 12.5,
                       fontWeight:
-                          FontWeight.w700,
+                      FontWeight.w700,
                     ),
                   ),
                 ),
@@ -1343,15 +1383,16 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     );
   }
 
- 
+
 
   // ============================================================
   // WEATHER TODAY
   // ============================================================
 
   Widget _weatherToday(
-    dynamic weather,
-  ) {
+      dynamic weather,
+      ) {
+    final lang = context.watch<LanguageProvider>();
     final hasAlert =
         weather != null;
 
@@ -1365,13 +1406,13 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       child: Container(
         width: double.infinity,
         padding:
-            const EdgeInsets.all(18),
+        const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: _isDark()
               ? _cardColor
               : const Color(0xfff4fbff),
           borderRadius:
-              BorderRadius.circular(22),
+          BorderRadius.circular(22),
           border: Border.all(
             color: _isDark()
                 ? Colors.white12
@@ -1380,33 +1421,33 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
         ),
         child: Column(
           crossAxisAlignment:
-              CrossAxisAlignment.start,
+          CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
-                    "WEATHER TODAY",
+                    lang.t("weatherUpdate"),
                     style:
-                        TextStyle(
-                      color: Color(
-                        0xff14567d,
-                      ),
+                    TextStyle(
+                      color: _isDark()
+                          ? const Color(0xff8fd0ff)
+                          : const Color(0xff14567d),
                       fontSize: 16,
                       fontWeight:
-                          FontWeight.w900,
+                      FontWeight.w900,
                     ),
                   ),
                 ),
 
-                const Text(
-                  "View Forecast",
+                Text(
+                  lang.t("weatherForecast"),
                   style:
-                      TextStyle(
+                  TextStyle(
                     color: blueColor,
                     fontSize: 11,
                     fontWeight:
-                        FontWeight.w800,
+                    FontWeight.w800,
                   ),
                 ),
 
@@ -1431,10 +1472,10 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                   height: 62,
                   width: 62,
                   decoration:
-                      BoxDecoration(
-                    color: Colors.white,
+                  BoxDecoration(
+                    color: _isDark() ? const Color(0xff24332a) : Colors.white,
                     shape:
-                        BoxShape.circle,
+                    BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
                         color: blueColor
@@ -1446,11 +1487,11 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                     ],
                   ),
                   child:
-                      const Icon(
+                  const Icon(
                     Icons
                         .wb_sunny_rounded,
                     color:
-                        Color(0xffffb52e),
+                    Color(0xffffb52e),
                     size: 38,
                   ),
                 ),
@@ -1459,41 +1500,41 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                   width: 13,
                 ),
 
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         "31°C",
                         style:
-                            TextStyle(
+                        TextStyle(
                           color: Color(
                             0xff176eab,
                           ),
                           fontSize: 30,
                           fontWeight:
-                              FontWeight.w900,
+                          FontWeight.w900,
                         ),
                       ),
                       Text(
                         "Lahore, Punjab",
                         style:
-                            TextStyle(
+                        TextStyle(
+                          color: _textColor,
                           fontSize: 12,
                           fontWeight:
-                              FontWeight.w700,
+                          FontWeight.w700,
                         ),
                       ),
-                      Text(
-                        "Sunny",
+                       Text(
+                        lang.isUrdu ? "دھوپ" : "Sunny",
                         style:
-                            TextStyle(
-                          color:
-                              Colors.grey,
+                        TextStyle(
+                          color: _subTextColor,
                           fontSize: 11,
                           fontWeight:
-                              FontWeight.w600,
+                          FontWeight.w600,
                         ),
                       ),
                     ],
@@ -1508,31 +1549,31 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
               children: [
                 Expanded(
                   child:
-                      _weatherMetric(
+                  _weatherMetric(
                     icon: Icons
                         .water_drop_outlined,
-                    title: "Humidity",
+                    title: lang.t("humidity"),
                     value: "62%",
                   ),
                 ),
 
                 Expanded(
                   child:
-                      _weatherMetric(
+                  _weatherMetric(
                     icon: Icons
                         .air_rounded,
-                    title: "Wind",
+                    title: lang.t("wind"),
                     value:
-                        "12 km/h",
+                    "12 km/h",
                   ),
                 ),
 
                 Expanded(
                   child:
-                      _weatherMetric(
+                  _weatherMetric(
                     icon: Icons
                         .water_drop_rounded,
-                    title: "Rain",
+                    title: lang.t("rainChanceLabel"),
                     value: "20%",
                   ),
                 ),
@@ -1544,31 +1585,33 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
             Container(
               width: double.infinity,
               padding:
-                  const EdgeInsets.symmetric(
+              const EdgeInsets.symmetric(
                 vertical: 9,
               ),
               decoration:
-                  BoxDecoration(
+              BoxDecoration(
                 color: blueColor
                     .withOpacity(0.08),
                 borderRadius:
-                    BorderRadius.circular(
+                BorderRadius.circular(
                   10,
                 ),
               ),
               child:
-                  Text(
+              Text(
                 hasAlert
-                    ? "Weather update available"
-                    : "Good conditions for field work",
+                    ? lang.t("weatherUpdate")
+                    : (lang.isUrdu
+                    ? "کھیت کے کام کے لیے حالات اچھے ہیں"
+                    : "Good conditions for field work"),
                 textAlign:
-                    TextAlign.center,
+                TextAlign.center,
                 style:
-                    const TextStyle(
+                const TextStyle(
                   color: blueColor,
                   fontSize: 11,
                   fontWeight:
-                      FontWeight.w700,
+                  FontWeight.w700,
                 ),
               ),
             ),
@@ -1595,21 +1638,21 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
           title,
           style: TextStyle(
             color:
-                _subTextColor,
+            _subTextColor,
             fontSize: 9,
             fontWeight:
-                FontWeight.w600,
+            FontWeight.w600,
           ),
         ),
         const SizedBox(height: 2),
         Text(
           value,
           style:
-              TextStyle(
+          TextStyle(
             color: _textColor,
             fontSize: 10.5,
             fontWeight:
-                FontWeight.w800,
+            FontWeight.w800,
           ),
         ),
       ],
@@ -1623,24 +1666,36 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   Widget _aiFarmingInsight({
     required dynamic weatherAlert,
   }) {
+    final lang = context.watch<LanguageProvider>();
     final title =
-        weatherAlert != null
-            ? "Rain is expected tomorrow."
-            : "Plan your farming activities smarter.";
+    weatherAlert != null
+        ? (lang.isUrdu ? "کل بارش متوقع ہے۔" : "Rain is expected tomorrow.")
+        : (lang.isUrdu
+        ? "اپنی کاشتکاری کی سرگرمیوں کی بہتر منصوبہ بندی کریں۔"
+        : "Plan your farming activities smarter.");
 
     final description =
-        weatherAlert != null
-            ? "Consider reducing irrigation today to avoid overwatering."
-            : "Use weather and market information to make better farming decisions.";
+    weatherAlert != null
+        ? (lang.isUrdu
+        ? "زیادہ پانی دینے سے بچنے کے لیے آج آبپاشی کم کرنے پر غور کریں۔"
+        : "Consider reducing irrigation today to avoid overwatering.")
+        : (lang.isUrdu
+        ? "بہتر فیصلوں کے لیے موسم اور مارکیٹ کی معلومات استعمال کریں۔"
+        : "Use weather and market information to make better farming decisions.");
 
     return Container(
       width: double.infinity,
       padding:
-          const EdgeInsets.all(18),
+      const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient:
-            const LinearGradient(
-          colors: [
+        LinearGradient(
+          colors: _isDark()
+              ? const [
+            Color(0xff241d2f),
+            Color(0xff2a2138),
+          ]
+              : const [
             Color(0xfffaf5ff),
             Color(0xfff6efff),
           ],
@@ -1648,16 +1703,16 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
           end: Alignment.bottomRight,
         ),
         borderRadius:
-            BorderRadius.circular(22),
+        BorderRadius.circular(22),
         border: Border.all(
-          color: const Color(
-            0xffdfc9fa,
-          ),
+          color: _isDark()
+              ? Colors.white12
+              : const Color(0xffdfc9fa),
         ),
       ),
       child: Column(
         crossAxisAlignment:
-            CrossAxisAlignment.start,
+        CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -1667,26 +1722,26 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                 size: 18,
               ),
               const SizedBox(width: 6),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  "AI FARMING INSIGHT",
+                  lang.t("dailyFarmingTip"),
                   style:
-                      TextStyle(
+                  TextStyle(
                     color: purpleColor,
                     fontSize: 15,
                     fontWeight:
-                        FontWeight.w900,
+                    FontWeight.w900,
                   ),
                 ),
               ),
-              const Text(
-                "Learn More",
+              Text(
+                lang.t("seeMore"),
                 style:
-                    TextStyle(
+                TextStyle(
                   color: purpleColor,
                   fontSize: 11,
                   fontWeight:
-                      FontWeight.w800,
+                  FontWeight.w800,
                 ),
               ),
               const SizedBox(width: 4),
@@ -1707,16 +1762,16 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                 height: 62,
                 width: 62,
                 decoration:
-                    BoxDecoration(
+                BoxDecoration(
                   color: purpleColor
                       .withOpacity(
                     0.10,
                   ),
                   shape:
-                      BoxShape.circle,
+                  BoxShape.circle,
                 ),
                 child:
-                    const Icon(
+                const Icon(
                   Icons
                       .psychology_rounded,
                   color: purpleColor,
@@ -1731,17 +1786,17 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
               Expanded(
                 child: Column(
                   crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
                       style:
-                          TextStyle(
+                      TextStyle(
                         color:
-                            _textColor,
+                        _textColor,
                         fontSize: 14,
                         fontWeight:
-                            FontWeight.w800,
+                        FontWeight.w800,
                       ),
                     ),
                     const SizedBox(
@@ -1750,13 +1805,13 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                     Text(
                       description,
                       style:
-                          TextStyle(
+                      TextStyle(
                         color:
-                            _subTextColor,
+                        _subTextColor,
                         fontSize: 11.5,
                         height: 1.35,
                         fontWeight:
-                            FontWeight.w500,
+                        FontWeight.w500,
                       ),
                     ),
                   ],
@@ -1775,50 +1830,50 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
 
   Widget _dailyFarmingTip() {
     final lang =
-        context.watch<LanguageProvider>();
+    context.watch<LanguageProvider>();
 
     final tips = [
       {
         "title":
-            lang.t("tipWaterTitle"),
+        lang.t("tipWaterTitle"),
         "tip":
-            lang.t("tipWaterBody"),
+        lang.t("tipWaterBody"),
         "icon":
-            Icons.water_drop_outlined,
+        Icons.water_drop_outlined,
       },
       {
         "title":
-            lang.t("tipLeavesTitle"),
+        lang.t("tipLeavesTitle"),
         "tip":
-            lang.t("tipLeavesBody"),
+        lang.t("tipLeavesBody"),
         "icon":
-            Icons
-                .health_and_safety_outlined,
+        Icons
+            .health_and_safety_outlined,
       },
       {
         "title":
-            lang.t("tipFertilizerTitle"),
+        lang.t("tipFertilizerTitle"),
         "tip":
-            lang.t("tipFertilizerBody"),
+        lang.t("tipFertilizerBody"),
         "icon":
-            Icons.eco_outlined,
+        Icons.eco_outlined,
       },
       {
         "title":
-            lang.t("tipMarketTitle"),
+        lang.t("tipMarketTitle"),
         "tip":
-            lang.t("tipMarketBody"),
+        lang.t("tipMarketBody"),
         "icon":
-            Icons
-                .trending_up_rounded,
+        Icons
+            .trending_up_rounded,
       },
       {
         "title":
-            lang.t("tipWeedsTitle"),
+        lang.t("tipWeedsTitle"),
         "tip":
-            lang.t("tipWeedsBody"),
+        lang.t("tipWeedsBody"),
         "icon":
-            Icons.grass_outlined,
+        Icons.grass_outlined,
       },
     ];
 
@@ -1827,18 +1882,18 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
             tips.length;
 
     final todayTip =
-        tips[todayIndex];
+    tips[todayIndex];
 
     return Container(
       width: double.infinity,
       padding:
-          const EdgeInsets.all(18),
+      const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: _isDark()
             ? _cardColor
             : const Color(0xfff4fbf2),
         borderRadius:
-            BorderRadius.circular(22),
+        BorderRadius.circular(22),
         border: Border.all(
           color: _isDark()
               ? Colors.white12
@@ -1847,7 +1902,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       ),
       child: Column(
         crossAxisAlignment:
-            CrossAxisAlignment.start,
+        CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -1863,27 +1918,27 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                 width: 7,
               ),
 
-              const Expanded(
+              Expanded(
                 child: Text(
-                  "DAILY FARMING TIP",
+                  lang.t("dailyFarmingTip"),
                   style:
-                      TextStyle(
+                  TextStyle(
                     color: darkGreen,
                     fontSize: 15,
                     fontWeight:
-                        FontWeight.w900,
+                    FontWeight.w900,
                   ),
                 ),
               ),
 
-              const Text(
-                "More Tips",
+              Text(
+                lang.t("seeMore"),
                 style:
-                    TextStyle(
+                TextStyle(
                   color: darkGreen,
                   fontSize: 11,
                   fontWeight:
-                      FontWeight.w800,
+                  FontWeight.w800,
                 ),
               ),
 
@@ -1908,20 +1963,20 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                 height: 58,
                 width: 58,
                 decoration:
-                    BoxDecoration(
+                BoxDecoration(
                   color: primaryGreen
                       .withOpacity(
                     0.10,
                   ),
                   shape:
-                      BoxShape.circle,
+                  BoxShape.circle,
                 ),
                 child:
-                    Icon(
+                Icon(
                   todayTip[
-                      "icon"] as IconData,
+                  "icon"] as IconData,
                   color:
-                      primaryGreen,
+                  primaryGreen,
                   size: 28,
                 ),
               ),
@@ -1933,18 +1988,18 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
               Expanded(
                 child: Column(
                   crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  CrossAxisAlignment.start,
                   children: [
                     Text(
                       todayTip[
-                          "title"] as String,
+                      "title"] as String,
                       style:
-                          TextStyle(
+                      TextStyle(
                         color:
-                            _textColor,
+                        _textColor,
                         fontSize: 14,
                         fontWeight:
-                            FontWeight.w800,
+                        FontWeight.w800,
                       ),
                     ),
                     const SizedBox(
@@ -1952,18 +2007,18 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                     ),
                     Text(
                       todayTip[
-                          "tip"] as String,
+                      "tip"] as String,
                       maxLines: 3,
                       overflow:
-                          TextOverflow.ellipsis,
+                      TextOverflow.ellipsis,
                       style:
-                          TextStyle(
+                      TextStyle(
                         color:
-                            _subTextColor,
+                        _subTextColor,
                         fontSize: 11.5,
                         height: 1.35,
                         fontWeight:
-                            FontWeight.w500,
+                        FontWeight.w500,
                       ),
                     ),
                   ],
@@ -1993,11 +2048,11 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
 
   Widget _errorView() {
     final lang =
-        context.watch<LanguageProvider>();
+    context.watch<LanguageProvider>();
 
     return ListView(
       physics:
-          const AlwaysScrollableScrollPhysics(),
+      const AlwaysScrollableScrollPhysics(),
       children: [
         const SizedBox(
           height: 220,
@@ -2007,20 +2062,20 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
           height: 80,
           width: 80,
           margin:
-              const EdgeInsets.symmetric(
+          const EdgeInsets.symmetric(
             horizontal: 150,
           ),
           decoration:
-              BoxDecoration(
+          BoxDecoration(
             color:
-                Colors.red.withOpacity(
+            Colors.red.withOpacity(
               0.08,
             ),
             shape:
-                BoxShape.circle,
+            BoxShape.circle,
           ),
           child:
-              const Icon(
+          const Icon(
             Icons
                 .error_outline_rounded,
             size: 45,
@@ -2035,7 +2090,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
         Center(
           child: Padding(
             padding:
-                const EdgeInsets.symmetric(
+            const EdgeInsets.symmetric(
               horizontal: 30,
             ),
             child: Text(
@@ -2043,14 +2098,14 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                 _errorMessage!,
               ),
               textAlign:
-                  TextAlign.center,
+              TextAlign.center,
               style:
-                  TextStyle(
+              TextStyle(
                 fontSize: 17,
                 fontWeight:
-                    FontWeight.w700,
+                FontWeight.w700,
                 color:
-                    _textColor,
+                _textColor,
               ),
             ),
           ),
@@ -2062,25 +2117,25 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
 
         Center(
           child:
-              ElevatedButton(
+          ElevatedButton(
             onPressed:
-                _loadDashboardData,
+            _loadDashboardData,
             style:
-                ElevatedButton.styleFrom(
+            ElevatedButton.styleFrom(
               backgroundColor:
-                  darkGreen,
+              darkGreen,
               foregroundColor:
-                  Colors.white,
+              Colors.white,
               padding:
-                  const EdgeInsets
-                      .symmetric(
+              const EdgeInsets
+                  .symmetric(
                 horizontal: 28,
                 vertical: 13,
               ),
               shape:
-                  RoundedRectangleBorder(
+              RoundedRectangleBorder(
                 borderRadius:
-                    BorderRadius.circular(
+                BorderRadius.circular(
                   14,
                 ),
               ),
@@ -2145,12 +2200,12 @@ class _MarketChartPainter
     extends CustomPainter {
   @override
   void paint(
-    Canvas canvas,
-    Size size,
-  ) {
+      Canvas canvas,
+      Size size,
+      ) {
     final linePaint = Paint()
       ..color =
-          const Color(0xff4ca95d)
+      const Color(0xff4ca95d)
       ..strokeWidth = 2.2
       ..style =
           PaintingStyle.stroke
@@ -2159,15 +2214,15 @@ class _MarketChartPainter
 
     final fillPaint = Paint()
       ..shader =
-          const LinearGradient(
+      const LinearGradient(
         colors: [
           Color(0x304ca95d),
           Color(0x004ca95d),
         ],
         begin:
-            Alignment.topCenter,
+        Alignment.topCenter,
         end:
-            Alignment.bottomCenter,
+        Alignment.bottomCenter,
       ).createShader(
         Rect.fromLTWH(
           0,
@@ -2230,8 +2285,8 @@ class _MarketChartPainter
     );
 
     for (int i = 1;
-        i < points.length;
-        i++) {
+    i < points.length;
+    i++) {
       path.lineTo(
         points[i].dx,
         points[i].dy,
@@ -2239,7 +2294,7 @@ class _MarketChartPainter
     }
 
     final fillPath =
-        Path.from(path);
+    Path.from(path);
 
     fillPath.lineTo(
       size.width,
@@ -2265,7 +2320,7 @@ class _MarketChartPainter
 
     final dotPaint = Paint()
       ..color =
-          const Color(0xff4ca95d);
+      const Color(0xff4ca95d);
 
     for (final point in points) {
       canvas.drawCircle(
@@ -2278,8 +2333,8 @@ class _MarketChartPainter
 
   @override
   bool shouldRepaint(
-    covariant CustomPainter oldDelegate,
-  ) {
+      covariant CustomPainter oldDelegate,
+      ) {
     return false;
   }
 }

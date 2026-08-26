@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/language_provider.dart';
 
+import '../../providers/language_provider.dart';
 import 'profile_action_tile.dart';
 
 class ProfileActionCard extends StatelessWidget {
@@ -32,15 +32,34 @@ class ProfileActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+
+    final bool isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
+      padding: const EdgeInsets.fromLTRB(
+        22,
+        22,
+        22,
+        18,
+      ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark
+            ? const Color(0xff171d19)
+            : Colors.white,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDark
+              ? Colors.white12
+              : Colors.transparent,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(
+              alpha: isDark ? 0.18 : 0.06,
+            ),
             blurRadius: 22,
             offset: const Offset(0, 10),
           ),
@@ -48,15 +67,26 @@ class ProfileActionCard extends StatelessWidget {
       ),
       child: Column(
         children: [
+          // =====================================================
+          // HEADER
+          // =====================================================
+
           Row(
             children: [
-              _iconBox(Icons.settings),
+              _iconBox(
+                Icons.settings,
+                isDark,
+              ),
+
               const SizedBox(width: 14),
+
               Expanded(
                 child: Text(
-                  context.watch<LanguageProvider>().t("accountSettings"),
+                  lang.t("accountSettings"),
                   style: TextStyle(
-                    color: darkGreen,
+                    color: isDark
+                        ? Colors.white
+                        : darkGreen,
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
                   ),
@@ -64,57 +94,92 @@ class ProfileActionCard extends StatelessWidget {
               ),
             ],
           ),
+
           const SizedBox(height: 14),
+
+          // =====================================================
+          // EDIT PROFILE
+          // =====================================================
 
           ProfileActionTile(
             icon: Icons.person,
-            title: context.watch<LanguageProvider>().t("editProfile"),
+            title: lang.t("editProfile"),
             onTap: onEditProfile,
           ),
-          _divider(),
+
+          _divider(isDark),
+
+          // =====================================================
+          // LANGUAGE
+          // =====================================================
 
           ProfileActionTile(
             icon: Icons.language,
-            title: context.watch<LanguageProvider>().t("language"),
+            title: lang.t("language"),
             trailingText: language,
             onTap: onLanguage,
           ),
-          _divider(),
+
+          _divider(isDark),
+
+          // =====================================================
+          // NOTIFICATIONS
+          // =====================================================
 
           ProfileActionTile(
             icon: Icons.notifications,
-            title: context.watch<LanguageProvider>().t("notifications"),
+            title: lang.t("notifications"),
             onTap: onNotifications,
           ),
-          _divider(),
+
+          _divider(isDark),
+
+          // =====================================================
+          // CHANGE PASSWORD
+          // =====================================================
 
           ProfileActionTile(
             icon: Icons.lock,
-            title: context.watch<LanguageProvider>().t("changePassword"),
+            title: lang.t("changePassword"),
             onTap: onChangePassword,
           ),
-          _divider(),
+
+          _divider(isDark),
+
+          // =====================================================
+          // APPEARANCE
+          // =====================================================
 
           ProfileActionTile(
             icon: Icons.dark_mode,
-            title: context.watch<LanguageProvider>().t("appearance"),
+            title: lang.t("appearance"),
             trailingText: isDarkMode
-                ? context.watch<LanguageProvider>().t("darkMode")
-                : context.watch<LanguageProvider>().t("lightMode"),
+                ? lang.t("darkMode")
+                : lang.t("lightMode"),
             onTap: onAppearance,
           ),
-          _divider(),
+
+          _divider(isDark),
+
+          // =====================================================
+          // HELP & SUPPORT
+          // =====================================================
 
           ProfileActionTile(
             icon: Icons.headset_mic,
-            title: context.watch<LanguageProvider>().t("helpSupport"),
+            title: lang.t("helpSupport"),
             onTap: onHelpSupport,
           ),
-          _divider(),
+
+          _divider(isDark),
+
+          // =====================================================
+          // ABOUT AGRICONNECT
+          // =====================================================
 
           ProfileActionTile(
             icon: Icons.info,
-            title: context.watch<LanguageProvider>().t("aboutAgriConnect"),
+            title: lang.t("aboutAgriConnect"),
             onTap: onAboutApp,
           ),
         ],
@@ -122,19 +187,46 @@ class ProfileActionCard extends StatelessWidget {
     );
   }
 
-  Widget _iconBox(IconData icon) {
+  // ===========================================================
+  // HEADER ICON
+  // ===========================================================
+
+  Widget _iconBox(
+      IconData icon,
+      bool isDark,
+      ) {
     return Container(
       height: 46,
       width: 46,
       decoration: BoxDecoration(
-        color: const Color(0xffe8f5ee),
+        color: isDark
+            ? const Color(0xff20372b)
+            : const Color(0xffe8f5ee),
         borderRadius: BorderRadius.circular(14),
       ),
-      child: const Icon(Icons.settings, color: darkGreen, size: 24),
+      child: Icon(
+        icon,
+        color: isDark
+            ? const Color(0xff65c98e)
+            : darkGreen,
+        size: 24,
+      ),
     );
   }
 
-  Widget _divider() {
-    return Divider(height: 1, thickness: 1, color: Colors.grey.shade300);
+  // ===========================================================
+  // DIVIDER
+  // ===========================================================
+
+  Widget _divider(
+      bool isDark,
+      ) {
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: isDark
+          ? Colors.white12
+          : Colors.grey.shade300,
+    );
   }
 }

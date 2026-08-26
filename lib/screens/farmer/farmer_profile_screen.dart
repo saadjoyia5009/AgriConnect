@@ -111,13 +111,19 @@ class _FarmerProfileScreenState
     profileProvider.errorMessage != null &&
         profileProvider.profile == null
     ) {
-      return _errorView(profileProvider);
+      return _errorView(
+        profileProvider,
+        languageProvider,
+      );
     }
 
     final profile = profileProvider.profile;
 
     if (profile == null) {
-      return _errorView(profileProvider);
+      return _errorView(
+        profileProvider,
+        languageProvider,
+      );
     }
 
     return RefreshIndicator(
@@ -146,8 +152,8 @@ class _FarmerProfileScreenState
                   const SizedBox(height: 24),
                   ProfileActionCard(
                     language: languageProvider.isUrdu
-                        ? "Urdu"
-                        : "English",
+                        ? languageProvider.t("urdu")
+                        : languageProvider.t("english"),
                     isDarkMode:
                     themeProvider.isDarkMode,
                     onEditProfile: _openEditProfile,
@@ -198,6 +204,7 @@ class _FarmerProfileScreenState
 
   Widget _errorView(
       ProfileProvider profileProvider,
+      LanguageProvider languageProvider,
       ) {
     final isDark =
         Theme.of(context).brightness == Brightness.dark;
@@ -223,7 +230,7 @@ class _FarmerProfileScreenState
           const SizedBox(height: 18),
           Text(
             profileProvider.errorMessage ??
-                "Unable to load profile.",
+                languageProvider.t("somethingWentWrong"),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Theme.of(context)
@@ -300,8 +307,10 @@ class _FarmerProfileScreenState
             children: [
               Text(
                 languageProvider.t("selectLanguage"),
-                style: const TextStyle(
-                  color: darkGreen,
+                style: TextStyle(
+                  color: isDark
+                      ? Colors.white
+                      : darkGreen,
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
                 ),
@@ -310,13 +319,13 @@ class _FarmerProfileScreenState
               _languageTile(
                 sheetContext,
                 languageProvider,
-                languageName: "English",
+                languageName: languageProvider.t("english"),
                 languageCode: "en",
               ),
               _languageTile(
                 sheetContext,
                 languageProvider,
-                languageName: "Urdu",
+                languageName: languageProvider.t("urdu"),
                 languageCode: "ur",
               ),
             ],
@@ -337,6 +346,14 @@ class _FarmerProfileScreenState
             languageCode;
 
     return ListTile(
+      tileColor: isSelected
+          ? (Theme.of(sheetContext).brightness == Brightness.dark
+          ? darkGreen.withValues(alpha: 0.14)
+          : const Color(0xffeef8f2))
+          : Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       onTap: () async {
         await languageProvider.changeLanguage(
           languageCode,
@@ -397,9 +414,11 @@ class _FarmerProfileScreenState
       context: context,
       applicationName: "AgriConnect",
       applicationVersion: "1.0.0",
-      applicationIcon: const Icon(
+      applicationIcon: Icon(
         Icons.agriculture,
-        color: darkGreen,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white
+            : darkGreen,
         size: 35,
       ),
       children: [
@@ -439,9 +458,11 @@ class _FarmerProfileScreenState
           ),
           title: Text(
             languageProvider.t("changePassword"),
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w900,
-              color: darkGreen,
+              color: Theme.of(dialogContext).brightness == Brightness.dark
+                  ? Colors.white
+                  : darkGreen,
             ),
           ),
           content: Column(
@@ -454,8 +475,11 @@ class _FarmerProfileScreenState
                   labelText: languageProvider.t(
                     "currentPassword",
                   ),
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.lock_outline,
+                    color: Theme.of(dialogContext).brightness == Brightness.dark
+                        ? Colors.white70
+                        : darkGreen,
                   ),
                 ),
               ),
@@ -467,8 +491,11 @@ class _FarmerProfileScreenState
                   labelText: languageProvider.t(
                     "newPassword",
                   ),
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.lock_reset,
+                    color: Theme.of(dialogContext).brightness == Brightness.dark
+                        ? Colors.white70
+                        : darkGreen,
                   ),
                 ),
               ),
@@ -480,8 +507,11 @@ class _FarmerProfileScreenState
                   labelText: languageProvider.t(
                     "confirmPassword",
                   ),
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.verified_outlined,
+                    color: Theme.of(dialogContext).brightness == Brightness.dark
+                        ? Colors.white70
+                        : darkGreen,
                   ),
                 ),
               ),
@@ -584,6 +614,14 @@ class _FarmerProfileScreenState
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
+        backgroundColor:
+        Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xff17432f)
+            : darkGreen,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
       ),
     );
   }

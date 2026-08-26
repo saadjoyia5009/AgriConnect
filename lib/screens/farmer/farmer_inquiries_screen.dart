@@ -33,8 +33,13 @@ class _FarmerInquiriesScreenState
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
 
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xfff5faf7),
+      backgroundColor: isDark
+          ? const Color(0xff0d1511)
+          : const Color(0xfff5faf7),
 
       bottomNavigationBar: const FarmerBottomNavbar(
         currentIndex: 3,
@@ -47,10 +52,10 @@ class _FarmerInquiriesScreenState
           Expanded(
             child: Consumer<InquiryProvider>(
               builder: (
-                context,
-                inquiryProvider,
-                _,
-              ) {
+                  context,
+                  inquiryProvider,
+                  _,
+                  ) {
                 // --------------------------------------------------
                 // LOADING
                 // --------------------------------------------------
@@ -70,7 +75,7 @@ class _FarmerInquiriesScreenState
                 if (inquiryProvider.errorMessage != null) {
                   return _ErrorState(
                     message:
-                        inquiryProvider.errorMessage!,
+                    inquiryProvider.errorMessage!,
                     onRetry: () {
                       inquiryProvider
                           .fetchFarmerInquiries();
@@ -92,7 +97,7 @@ class _FarmerInquiriesScreenState
 
                   child: SingleChildScrollView(
                     physics:
-                        const AlwaysScrollableScrollPhysics(),
+                    const AlwaysScrollableScrollPhysics(),
 
                     padding: const EdgeInsets.fromLTRB(
                       18,
@@ -103,7 +108,7 @@ class _FarmerInquiriesScreenState
 
                     child: Column(
                       crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                      CrossAxisAlignment.start,
                       children: [
                         // ------------------------------------------------
                         // HERO
@@ -127,11 +132,11 @@ class _FarmerInquiriesScreenState
                               context,
                               title: "Pending",
                               displayTitle:
-                                  lang.t("pending"),
+                              lang.t("pending"),
                               selected:
-                                  inquiryProvider
-                                          .selectedFilter ==
-                                      "Pending",
+                              inquiryProvider
+                                  .selectedFilter ==
+                                  "Pending",
                             ),
 
                             const SizedBox(width: 9),
@@ -140,11 +145,11 @@ class _FarmerInquiriesScreenState
                               context,
                               title: "Active",
                               displayTitle:
-                                  lang.t("active"),
+                              lang.t("active"),
                               selected:
-                                  inquiryProvider
-                                          .selectedFilter ==
-                                      "Active",
+                              inquiryProvider
+                                  .selectedFilter ==
+                                  "Active",
                             ),
 
                             const SizedBox(width: 9),
@@ -153,17 +158,17 @@ class _FarmerInquiriesScreenState
                               context,
                               title: "History",
                               displayTitle:
-                                  lang.t("history"),
+                              lang.t("history"),
                               selected:
-                                  inquiryProvider
-                                          .selectedFilter ==
-                                      "History",
+                              inquiryProvider
+                                  .selectedFilter ==
+                                  "History",
                             ),
                           ],
                         ),
                         SizedBox(height: 13),
-                        
-                        Text("Inquiries: ${inquiryProvider.filteredInquiries.length}"
+
+                        Text("${lang.t("inquiries")}: ${inquiryProvider.filteredInquiries.length}"
                           , style: TextStyle(
                             color: isDark ? Colors.white : const Color(0xff202622),
                             fontSize: 16,
@@ -182,12 +187,12 @@ class _FarmerInquiriesScreenState
                                 .length,
                             shrinkWrap: true,
                             physics:
-                                const NeverScrollableScrollPhysics(),
+                            const NeverScrollableScrollPhysics(),
                             itemBuilder:
                                 (context, index) {
                               final inquiry =
-                                  inquiryProvider
-                                      .filteredInquiries[index];
+                              inquiryProvider
+                                  .filteredInquiries[index];
 
                               return _InquiryCard(
                                 inquiry: inquiry,
@@ -198,9 +203,9 @@ class _FarmerInquiriesScreenState
                                     MaterialPageRoute(
                                       builder: (_) =>
                                           FarmerInquiryDetailScreen(
-                                        inquiryId:
+                                            inquiryId:
                                             inquiry.id,
-                                      ),
+                                          ),
                                     ),
                                   );
                                 },
@@ -223,13 +228,13 @@ class _FarmerInquiriesScreenState
                                   }
 
                                   if (inquiryProvider
-                                          .errorMessage ==
+                                      .errorMessage ==
                                       null) {
                                     await context
                                         .read<ChatProvider>()
                                         .fetchConversations(
-                                          showLoading: false,
-                                        );
+                                      showLoading: false,
+                                    );
                                   }
                                 },
                               );
@@ -252,6 +257,8 @@ class _FarmerInquiriesScreenState
   // ==============================================================
 
   Widget _topBar() {
+    final lang = context.watch<LanguageProvider>();
+
     return Container(
       width: double.infinity,
       height: 120,
@@ -325,7 +332,7 @@ class _FarmerInquiriesScreenState
                       alpha: 0.13,
                     ),
                     borderRadius:
-                        BorderRadius.circular(16),
+                    BorderRadius.circular(16),
                     border: Border.all(
                       color: Colors.white.withValues(
                         alpha: 0.08,
@@ -341,10 +348,10 @@ class _FarmerInquiriesScreenState
                 ),
 
                 // TITLE
-                const Expanded(
+                 Expanded(
                   child: Center(
                     child: Text(
-                      "Inquiries",
+                      lang.t("inquiries"),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 28,
@@ -364,7 +371,7 @@ class _FarmerInquiriesScreenState
                       alpha: 0.13,
                     ),
                     borderRadius:
-                        BorderRadius.circular(16),
+                    BorderRadius.circular(16),
                     border: Border.all(
                       color: Colors.white.withValues(
                         alpha: 0.08,
@@ -391,18 +398,18 @@ class _FarmerInquiriesScreenState
   // ==============================================================
 
   Widget _heroSection(
-    BuildContext context,
-    LanguageProvider lang,
-    bool isDark,
-  ) {
+      BuildContext context,
+      LanguageProvider lang,
+      bool isDark,
+      ) {
     return Row(
       crossAxisAlignment:
-          CrossAxisAlignment.center,
+      CrossAxisAlignment.center,
       children: [
         Expanded(
           child: Column(
             crossAxisAlignment:
-                CrossAxisAlignment.start,
+            CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
@@ -415,7 +422,7 @@ class _FarmerInquiriesScreenState
                             : const Color(0xff161d19),
                         fontSize: 27,
                         fontWeight:
-                            FontWeight.w900,
+                        FontWeight.w900,
                         letterSpacing: -0.7,
                       ),
                     ),
@@ -444,7 +451,7 @@ class _FarmerInquiriesScreenState
                   fontSize: 14,
                   height: 1.45,
                   fontWeight:
-                      FontWeight.w500,
+                  FontWeight.w500,
                 ),
               ),
             ],
@@ -458,9 +465,11 @@ class _FarmerInquiriesScreenState
           height: 78,
           width: 86,
           decoration: BoxDecoration(
-            color: const Color(0xffe4f3e9),
+            color: isDark
+                ? const Color(0xff193126)
+                : const Color(0xffe4f3e9),
             borderRadius:
-                BorderRadius.circular(24),
+            BorderRadius.circular(24),
           ),
 
           child: Stack(
@@ -473,10 +482,11 @@ class _FarmerInquiriesScreenState
                 child: Container(
                   height: 15,
                   decoration: BoxDecoration(
-                    color:
-                        const Color(0xffcce8d5),
+                    color: isDark
+                        ? const Color(0xff244a37)
+                        : const Color(0xffcce8d5),
                     borderRadius:
-                        BorderRadius.circular(20),
+                    BorderRadius.circular(20),
                   ),
                 ),
               ),
@@ -508,13 +518,13 @@ class _FarmerInquiriesScreenState
   // ==============================================================
 
   Widget _filterChip(
-    BuildContext context, {
-    required String title,
-    required String displayTitle,
-    required bool selected,
-  }) {
+      BuildContext context, {
+        required String title,
+        required String displayTitle,
+        required bool selected,
+      }) {
     final provider =
-        Provider.of<InquiryProvider>(
+    Provider.of<InquiryProvider>(
       context,
       listen: false,
     );
@@ -547,7 +557,7 @@ class _FarmerInquiriesScreenState
 
         child: AnimatedContainer(
           duration:
-              const Duration(milliseconds: 180),
+          const Duration(milliseconds: 180),
 
           height: 42,
 
@@ -555,38 +565,38 @@ class _FarmerInquiriesScreenState
             color: selected
                 ? darkGreen
                 : isDark
-                    ? const Color(0xff1d251f)
-                    : Colors.white,
+                ? const Color(0xff1d251f)
+                : Colors.white,
 
             borderRadius:
-                BorderRadius.circular(27),
+            BorderRadius.circular(27),
 
             border: Border.all(
               color: selected
                   ? darkGreen
                   : isDark
-                      ? Colors.white12
-                      : const Color(0xffd8e6de),
+                  ? Colors.white12
+                  : const Color(0xffd8e6de),
             ),
 
             boxShadow: selected
                 ? [
-                    BoxShadow(
-                      color: darkGreen
-                          .withValues(
-                        alpha: 0.12,
-                      ),
-                      blurRadius: 12,
-                      offset:
-                          const Offset(0, 5),
-                    ),
-                  ]
+              BoxShadow(
+                color: darkGreen
+                    .withValues(
+                  alpha: 0.12,
+                ),
+                blurRadius: 12,
+                offset:
+                const Offset(0, 5),
+              ),
+            ]
                 : [],
           ),
 
           child: Row(
             mainAxisAlignment:
-                MainAxisAlignment.center,
+            MainAxisAlignment.center,
 
             children: [
               Icon(
@@ -603,7 +613,7 @@ class _FarmerInquiriesScreenState
                 child: Text(
                   displayTitle,
                   overflow:
-                      TextOverflow.ellipsis,
+                  TextOverflow.ellipsis,
 
                   style: TextStyle(
                     color: selected
@@ -611,7 +621,7 @@ class _FarmerInquiriesScreenState
                         : darkGreen,
                     fontSize: 12.5,
                     fontWeight:
-                        FontWeight.w800,
+                    FontWeight.w800,
                   ),
                 ),
               ),
@@ -720,7 +730,9 @@ class _InquiryCard extends StatelessWidget {
                         return Container(
                           width: 185,
                           height: double.infinity,
-                          color: const Color(0xffe8f3ed),
+                          color: isDark
+                              ? const Color(0xff193126)
+                              : const Color(0xffe8f3ed),
 
                           child: const Icon(
                             Icons.image_not_supported_outlined,
@@ -851,8 +863,10 @@ class _InquiryCard extends StatelessWidget {
                                     height: 29,
                                     width: 29,
                                     decoration:
-                                    const BoxDecoration(
-                                      color: Color(0xffdff5e7),
+                                    BoxDecoration(
+                                      color: isDark
+                                          ? const Color(0xff244a37)
+                                          : const Color(0xffdff5e7),
                                       shape: BoxShape.circle,
                                     ),
                                     alignment: Alignment.center,
@@ -958,7 +972,7 @@ class _InquiryCard extends StatelessWidget {
                           lang.t("requested"),
                           style: TextStyle(
                             color: isDark
-                                ? Colors.white54
+                                ? Colors.white70
                                 : const Color(0xff000000),
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -1060,7 +1074,9 @@ class _InquiryCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: filled
               ? darkGreen
-              : Colors.white,
+              : (Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xff1d251f)
+              : Colors.white),
 
           shape: BoxShape.circle,
 
@@ -1289,24 +1305,24 @@ class _EmptyState
   const _EmptyState();
 
   static const Color darkGreen =
-      Color(0xff075739);
+  Color(0xff075739);
 
   @override
   Widget build(
-    BuildContext context,
-  ) {
+      BuildContext context,
+      ) {
     final isDark =
         Theme.of(context).brightness ==
             Brightness.dark;
 
     final lang =
-        context.watch<LanguageProvider>();
+    context.watch<LanguageProvider>();
 
     return Container(
       width: double.infinity,
 
       padding:
-          const EdgeInsets.symmetric(
+      const EdgeInsets.symmetric(
         horizontal: 22,
         vertical: 38,
       ),
@@ -1317,7 +1333,7 @@ class _EmptyState
             : Colors.white,
 
         borderRadius:
-            BorderRadius.circular(24),
+        BorderRadius.circular(24),
 
         border: Border.all(
           color: isDark
@@ -1332,7 +1348,7 @@ class _EmptyState
             ),
             blurRadius: 14,
             offset:
-                const Offset(0, 6),
+            const Offset(0, 6),
           ),
         ],
       ),
@@ -1344,9 +1360,10 @@ class _EmptyState
             width: 72,
 
             decoration:
-                BoxDecoration(
-              color:
-                  const Color(0xffe4f3e9),
+            BoxDecoration(
+              color: isDark
+                  ? const Color(0xff193126)
+                  : const Color(0xffe4f3e9),
               shape: BoxShape.circle,
             ),
 
@@ -1371,12 +1388,12 @@ class _EmptyState
               color: isDark
                   ? Colors.white
                   : const Color(
-                      0xff202723,
-                    ),
+                0xff202723,
+              ),
 
               fontSize: 18,
               fontWeight:
-                  FontWeight.w900,
+              FontWeight.w900,
             ),
           ),
 
@@ -1390,14 +1407,14 @@ class _EmptyState
             ),
 
             textAlign:
-                TextAlign.center,
+            TextAlign.center,
 
             style: TextStyle(
               color: isDark
                   ? Colors.white60
                   : const Color(
-                      0xff68736d,
-                    ),
+                0xff68736d,
+              ),
 
               fontSize: 14,
               height: 1.4,
@@ -1424,27 +1441,27 @@ class _ErrorState
   });
 
   static const Color darkGreen =
-      Color(0xff075739);
+  Color(0xff075739);
 
   @override
   Widget build(
-    BuildContext context,
-  ) {
+      BuildContext context,
+      ) {
     final isDark =
         Theme.of(context).brightness ==
             Brightness.dark;
 
     final lang =
-        context.watch<LanguageProvider>();
+    context.watch<LanguageProvider>();
 
     return Center(
       child: Padding(
         padding:
-            const EdgeInsets.all(22),
+        const EdgeInsets.all(22),
 
         child: Column(
           mainAxisAlignment:
-              MainAxisAlignment.center,
+          MainAxisAlignment.center,
 
           children: [
             Container(
@@ -1452,10 +1469,10 @@ class _ErrorState
               width: 76,
 
               decoration:
-                  BoxDecoration(
-                color: const Color(
-                  0xffffeeee,
-                ),
+              BoxDecoration(
+                color: isDark
+                    ? const Color(0xff3a2020)
+                    : const Color(0xffffeeee),
                 shape: BoxShape.circle,
               ),
 
@@ -1479,12 +1496,12 @@ class _ErrorState
                 color: isDark
                     ? Colors.white
                     : const Color(
-                        0xff202723,
-                      ),
+                  0xff202723,
+                ),
 
                 fontSize: 18,
                 fontWeight:
-                    FontWeight.w900,
+                FontWeight.w900,
               ),
             ),
 
@@ -1496,14 +1513,14 @@ class _ErrorState
               message,
 
               textAlign:
-                  TextAlign.center,
+              TextAlign.center,
 
               style: TextStyle(
                 color: isDark
                     ? Colors.white60
                     : const Color(
-                        0xff68736d,
-                      ),
+                  0xff68736d,
+                ),
 
                 fontSize: 14,
                 height: 1.4,
@@ -1518,25 +1535,25 @@ class _ErrorState
               onPressed: onRetry,
 
               style:
-                  ElevatedButton.styleFrom(
+              ElevatedButton.styleFrom(
                 backgroundColor:
-                    darkGreen,
+                darkGreen,
                 foregroundColor:
-                    Colors.white,
+                Colors.white,
 
                 elevation: 0,
 
                 padding:
-                    const EdgeInsets
-                        .symmetric(
+                const EdgeInsets
+                    .symmetric(
                   horizontal: 24,
                   vertical: 12,
                 ),
 
                 shape:
-                    RoundedRectangleBorder(
+                RoundedRectangleBorder(
                   borderRadius:
-                      BorderRadius.circular(
+                  BorderRadius.circular(
                     24,
                   ),
                 ),
