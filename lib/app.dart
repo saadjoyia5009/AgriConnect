@@ -60,6 +60,7 @@ import 'screens/farmer/weather_forecast_screen.dart';
 import 'screens/language/language_selection_screen.dart';
 import 'screens/support/customer_support_screen.dart';
 import 'providers/support_provider.dart';
+import 'screens/buyer/buyer_browse_screen.dart';
 
 import 'screens/onboarding/onboarding_screen_one.dart';
 import 'screens/onboarding/onboarding_screen_three.dart';
@@ -143,11 +144,15 @@ class AgriConnectApp extends StatelessWidget {
       '/buyerDashboard': buyerPage(
         const BuyerDashboardScreen(),
       ),
+
       '/buyerFavorites': buyerPage(
         const BuyerFavoritesScreen(),
       ),
       '/buyer-inquiries': buyerPage(
         const BuyerInquiriesScreen(),
+      ),
+      '/buyerBrowse': buyerPage(
+        const BuyerBrowseScreen(),
       ),
       '/buyerProfile': buyerPage(
         const BuyerProfileScreen(),

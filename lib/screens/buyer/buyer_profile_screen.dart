@@ -66,7 +66,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
 
     final Map<int, String> routes = {
       0: '/buyerDashboard',
-      1: '/buyerFavorites',
+      1: '/buyerBrowse',
       2: '/buyerChats',
       3: '/buyer-inquiries',
       4: '/buyerProfile',
