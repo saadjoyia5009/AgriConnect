@@ -255,6 +255,7 @@ Future<void> stopListening() async {
       // ─────────────────────────────────────────────────────────────
 
       // Update current screen from AI action
+      // Update current screen from AI action
       final target = response.action?['target']?.toString();
 
       if (target == 'add_crop') {
@@ -263,6 +264,9 @@ Future<void> stopListening() async {
       } else if (target == 'my_crops') {
         _currentScreen = 'my_crops';
         debugPrint('CURRENT SCREEN UPDATED: my_crops');
+      } else if (target == 'chat') {
+        _currentScreen = 'chat';
+        debugPrint('CURRENT SCREEN UPDATED: chat');
       } else if (target == 'farmer_dashboard') {
         _currentScreen = 'farmer_dashboard';
         debugPrint('CURRENT SCREEN UPDATED: farmer_dashboard');
@@ -291,14 +295,56 @@ Future<void> stopListening() async {
       }
 
       // Handle AI action
+      // Handle AI action
       final actionType = response.action?['type']?.toString();
+      final actionTarget = response.action?['target']?.toString();
 
       if (actionType == 'confirmation_required') {
         debugPrint('CONFIRMATION REQUIRED: waiting for user response');
+
         _state = VoiceAssistantState.idle;
         notifyListeners();
+
         return;
       }
+
+// ---------------------------------------------------------
+// Crop creation completed
+// ---------------------------------------------------------
+// Backend sends:
+// type   = navigate
+// target = my_crops
+//
+// Do NOT restart microphone after successful crop creation.
+// The crop creation conversation is complete.
+// ---------------------------------------------------------
+
+      // ---------------------------------------------------------
+// Navigation action completed
+// Do NOT restart microphone after navigation.
+// The voice interaction has handed control to the
+// destination screen.
+// ---------------------------------------------------------
+
+      if (actionType == 'navigate' &&
+          (actionTarget == 'my_crops' ||
+              actionTarget == 'chat')) {
+        debugPrint(
+          'NAVIGATION COMPLETED: stopping voice conversation. '
+              'target=$actionTarget',
+        );
+
+        await _voiceService.stopListening();
+
+        _state = VoiceAssistantState.idle;
+        notifyListeners();
+
+        return;
+      }
+
+// ---------------------------------------------------------
+// Normal conversational auto-listening
+// ---------------------------------------------------------
 
       _state = VoiceAssistantState.idle;
       notifyListeners();
@@ -309,6 +355,47 @@ Future<void> stopListening() async {
       );
     } catch (e) {
       debugPrint('AI VOICE ERROR: $e');
+      _state = VoiceAssistantState.error;
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
+
+
+  // =========================================================
+  // SPEAK LOCAL MESSAGE
+  // =========================================================
+
+  Future<void> speakMessage(
+      String message, {
+        String? language,
+      }) async {
+    final text = message.trim();
+
+    if (text.isEmpty) {
+      return;
+    }
+
+    try {
+      _state = VoiceAssistantState.speaking;
+      notifyListeners();
+
+      debugPrint('LOCAL TTS START: $text');
+
+      await _ttsService.speak(
+        text,
+        language: language ?? _language,
+      );
+
+      debugPrint('LOCAL TTS FINISHED');
+
+      if (_state == VoiceAssistantState.speaking) {
+        _state = VoiceAssistantState.idle;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('LOCAL TTS ERROR: $e');
+
       _state = VoiceAssistantState.error;
       _error = e.toString();
       notifyListeners();
