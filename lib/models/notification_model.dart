@@ -1,20 +1,10 @@
 class NotificationModel {
   final String id;
-
   final String title;
   final String message;
 
   // inquiry, chat, system
   final String type;
-
-  // farmer, buyer
-  final String role;
-
-  // inquiryId, chatId etc
-  final String? referenceId;
-
-  // screen navigation
-  final String? navigationType;
 
   final String time;
   bool isRead;
@@ -24,9 +14,6 @@ class NotificationModel {
     required this.title,
     required this.message,
     required this.type,
-    required this.role,
-    this.referenceId,
-    this.navigationType,
     required this.time,
     required this.isRead,
   });
@@ -34,14 +21,11 @@ class NotificationModel {
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
       id: json['id'].toString(),
-      title: json['title'] ?? '',
-      message: json['message'] ?? '',
-      type: json['type'] ?? '',
-      role: json['role'] ?? '',
-      referenceId: json['reference_id'],
-      navigationType: json['navigation_type'],
-      time: json['time'] ?? '',
-      isRead: json['is_read'] ?? false,
+      title: json['title']?.toString() ?? '',
+      message: json['message']?.toString() ?? '',
+      type: json['notification_type']?.toString() ?? 'system',
+      time: json['created_at']?.toString() ?? '',
+      isRead: json['is_read'] == true,
     );
   }
 
@@ -50,11 +34,8 @@ class NotificationModel {
       'id': id,
       'title': title,
       'message': message,
-      'type': type,
-      'role': role,
-      'reference_id': referenceId,
-      'navigation_type': navigationType,
-      'time': time,
+      'notification_type': type,
+      'created_at': time,
       'is_read': isRead,
     };
   }
