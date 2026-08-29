@@ -148,6 +148,19 @@ class VoiceAssistantProvider extends ChangeNotifier {
       },
       onStatus: (status) {
         debugPrint('VOICE STATUS: $status');
+
+        // Native speech engine stopped listening.
+        // Keep Provider state synchronized with actual speech state.
+        if (status == 'notListening' || status == 'done') {
+          if (_state == VoiceAssistantState.listening) {
+            debugPrint(
+              'VOICE STATUS: speech session ended -> IDLE',
+            );
+
+            _state = VoiceAssistantState.idle;
+            notifyListeners();
+          }
+        }
       },
     );
 
@@ -157,60 +170,60 @@ class VoiceAssistantProvider extends ChangeNotifier {
           ? 'مائیکروفون یا speech recognition دستیاب نہیں ہے۔'
           : 'Microphone or speech recognition is not available.';
       notifyListeners();
+      return;
     }
+
+    debugPrint('VOICE: listening session started successfully');
   }
 
   // =========================================================
   // STOP LISTENING
   // =========================================================
 
-Future<void> stopListening() async {
-  if (_state != VoiceAssistantState.listening) {
-    return;
-  }
+  Future<void> stopListening() async {
+    if (_state != VoiceAssistantState.listening) {
+      return;
+    }
 
-  final fallbackText =
-      await _voiceService.stopListening();
+    final fallbackText = await _voiceService.stopListening();
 
-  if (fallbackText == null ||
-      fallbackText.trim().isEmpty) {
-    return;
-  }
+    if (fallbackText == null || fallbackText.trim().isEmpty) {
+      return;
+    }
 
-  if (_requestSentForCurrentSpeech) {
+    if (_requestSentForCurrentSpeech) {
+      debugPrint(
+        'AI REQUEST ALREADY SENT. FALLBACK IGNORED.',
+      );
+      return;
+    }
+
+    final trimmedText = fallbackText.trim();
+
+    if (trimmedText.isEmpty) {
+      return;
+    }
+
+    _requestSentForCurrentSpeech = true;
+
     debugPrint(
-      'AI REQUEST ALREADY SENT. FALLBACK IGNORED.',
+      'FALLBACK VOICE TEXT: $trimmedText',
     );
-    return;
+
+    await _sendToAI(
+      trimmedText,
+      currentScreen: _currentScreen,
+    );
   }
-
-  final trimmedText =
-      fallbackText.trim();
-
-  if (trimmedText.isEmpty) {
-    return;
-  }
-
-  _requestSentForCurrentSpeech = true;
-
-  debugPrint(
-    'FALLBACK VOICE TEXT: $trimmedText',
-  );
-
-  await _sendToAI(
-    trimmedText,
-    currentScreen: _currentScreen,
-  );
-}
 
   // =========================================================
   // SEND TO AI
   // =========================================================
 
   Future<void> _sendToAI(
-    String text, {
-    String? currentScreen,
-  }) async {
+      String text, {
+        String? currentScreen,
+      }) async {
     _state = VoiceAssistantState.processing;
     _error = null;
     notifyListeners();
@@ -255,7 +268,6 @@ Future<void> stopListening() async {
       // ─────────────────────────────────────────────────────────────
 
       // Update current screen from AI action
-      // Update current screen from AI action
       final target = response.action?['target']?.toString();
 
       if (target == 'add_crop') {
@@ -295,7 +307,6 @@ Future<void> stopListening() async {
       }
 
       // Handle AI action
-      // Handle AI action
       final actionType = response.action?['type']?.toString();
       final actionTarget = response.action?['target']?.toString();
 
@@ -308,33 +319,26 @@ Future<void> stopListening() async {
         return;
       }
 
-// ---------------------------------------------------------
-// Crop creation completed
-// ---------------------------------------------------------
-// Backend sends:
-// type   = navigate
-// target = my_crops
-//
-// Do NOT restart microphone after successful crop creation.
-// The crop creation conversation is complete.
-// ---------------------------------------------------------
-
       // ---------------------------------------------------------
-// Navigation action completed
-// Do NOT restart microphone after navigation.
-// The voice interaction has handed control to the
-// destination screen.
-// ---------------------------------------------------------
+      // Navigation action completed
+      // Reset recognized text and flags so the provider returns
+      // to a completely clean IDLE state for subsequent commands.
+      // ---------------------------------------------------------
 
       if (actionType == 'navigate' &&
           (actionTarget == 'my_crops' ||
-              actionTarget == 'chat')) {
+              actionTarget == 'chat' ||
+              actionTarget == 'profile' ||
+              actionTarget == 'inquiries' ||
+              actionTarget == 'add_crop')) {
         debugPrint(
-          'NAVIGATION COMPLETED: stopping voice conversation. '
-              'target=$actionTarget',
+          'NAVIGATION COMPLETED: target=$actionTarget',
         );
 
         await _voiceService.stopListening();
+
+        _recognizedText = '';
+        _requestSentForCurrentSpeech = false;
 
         _state = VoiceAssistantState.idle;
         notifyListeners();
@@ -342,17 +346,17 @@ Future<void> stopListening() async {
         return;
       }
 
-// ---------------------------------------------------------
-// Normal conversational auto-listening
-// ---------------------------------------------------------
+      // ---------------------------------------------------------
+      // Conversation completed.
+      // Do NOT automatically restart microphone.
+      // User must explicitly press the microphone button
+      // for the next command.
+      // ---------------------------------------------------------
 
+      await _voiceService.stopListening();
       _state = VoiceAssistantState.idle;
       notifyListeners();
-
-      await startListening(
-        language: _language,
-        currentScreen: _currentScreen,
-      );
+      return;
     } catch (e) {
       debugPrint('AI VOICE ERROR: $e');
       _state = VoiceAssistantState.error;
@@ -360,7 +364,6 @@ Future<void> stopListening() async {
       notifyListeners();
     }
   }
-
 
   // =========================================================
   // SPEAK LOCAL MESSAGE

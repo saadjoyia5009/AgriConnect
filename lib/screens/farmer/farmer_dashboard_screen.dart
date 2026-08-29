@@ -24,10 +24,30 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   final String _voiceText = "";
   bool _isNavigatingFromVoiceAction = false;
 
+  OverlayEntry? _voiceAssistantEntry;
+
   @override
   void initState() {
     super.initState();
     Future.microtask(_loadDashboardData);
+  }
+
+  @override
+  void dispose() {
+    _removeVoiceAssistant();
+
+    super.dispose();
+  }
+
+  void _removeVoiceAssistant() {
+    final entry = _voiceAssistantEntry;
+
+    if (entry == null) {
+      return;
+    }
+
+    _voiceAssistantEntry = null;
+    entry.remove();
   }
 
   Future<void> _loadDashboardData() async {
@@ -55,15 +75,58 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   }
 
   void _openVoiceAssistant() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+    if (_voiceAssistantEntry != null) {
+      debugPrint(
+        '[VOICE-OVERLAY] Assistant already visible.',
+      );
+      return;
+    }
+
+    final overlay = Overlay.of(
+      context,
+      rootOverlay: true,
+    );
+
+    _voiceAssistantEntry = OverlayEntry(
       builder: (context) {
-        return VoiceAssistantSheet(
-          onAction: _handleVoiceAction,
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _removeVoiceAssistant,
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Material(
+                color: Colors.transparent,
+                child: SafeArea(
+                  top: false,
+                  child: VoiceAssistantSheet(
+                    onAction: _handleVoiceAction,
+                    onMinimizedChanged: (minimized) {
+                      debugPrint(
+                        '[VOICE-OVERLAY] minimized=$minimized',
+                      );
+
+                      if (minimized) {
+                        _removeVoiceAssistant();
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
         );
       },
+    );
+
+    overlay.insert(_voiceAssistantEntry!);
+
+    debugPrint(
+      '[VOICE-OVERLAY] Persistent assistant inserted.',
     );
   }
 
@@ -101,6 +164,8 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
       'add_crop' => '/addCrop',
       'my_crops' => '/myCrops',
       'chat' => '/farmerChats',
+      'profile' => '/profile',
+      'inquiries' => '/farmerInquiries',
       _ => null,
     };
 
@@ -127,16 +192,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
         '[NAV-TRACE-10] >>> calling pushNamed("$routeName") NOW',
       );
 
-      final arguments = target == 'chat'
-          ? <String, dynamic>{
-        'openedByVoiceAssistant': true,
-      }
-          : null;
-
-      nav.pushNamed(
-        routeName,
-        arguments: arguments,
-      ).whenComplete(() {
+      nav.pushNamed(routeName).whenComplete(() {
         debugPrint(
           '[NAV-TRACE-10b] pushNamed("$routeName") whenComplete fired',
         );
