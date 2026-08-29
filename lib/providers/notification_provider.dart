@@ -1,93 +1,55 @@
 import 'package:flutter/material.dart';
+
 import '../models/notification_model.dart';
+import '../services/notification_service.dart';
 
 class NotificationProvider extends ChangeNotifier {
   String selectedFilter = "All";
 
-  final List<NotificationModel> _notifications = [
-    // Farmer Notifications
-    NotificationModel(
-      id: "1",
-      title: "New Inquiry Received",
-      message: "Ahmed wants to buy your Organic Wheat crop.",
-      type: "inquiry",
-      role: "farmer",
-      referenceId: "inq_101",
-      navigationType: "inquiry_detail",
-      time: "2 min ago",
-      isRead: false,
-    ),
+  final List<NotificationModel> _notifications = [];
 
-    NotificationModel(
-      id: "2",
-      title: "New Chat Message",
-      message: "Buyer sent: Can you supply 100kg this week?",
-      type: "chat",
-      role: "farmer",
-      referenceId: "chat_11",
-      navigationType: "chat",
-      time: "10 min ago",
-      isRead: false,
-    ),
+  bool _isLoading = false;
+  String? _errorMessage;
 
-    // Buyer Notifications
-    NotificationModel(
-      id: "3",
-      title: "Inquiry Accepted",
-      message: "Farmer accepted your inquiry for Premium Rice.",
-      type: "inquiry",
-      role: "buyer",
-      referenceId: "inq_102",
-      navigationType: "chat",
-      time: "5 min ago",
-      isRead: false,
-    ),
+  List<NotificationModel> get notifications =>
+      List.unmodifiable(_notifications);
 
-    NotificationModel(
-      id: "4",
-      title: "New Chat Message",
-      message: "Farmer: Yes, crop is available.",
-      type: "chat",
-      role: "buyer",
-      referenceId: "chat_22",
-      navigationType: "chat",
-      time: "12 min ago",
-      isRead: false,
-    ),
+  bool get isLoading => _isLoading;
 
-    NotificationModel(
-      id: "5",
-      title: "System Update",
-      message: "Your profile was updated successfully.",
-      type: "system",
-      role: "buyer",
-      referenceId: null,
-      navigationType: null,
-      time: "Yesterday",
-      isRead: true,
-    ),
-  ];
+  String? get errorMessage => _errorMessage;
 
   List<NotificationModel> getNotifications(String role) {
-    var data = _notifications.where((n) => n.role == role).toList();
+    // Backend already returns notifications only for the
+    // authenticated user, so role filtering is no longer needed.
+    //
+    // The role parameter is kept for compatibility with the
+    // existing Farmer/Buyer notification screen.
+    List<NotificationModel> data = List.from(_notifications);
 
     if (selectedFilter == "Unread") {
-      data = data.where((n) => !n.isRead).toList();
+      data = data.where((notification) => !notification.isRead).toList();
     }
 
     if (selectedFilter == "Inquiry") {
-      data = data.where((n) => n.type == "inquiry").toList();
+      data = data
+          .where((notification) => notification.type == "inquiry")
+          .toList();
     }
 
     if (selectedFilter == "Chat") {
-      data = data.where((n) => n.type == "chat").toList();
+      data = data
+          .where((notification) => notification.type == "chat")
+          .toList();
     }
 
     return data;
   }
 
   int unreadCount(String role) {
-    return _notifications.where((n) => n.role == role && !n.isRead).length;
+    // Same reason: backend scopes notifications to the logged-in user.
+    return _notifications
+        .where((notification) => !notification.isRead)
+        .length;
   }
 
   void changeFilter(String filter) {
@@ -95,36 +57,69 @@ class NotificationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void markAsRead(String id) {
-    final index = _notifications.indexWhere((n) => n.id == id);
+  Future<void> fetchNotifications() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
 
-    if (index != -1) {
-      _notifications[index].isRead = true;
+    try {
+      final fetchedNotifications =
+      await NotificationService.getNotifications();
+
+      _notifications
+        ..clear()
+        ..addAll(fetchedNotifications);
+
+      _errorMessage = null;
+    } catch (e) {
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }
 
-  void markAllAsRead(String role) {
-    for (final notification in _notifications) {
-      if (notification.role == role) {
-        notification.isRead = true;
-      }
-    }
+  Future<bool> markAsRead(String id) async {
+    try {
+      final updatedNotification =
+      await NotificationService.markAsRead(id);
 
-    notifyListeners();
+      final index = _notifications.indexWhere(
+            (notification) => notification.id == id,
+      );
+
+      if (index != -1) {
+        _notifications[index] = updatedNotification;
+      }
+
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
   }
 
-  Future<void> fetchNotifications() async {
-    // Future Backend API
+  Future<bool> markAllAsRead(String role) async {
+    try {
+      await NotificationService.markAllAsRead();
 
-    // final response =
-    // await NotificationService.getNotifications();
+      for (final notification in _notifications) {
+        notification.isRead = true;
+      }
 
-    // _notifications.clear();
-    // _notifications.addAll(
-    //   response.map((e) => NotificationModel.fromJson(e))
-    // );
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
+  }
 
+  void clearError() {
+    _errorMessage = null;
     notifyListeners();
   }
 }
