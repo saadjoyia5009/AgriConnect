@@ -2,8 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/notification_model.dart';
+import '../../models/inquiry_model.dart';
+import '../../models/buyer_inquiry_model.dart';
+import '../../models/chat_conversation_model.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/buyer_inquiry_provider.dart';
+import '../../providers/chat_provider.dart';
+import '../../providers/inquiry_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/notification_provider.dart';
+import '../buyer/buyer_inquiry_detail_screen.dart';
+import '../chat/chat_detail_screen.dart';
+import '../farmer/farmer_inquiry_detail_screen.dart';
 
 class NotificationScreen extends StatefulWidget {
   final String userRole;
@@ -171,18 +181,212 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
             if (!mounted) return;
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  _notificationTitle(notification, lang),
-                ),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: NotificationScreen.darkGreen,
-              ),
-            );
+            await _openNotification(context, notification);
           },
         );
       },
+    );
+  }
+
+  Future<void> _openNotification(
+      BuildContext context,
+      NotificationModel notification,
+      ) async {
+    final relatedId = notification.relatedId?.trim() ?? '';
+
+    if (relatedId.isEmpty) {
+      _showNotificationMessage(context, notification);
+      return;
+    }
+
+    try {
+      switch (notification.type) {
+        case 'inquiry':
+          await _openInquiryNotification(context, relatedId);
+          return;
+        case 'chat':
+          await _openChatNotification(context, relatedId);
+          return;
+        default:
+          _showNotificationMessage(context, notification);
+      }
+    } catch (error) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            error.toString().replaceFirst('Exception: ', ''),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<void> _openInquiryNotification(
+      BuildContext context,
+      String inquiryId,
+      ) async {
+    if (widget.userRole == 'farmer') {
+      final inquiry = await _getFarmerInquiry(context, inquiryId);
+
+      if (!context.mounted) return;
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => FarmerInquiryDetailScreen(
+            inquiryId: inquiry.id,
+          ),
+        ),
+      );
+      return;
+    }
+
+    final inquiry = await _getBuyerInquiry(context, inquiryId);
+
+    if (!context.mounted) return;
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BuyerInquiryDetailScreen(
+          inquiry: inquiry,
+        ),
+      ),
+    );
+  }
+
+  Future<InquiryModel> _getFarmerInquiry(
+      BuildContext context,
+      String inquiryId,
+      ) async {
+    final provider = context.read<InquiryProvider>();
+
+    InquiryModel? inquiry = provider.getInquiryById(inquiryId);
+
+    if (inquiry == null) {
+      await provider.fetchFarmerInquiries();
+      inquiry = provider.getInquiryById(inquiryId);
+    }
+
+    if (inquiry == null) {
+      throw Exception('Inquiry not found.');
+    }
+
+    return inquiry;
+  }
+
+  Future<BuyerInquiryModel> _getBuyerInquiry(
+      BuildContext context,
+      String inquiryId,
+      ) async {
+    final provider = context.read<BuyerInquiryProvider>();
+
+    BuyerInquiryModel? inquiry = provider.getInquiryById(inquiryId);
+
+    if (inquiry == null) {
+      await provider.fetchBuyerInquiries();
+      inquiry = provider.getInquiryById(inquiryId);
+    }
+
+    if (inquiry == null) {
+      throw Exception('Inquiry not found.');
+    }
+
+    return inquiry;
+  }
+
+  Future<void> _openChatNotification(
+      BuildContext context,
+      String conversationId,
+      ) async {
+    final conversation = await _getConversation(context, conversationId);
+
+    if (!context.mounted) return;
+
+    final currentUserId =
+        context.read<AuthProvider>().userId?.toString() ?? '';
+
+    if (currentUserId.isEmpty) {
+      throw Exception('Login information not found.');
+    }
+
+    final isBuyer = currentUserId == conversation.buyerId;
+
+    final otherUserId = isBuyer
+        ? conversation.farmerId
+        : conversation.buyerId;
+
+    final otherUserName = isBuyer
+        ? conversation.farmerName
+        : conversation.buyerName;
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChatDetailScreen(
+          conversationId: conversation.id,
+          inquiryId: conversation.inquiryId,
+          currentUserId: currentUserId,
+          otherUserId: otherUserId,
+          otherUserName: otherUserName,
+          cropName: conversation.cropName,
+          cropImageUrl: conversation.cropImage,
+          status: conversation.inquiryStatus,
+        ),
+      ),
+    );
+  }
+
+  Future<ChatConversationModel> _getConversation(
+      BuildContext context,
+      String conversationId,
+      ) async {
+    final provider = context.read<ChatProvider>();
+
+    ChatConversationModel? conversation;
+
+    for (final item in provider.conversations) {
+      if (item.id == conversationId) {
+        conversation = item;
+        break;
+      }
+    }
+
+    if (conversation == null) {
+      await provider.fetchConversations(showLoading: false);
+
+      for (final item in provider.conversations) {
+        if (item.id == conversationId) {
+          conversation = item;
+          break;
+        }
+      }
+    }
+
+    if (conversation == null) {
+      throw Exception('Conversation not found.');
+    }
+
+    return conversation;
+  }
+
+  void _showNotificationMessage(
+      BuildContext context,
+      NotificationModel notification,
+      ) {
+    final lang = context.read<LanguageProvider>();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _notificationTitle(notification, lang),
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: NotificationScreen.darkGreen,
+      ),
     );
   }
 
@@ -769,3 +973,4 @@ class _ErrorNotificationView extends StatelessWidget {
     );
   }
 }
+

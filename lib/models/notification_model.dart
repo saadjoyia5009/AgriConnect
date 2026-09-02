@@ -6,6 +6,9 @@ class NotificationModel {
   // inquiry, chat, system
   final String type;
 
+  // Inquiry ID or Conversation ID.
+  final String? relatedId;
+
   final String time;
   bool isRead;
 
@@ -14,6 +17,7 @@ class NotificationModel {
     required this.title,
     required this.message,
     required this.type,
+    this.relatedId,
     required this.time,
     required this.isRead,
   });
@@ -24,6 +28,7 @@ class NotificationModel {
       title: json['title']?.toString() ?? '',
       message: json['message']?.toString() ?? '',
       type: json['notification_type']?.toString() ?? 'system',
+      relatedId: json['related_id']?.toString(),
       time: json['created_at']?.toString() ?? '',
       isRead: json['is_read'] == true,
     );
@@ -35,6 +40,7 @@ class NotificationModel {
       'title': title,
       'message': message,
       'notification_type': type,
+      'related_id': relatedId,
       'created_at': time,
       'is_read': isRead,
     };

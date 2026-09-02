@@ -19,11 +19,6 @@ class NotificationProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   List<NotificationModel> getNotifications(String role) {
-    // Backend already returns notifications only for the
-    // authenticated user, so role filtering is no longer needed.
-    //
-    // The role parameter is kept for compatibility with the
-    // existing Farmer/Buyer notification screen.
     List<NotificationModel> data = List.from(_notifications);
 
     if (selectedFilter == "Unread") {
@@ -46,13 +41,12 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   int unreadCount(String role) {
-    // Same reason: backend scopes notifications to the logged-in user.
-    return _notifications
-        .where((notification) => !notification.isRead)
-        .length;
+    return _notifications.where((notification) => !notification.isRead).length;
   }
 
   void changeFilter(String filter) {
+    if (selectedFilter == filter) return;
+
     selectedFilter = filter;
     notifyListeners();
   }
